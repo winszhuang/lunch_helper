@@ -21,4 +21,4 @@ LIMIT $3 OFFSET $4;
 
 -- name: GetFeedbackByStatus :many
 SELECT *
-FROM feedback
+FROM feedback;
