@@ -2,7 +2,7 @@ DROP TABLE Feedback;
 DROP INDEX IF EXISTS idx_feedback_status;
 DROP INDEX IF EXISTS idx_feedback_created_at;
 
-DROP TABLE OperateRecord;
+DROP TABLE Operate_Record;
 DROP INDEX IF EXISTS idx_operate_record_user_id;
 DROP INDEX IF EXISTS idx_operate_record_update_at;
 

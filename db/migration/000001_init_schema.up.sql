@@ -77,8 +77,8 @@ CREATE TABLE Operate_Record (
     FOREIGN KEY (food_id) REFERENCES Food(id)
 );
 
-CREATE INDEX idx_operate_record_user_id ON OperateRecord(user_id);
-CREATE INDEX idx_operate_record_update_at ON OperateRecord(update_at);
+CREATE INDEX idx_operate_record_user_id ON Operate_Record(user_id);
+CREATE INDEX idx_operate_record_update_at ON Operate_Record(update_at);
 
 CREATE TABLE Feedback (
     id SERIAL PRIMARY KEY,
