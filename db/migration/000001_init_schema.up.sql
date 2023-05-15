@@ -65,7 +65,7 @@ CREATE TABLE User_Food (
 CREATE INDEX idx_user_food_user_id ON User_Food(user_id);
 CREATE INDEX idx_user_food_food_id ON User_Food(food_id);
 
-CREATE TABLE OperateRecord (
+CREATE TABLE Operate_Record (
     id SERIAL PRIMARY KEY,
     user_id INTEGER,
     food_id INTEGER,
