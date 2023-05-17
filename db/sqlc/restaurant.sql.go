@@ -8,6 +8,8 @@ package db
 import (
 	"context"
 	"database/sql"
+
+	"github.com/shopspring/decimal"
 )
 
 const createRestaurant = `-- name: CreateRestaurant :one
@@ -26,13 +28,13 @@ RETURNING id, name, rating, user_ratings_total, address, google_map_place_id, go
 `
 
 type CreateRestaurantParams struct {
-	Name             string         `json:"name"`
-	Rating           sql.NullString `json:"rating"`
-	UserRatingsTotal sql.NullInt32  `json:"user_ratings_total"`
-	Address          string         `json:"address"`
-	GoogleMapPlaceID string         `json:"google_map_place_id"`
-	GoogleMapUrl     string         `json:"google_map_url"`
-	PhoneNumber      string         `json:"phone_number"`
+	Name             string          `json:"name"`
+	Rating           decimal.Decimal `json:"rating"`
+	UserRatingsTotal sql.NullInt32   `json:"user_ratings_total"`
+	Address          string          `json:"address"`
+	GoogleMapPlaceID string          `json:"google_map_place_id"`
+	GoogleMapUrl     string          `json:"google_map_url"`
+	PhoneNumber      string          `json:"phone_number"`
 }
 
 func (q *Queries) CreateRestaurant(ctx context.Context, arg CreateRestaurantParams) (Restaurant, error) {

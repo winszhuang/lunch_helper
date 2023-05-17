@@ -8,6 +8,8 @@ package db
 import (
 	"context"
 	"database/sql"
+
+	"github.com/shopspring/decimal"
 )
 
 const createUserRestaurant = `-- name: CreateUserRestaurant :one
@@ -55,16 +57,16 @@ WHERE user_restaurant.user_id = $1
 `
 
 type GetUserRestaurantsRow struct {
-	ID               int32          `json:"id"`
-	Name             string         `json:"name"`
-	Rating           sql.NullString `json:"rating"`
-	UserRatingsTotal sql.NullInt32  `json:"user_ratings_total"`
-	Address          string         `json:"address"`
-	GoogleMapPlaceID string         `json:"google_map_place_id"`
-	GoogleMapUrl     string         `json:"google_map_url"`
-	PhoneNumber      string         `json:"phone_number"`
-	UserID           int32          `json:"user_id"`
-	RestaurantID     int32          `json:"restaurant_id"`
+	ID               int32           `json:"id"`
+	Name             string          `json:"name"`
+	Rating           decimal.Decimal `json:"rating"`
+	UserRatingsTotal sql.NullInt32   `json:"user_ratings_total"`
+	Address          string          `json:"address"`
+	GoogleMapPlaceID string          `json:"google_map_place_id"`
+	GoogleMapUrl     string          `json:"google_map_url"`
+	PhoneNumber      string          `json:"phone_number"`
+	UserID           int32           `json:"user_id"`
+	RestaurantID     int32           `json:"restaurant_id"`
 }
 
 func (q *Queries) GetUserRestaurants(ctx context.Context, userID int32) ([]GetUserRestaurantsRow, error) {

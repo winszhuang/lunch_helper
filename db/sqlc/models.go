@@ -7,6 +7,8 @@ package db
 import (
 	"database/sql"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type Feedback struct {
@@ -40,14 +42,14 @@ type OperateRecord struct {
 }
 
 type Restaurant struct {
-	ID               int32          `json:"id"`
-	Name             string         `json:"name"`
-	Rating           sql.NullString `json:"rating"`
-	UserRatingsTotal sql.NullInt32  `json:"user_ratings_total"`
-	Address          string         `json:"address"`
-	GoogleMapPlaceID string         `json:"google_map_place_id"`
-	GoogleMapUrl     string         `json:"google_map_url"`
-	PhoneNumber      string         `json:"phone_number"`
+	ID               int32           `json:"id"`
+	Name             string          `json:"name"`
+	Rating           decimal.Decimal `json:"rating"`
+	UserRatingsTotal sql.NullInt32   `json:"user_ratings_total"`
+	Address          string          `json:"address"`
+	GoogleMapPlaceID string          `json:"google_map_place_id"`
+	GoogleMapUrl     string          `json:"google_map_url"`
+	PhoneNumber      string          `json:"phone_number"`
 }
 
 type Role struct {
