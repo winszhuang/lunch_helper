@@ -56,13 +56,13 @@ WHERE user_restaurant.user_id = $1
 
 type GetUserRestaurantsRow struct {
 	ID               int32          `json:"id"`
-	Name             sql.NullString `json:"name"`
+	Name             string         `json:"name"`
 	Rating           sql.NullString `json:"rating"`
 	UserRatingsTotal sql.NullInt32  `json:"user_ratings_total"`
-	Address          sql.NullString `json:"address"`
-	GoogleMapPlaceID sql.NullString `json:"google_map_place_id"`
-	GoogleMapUrl     sql.NullString `json:"google_map_url"`
-	PhoneNumber      sql.NullString `json:"phone_number"`
+	Address          string         `json:"address"`
+	GoogleMapPlaceID string         `json:"google_map_place_id"`
+	GoogleMapUrl     string         `json:"google_map_url"`
+	PhoneNumber      string         `json:"phone_number"`
 	UserID           int32          `json:"user_id"`
 	RestaurantID     int32          `json:"restaurant_id"`
 }

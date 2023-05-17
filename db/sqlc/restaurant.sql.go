@@ -26,13 +26,13 @@ RETURNING id, name, rating, user_ratings_total, address, google_map_place_id, go
 `
 
 type CreateRestaurantParams struct {
-	Name             sql.NullString `json:"name"`
+	Name             string         `json:"name"`
 	Rating           sql.NullString `json:"rating"`
 	UserRatingsTotal sql.NullInt32  `json:"user_ratings_total"`
-	Address          sql.NullString `json:"address"`
-	GoogleMapPlaceID sql.NullString `json:"google_map_place_id"`
-	GoogleMapUrl     sql.NullString `json:"google_map_url"`
-	PhoneNumber      sql.NullString `json:"phone_number"`
+	Address          string         `json:"address"`
+	GoogleMapPlaceID string         `json:"google_map_place_id"`
+	GoogleMapUrl     string         `json:"google_map_url"`
+	PhoneNumber      string         `json:"phone_number"`
 }
 
 func (q *Queries) CreateRestaurant(ctx context.Context, arg CreateRestaurantParams) (Restaurant, error) {

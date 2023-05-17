@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createOperateRecord = `-- name: CreateOperateRecord :one
@@ -24,11 +25,11 @@ RETURNING id, user_id, food_id, before, after, update_at, operate_category
 `
 
 type CreateOperateRecordParams struct {
-	UserID          sql.NullInt32  `json:"user_id"`
-	FoodID          sql.NullInt32  `json:"food_id"`
+	UserID          int32          `json:"user_id"`
+	FoodID          int32          `json:"food_id"`
 	Before          sql.NullString `json:"before"`
 	After           sql.NullString `json:"after"`
-	OperateCategory sql.NullInt16  `json:"operate_category"`
+	OperateCategory int16          `json:"operate_category"`
 }
 
 func (q *Queries) CreateOperateRecord(ctx context.Context, arg CreateOperateRecordParams) (OperateRecord, error) {
@@ -102,10 +103,10 @@ LIMIT $3 OFFSET $4
 `
 
 type GetOperateRecordsByDateRangeParams struct {
-	UpdateAt   sql.NullTime `json:"update_at"`
-	UpdateAt_2 sql.NullTime `json:"update_at_2"`
-	Limit      int32        `json:"limit"`
-	Offset     int32        `json:"offset"`
+	UpdateAt   time.Time `json:"update_at"`
+	UpdateAt_2 time.Time `json:"update_at_2"`
+	Limit      int32     `json:"limit"`
+	Offset     int32     `json:"offset"`
 }
 
 func (q *Queries) GetOperateRecordsByDateRange(ctx context.Context, arg GetOperateRecordsByDateRangeParams) ([]OperateRecord, error) {
@@ -152,9 +153,9 @@ LIMIT $2 OFFSET $3
 `
 
 type GetOperateRecordsByUserIDParams struct {
-	UserID sql.NullInt32 `json:"user_id"`
-	Limit  int32         `json:"limit"`
-	Offset int32         `json:"offset"`
+	UserID int32 `json:"user_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) GetOperateRecordsByUserID(ctx context.Context, arg GetOperateRecordsByUserIDParams) ([]OperateRecord, error) {

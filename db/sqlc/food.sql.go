@@ -25,11 +25,11 @@ RETURNING id, name, price, image, description, restaurant_id, version, edit_by
 `
 
 type CreateFoodParams struct {
-	Name         sql.NullString `json:"name"`
-	Price        sql.NullString `json:"price"`
+	Name         string         `json:"name"`
+	Price        string         `json:"price"`
 	Image        sql.NullString `json:"image"`
 	Description  sql.NullString `json:"description"`
-	RestaurantID sql.NullInt32  `json:"restaurant_id"`
+	RestaurantID int32          `json:"restaurant_id"`
 	EditBy       sql.NullInt32  `json:"edit_by"`
 }
 
@@ -73,8 +73,8 @@ WHERE id = $5
 `
 
 type UpdateFoodParams struct {
-	Name   sql.NullString `json:"name"`
-	Price  sql.NullString `json:"price"`
+	Name   string         `json:"name"`
+	Price  string         `json:"price"`
 	Image  sql.NullString `json:"image"`
 	EditBy sql.NullInt32  `json:"edit_by"`
 	ID     int32          `json:"id"`

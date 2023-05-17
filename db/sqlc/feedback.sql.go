@@ -7,7 +7,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
+	"time"
 )
 
 const createFeedback = `-- name: CreateFeedback :one
@@ -22,9 +22,9 @@ RETURNING id, user_id, food_id, edit_by, created_at, status
 `
 
 type CreateFeedbackParams struct {
-	UserID sql.NullInt32 `json:"user_id"`
-	FoodID sql.NullInt32 `json:"food_id"`
-	EditBy sql.NullInt32 `json:"edit_by"`
+	UserID int32 `json:"user_id"`
+	FoodID int32 `json:"food_id"`
+	EditBy int32 `json:"edit_by"`
 }
 
 func (q *Queries) CreateFeedback(ctx context.Context, arg CreateFeedbackParams) (Feedback, error) {
@@ -90,10 +90,10 @@ LIMIT $3 OFFSET $4
 `
 
 type GetFeedbackByDateRangeParams struct {
-	CreatedAt   sql.NullTime `json:"created_at"`
-	CreatedAt_2 sql.NullTime `json:"created_at_2"`
-	Limit       int32        `json:"limit"`
-	Offset      int32        `json:"offset"`
+	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt_2 time.Time `json:"created_at_2"`
+	Limit       int32     `json:"limit"`
+	Offset      int32     `json:"offset"`
 }
 
 func (q *Queries) GetFeedbackByDateRange(ctx context.Context, arg GetFeedbackByDateRangeParams) ([]Feedback, error) {

@@ -6,62 +6,63 @@ package db
 
 import (
 	"database/sql"
+	"time"
 )
 
 type Feedback struct {
-	ID        int32          `json:"id"`
-	UserID    sql.NullInt32  `json:"user_id"`
-	FoodID    sql.NullInt32  `json:"food_id"`
-	EditBy    sql.NullInt32  `json:"edit_by"`
-	CreatedAt sql.NullTime   `json:"created_at"`
-	Status    sql.NullString `json:"status"`
+	ID        int32     `json:"id"`
+	UserID    int32     `json:"user_id"`
+	FoodID    int32     `json:"food_id"`
+	EditBy    int32     `json:"edit_by"`
+	CreatedAt time.Time `json:"created_at"`
+	Status    string    `json:"status"`
 }
 
 type Food struct {
 	ID           int32          `json:"id"`
-	Name         sql.NullString `json:"name"`
-	Price        sql.NullString `json:"price"`
+	Name         string         `json:"name"`
+	Price        string         `json:"price"`
 	Image        sql.NullString `json:"image"`
 	Description  sql.NullString `json:"description"`
-	RestaurantID sql.NullInt32  `json:"restaurant_id"`
-	Version      sql.NullInt16  `json:"version"`
+	RestaurantID int32          `json:"restaurant_id"`
+	Version      int16          `json:"version"`
 	EditBy       sql.NullInt32  `json:"edit_by"`
 }
 
 type OperateRecord struct {
 	ID              int32          `json:"id"`
-	UserID          sql.NullInt32  `json:"user_id"`
-	FoodID          sql.NullInt32  `json:"food_id"`
+	UserID          int32          `json:"user_id"`
+	FoodID          int32          `json:"food_id"`
 	Before          sql.NullString `json:"before"`
 	After           sql.NullString `json:"after"`
-	UpdateAt        sql.NullTime   `json:"update_at"`
-	OperateCategory sql.NullInt16  `json:"operate_category"`
+	UpdateAt        time.Time      `json:"update_at"`
+	OperateCategory int16          `json:"operate_category"`
 }
 
 type Restaurant struct {
 	ID               int32          `json:"id"`
-	Name             sql.NullString `json:"name"`
+	Name             string         `json:"name"`
 	Rating           sql.NullString `json:"rating"`
 	UserRatingsTotal sql.NullInt32  `json:"user_ratings_total"`
-	Address          sql.NullString `json:"address"`
-	GoogleMapPlaceID sql.NullString `json:"google_map_place_id"`
-	GoogleMapUrl     sql.NullString `json:"google_map_url"`
-	PhoneNumber      sql.NullString `json:"phone_number"`
+	Address          string         `json:"address"`
+	GoogleMapPlaceID string         `json:"google_map_place_id"`
+	GoogleMapUrl     string         `json:"google_map_url"`
+	PhoneNumber      string         `json:"phone_number"`
 }
 
 type Role struct {
 	ID          int32          `json:"id"`
-	Name        sql.NullString `json:"name"`
+	Name        string         `json:"name"`
 	Description sql.NullString `json:"description"`
 }
 
 type User struct {
-	ID                     int32         `json:"id"`
-	LineID                 string        `json:"line_id"`
-	Name                   string        `json:"name"`
-	Picture                string        `json:"picture"`
-	GoogleMapsApiCallCount sql.NullInt16 `json:"google_maps_api_call_count"`
-	RoleID                 sql.NullInt32 `json:"role_id"`
+	ID                     int32  `json:"id"`
+	LineID                 string `json:"line_id"`
+	Name                   string `json:"name"`
+	Picture                string `json:"picture"`
+	GoogleMapsApiCallCount int16  `json:"google_maps_api_call_count"`
+	RoleID                 int32  `json:"role_id"`
 }
 
 type UserFood struct {
