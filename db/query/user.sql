@@ -13,6 +13,11 @@ SELECT *
 FROM "user"
 WHERE id = $1;
 
+-- name: GetUserByLineID :one
+SELECT *
+FROM "user"
+WHERE line_id = $1;
+
 -- name: GetUsers :many
 SELECT *
 FROM "user"

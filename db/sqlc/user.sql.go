@@ -60,6 +60,26 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
 	return i, err
 }
 
+const getUserByLineID = `-- name: GetUserByLineID :one
+SELECT id, line_id, name, picture, google_maps_api_call_count, role_id
+FROM "user"
+WHERE line_id = $1
+`
+
+func (q *Queries) GetUserByLineID(ctx context.Context, lineID string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByLineID, lineID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.LineID,
+		&i.Name,
+		&i.Picture,
+		&i.GoogleMapsApiCallCount,
+		&i.RoleID,
+	)
+	return i, err
+}
+
 const getUsers = `-- name: GetUsers :many
 SELECT id, line_id, name, picture, google_maps_api_call_count, role_id
 FROM "user"

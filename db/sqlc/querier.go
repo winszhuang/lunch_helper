@@ -26,6 +26,7 @@ type Querier interface {
 	GetOperateRecordsByDateRange(ctx context.Context, arg GetOperateRecordsByDateRangeParams) ([]OperateRecord, error)
 	GetOperateRecordsByUserID(ctx context.Context, arg GetOperateRecordsByUserIDParams) ([]OperateRecord, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
+	GetUserByLineID(ctx context.Context, lineID string) (User, error)
 	GetUserRestaurants(ctx context.Context, userID int32) ([]GetUserRestaurantsRow, error)
 	GetUsers(ctx context.Context, arg GetUsersParams) ([]User, error)
 	UpdateFood(ctx context.Context, arg UpdateFoodParams) error

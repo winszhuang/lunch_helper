@@ -97,6 +97,7 @@ func TestQueries_GetUsers(t *testing.T) {
 			Offset: 0,
 		})
 		assert.NoError(t, err)
+		assert.NotNil(t, result)
 		assert.Equal(t, currentUsers, result)
 
 		if err := testMock.ExpectationsWereMet(); err != nil {
@@ -116,6 +117,7 @@ func TestQueries_GetUsers(t *testing.T) {
 			Offset: 40,
 		})
 		assert.NoError(t, err)
+		assert.NotNil(t, result)
 		assert.Equal(t, currentUsers, result)
 
 		if err := testMock.ExpectationsWereMet(); err != nil {
