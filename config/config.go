@@ -1,30 +1,21 @@
 package config
 
 import (
-	"os"
-
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	DBDriver      string `mapstructure:"DB_DRIVER"`
-	DBSource      string `mapstructure:"DB_SOURCE"`
-	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
+	ApiUrl                    string `mapstructure:"API_URL"`
+	DBDriver                  string `mapstructure:"DB_DRIVER"`
+	DBSource                  string `mapstructure:"DB_SOURCE"`
+	LineBotChannelSecret      string `mapstructure:"LINEBOT_CHANNEL_SECRET"`
+	LineBotChannelAccessToken string `mapstructure:"LINEBOT_CHANNEL_ACCESS_TOKEN"`
+	LineBotEndpoint           string `mapstructure:"LINEBOT_ENDPOINT"`
 }
 
-func New(path string) (config Config, err error) {
-	var configName string
-	switch os.Getenv("APP_ENV") {
-	case "test":
-		configName = "test"
-	case "dev":
-		configName = "dev"
-	case "prod":
-		configName = "prod"
-	}
-
+func New(path, env string) (config Config, err error) {
 	viper.AddConfigPath(path)
-	viper.SetConfigName(configName)
+	viper.SetConfigName(env)
 	viper.SetConfigType("env")
 
 	viper.AutomaticEnv()
