@@ -1,0 +1,1 @@
+DELETE FROM "public"."role" WHERE "id" IN (1, 2, 3);
