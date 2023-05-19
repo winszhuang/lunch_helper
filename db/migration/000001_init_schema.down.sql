@@ -21,5 +21,5 @@ DROP INDEX IF EXISTS idx_user_restaurant_restaurant_id;
 DROP TABLE Restaurant;
 
 DROP INDEX IF EXISTS idx_user_line_id;
-DROP TABLE "User";
+DROP TABLE "user";
 DROP TABLE Role;

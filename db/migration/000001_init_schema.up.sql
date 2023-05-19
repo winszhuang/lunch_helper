@@ -1,10 +1,10 @@
-CREATE TABLE Role (
+CREATE TABLE IF NOT EXISTS Role (
     id SERIAL PRIMARY KEY,
     name VARCHAR(30) NOT NULL,
     description TEXT
 );
 
-CREATE TABLE "user" (
+CREATE TABLE IF NOT EXISTS "user" (
     id SERIAL PRIMARY KEY,
     line_id VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(150) NOT NULL,
@@ -14,9 +14,9 @@ CREATE TABLE "user" (
     FOREIGN KEY (role_id) REFERENCES Role(id)
 );
 
-CREATE INDEX idx_user_line_id ON "user"(line_id);
+CREATE INDEX IF NOT EXISTS idx_user_line_id ON "user"(line_id);
 
-CREATE TABLE Restaurant (
+CREATE TABLE IF NOT EXISTS Restaurant (
     id SERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     rating DECIMAL(3,2),
@@ -27,7 +27,7 @@ CREATE TABLE Restaurant (
     phone_number VARCHAR(25) NOT NULL
 );
 
-CREATE TABLE User_Restaurant (
+CREATE TABLE IF NOT EXISTS User_Restaurant (
     user_id INTEGER NOT NULL,
     restaurant_id INTEGER NOT NULL,
     PRIMARY KEY(user_id, restaurant_id),
@@ -35,10 +35,10 @@ CREATE TABLE User_Restaurant (
     FOREIGN KEY (restaurant_id) REFERENCES Restaurant(id)
 );
 
-CREATE INDEX idx_user_restaurant_user_id ON User_Restaurant(user_id);
-CREATE INDEX idx_user_restaurant_restaurant_id ON User_Restaurant(restaurant_id);
+CREATE INDEX IF NOT EXISTS idx_user_restaurant_user_id ON User_Restaurant(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_restaurant_restaurant_id ON User_Restaurant(restaurant_id);
 
-CREATE TABLE Food (
+CREATE TABLE IF NOT EXISTS Food (
     id SERIAL PRIMARY KEY,
     name VARCHAR(75) NOT NULL,
     price DECIMAL(5,2) NOT NULL,
@@ -51,10 +51,10 @@ CREATE TABLE Food (
     FOREIGN KEY (edit_by) REFERENCES "user"(id)
 );
 
-CREATE INDEX idx_food_restaurant_id ON Food(restaurant_id);
-CREATE INDEX idx_food_edit_by ON Food(edit_by);
+CREATE INDEX IF NOT EXISTS idx_food_restaurant_id ON Food(restaurant_id);
+CREATE INDEX IF NOT EXISTS idx_food_edit_by ON Food(edit_by);
 
-CREATE TABLE User_Food (
+CREATE TABLE IF NOT EXISTS User_Food (
     user_id INTEGER NOT NULL,
     food_id INTEGER NOT NULL,
     PRIMARY KEY(user_id, food_id),
@@ -62,10 +62,10 @@ CREATE TABLE User_Food (
     FOREIGN KEY (food_id) REFERENCES Food(id)
 );
 
-CREATE INDEX idx_user_food_user_id ON User_Food(user_id);
-CREATE INDEX idx_user_food_food_id ON User_Food(food_id);
+CREATE INDEX IF NOT EXISTS idx_user_food_user_id ON User_Food(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_food_food_id ON User_Food(food_id);
 
-CREATE TABLE Operate_Record (
+CREATE TABLE IF NOT EXISTS Operate_Record (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     food_id INTEGER NOT NULL,
@@ -77,10 +77,10 @@ CREATE TABLE Operate_Record (
     FOREIGN KEY (food_id) REFERENCES Food(id)
 );
 
-CREATE INDEX idx_operate_record_user_id ON Operate_Record(user_id);
-CREATE INDEX idx_operate_record_update_at ON Operate_Record(update_at);
+CREATE INDEX IF NOT EXISTS idx_operate_record_user_id ON Operate_Record(user_id);
+CREATE INDEX IF NOT EXISTS idx_operate_record_update_at ON Operate_Record(update_at);
 
-CREATE TABLE Feedback (
+CREATE TABLE IF NOT EXISTS Feedback (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     food_id INTEGER NOT NULL,
@@ -92,5 +92,5 @@ CREATE TABLE Feedback (
     FOREIGN KEY (edit_by) REFERENCES "user"(id)
 );
 
-CREATE INDEX idx_feedback_created_at ON Feedback (created_at);
-CREATE INDEX idx_feedback_status ON Feedback ("status");
+CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON Feedback (created_at);
+CREATE INDEX IF NOT EXISTS idx_feedback_status ON Feedback ("status");
