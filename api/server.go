@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"lunch_helper/bot"
 	db "lunch_helper/db/sqlc"
 	"net/http"
@@ -19,6 +20,7 @@ type Server struct {
 func NewServer(store db.Store, bot *bot.BotClient) *Server {
 	server := &Server{store: store, bot: bot}
 	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
 
 	router.POST("/callback", func(c *gin.Context) {
 		events, err := bot.ParseRequest(c.Request)
@@ -29,8 +31,13 @@ func NewServer(store db.Store, bot *bot.BotClient) *Server {
 
 		for _, event := range events {
 			switch event.Type {
-			case linebot.EventTypeJoin:
+			// 使用者加 Line Bot 好友時觸發
+			case linebot.EventTypeFollow:
+				log.Printf("user %s EventTypeFollow", event.Source.UserID)
 				server.RegisterUser(c, event)
+			// 使用者刪除 Line Bot 好友時觸發
+			case linebot.EventTypeUnfollow:
+				log.Printf("user %s EventTypeUnfollow", event.Source.UserID)
 			case linebot.EventTypeMessage:
 				switch messageData := event.Message.(type) {
 				case *linebot.LocationMessage:
@@ -38,6 +45,7 @@ func NewServer(store db.Store, bot *bot.BotClient) *Server {
 				case *linebot.TextMessage:
 					message := strings.TrimSpace(messageData.Text)
 					bot.SendText(event.ReplyToken, message)
+					log.Println("-----------------------")
 					// if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
 					// 	c.AbortWithStatus(http.StatusInternalServerError)
 					// 	return
