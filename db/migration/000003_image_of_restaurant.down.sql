@@ -1,0 +1,2 @@
+ALTER TABLE Restaurant
+DROP COLUMN image;

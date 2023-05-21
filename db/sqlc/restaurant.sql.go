@@ -24,7 +24,7 @@ INSERT INTO restaurant (
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7
 )
-RETURNING id, name, rating, user_ratings_total, address, google_map_place_id, google_map_url, phone_number
+RETURNING id, name, rating, user_ratings_total, address, google_map_place_id, google_map_url, phone_number, image
 `
 
 type CreateRestaurantParams struct {
@@ -57,6 +57,7 @@ func (q *Queries) CreateRestaurant(ctx context.Context, arg CreateRestaurantPara
 		&i.GoogleMapPlaceID,
 		&i.GoogleMapUrl,
 		&i.PhoneNumber,
+		&i.Image,
 	)
 	return i, err
 }
