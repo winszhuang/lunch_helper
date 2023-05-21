@@ -11,6 +11,7 @@ type Config struct {
 	LineBotChannelSecret      string `mapstructure:"LINEBOT_CHANNEL_SECRET"`
 	LineBotChannelAccessToken string `mapstructure:"LINEBOT_CHANNEL_ACCESS_TOKEN"`
 	LineBotEndpoint           string `mapstructure:"LINEBOT_ENDPOINT"`
+	GoogleMapApiKey           string `mapstructure:"GOOGLE_MAP_API_KEY"`
 }
 
 func New(path, env string) (config Config, err error) {

@@ -6,8 +6,10 @@ import (
 	"log"
 	"lunch_helper/api"
 	"lunch_helper/bot"
+	"lunch_helper/cache"
 	"lunch_helper/config"
 	db "lunch_helper/db/sqlc"
+	"lunch_helper/thirdparty"
 )
 
 var (
@@ -24,29 +26,45 @@ func main() {
 	// load config
 	config, err := config.New(".", appEnv)
 	if err != nil {
-		log.Fatal("cannot load config:", err)
+		log.Fatalf("cannot load config: %v", err)
 	}
 
 	// load db
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
-		log.Fatal("cannot connect to db:", err)
+		log.Fatalf("cannot connect to db: %v", err)
 	}
 
 	// load linebot client
 	bc, err := bot.NewBotClient(config.LineBotChannelSecret, config.LineBotChannelAccessToken)
 	if err != nil {
-		log.Fatal("init linebot client error: ", err)
+		log.Fatalf("init linebot client error: %v", err)
 	}
 	// set linebot webhook url
 	err = bc.SetWebHookUrl(config.ApiUrl, config.LineBotEndpoint)
 	if err != nil {
-		log.Fatal("setting linebot webhook url error: ", err)
+		log.Fatalf("setting linebot webhook url error: %v", err)
+	}
+
+	// init user input cache and nearby place cache
+	messageCache := cache.NewMessageCache()
+	nearByCache := cache.NewNearByRestaurantCache()
+
+	// init place api
+	placeApi, err := thirdparty.NewGoogleMapPlaceApi(config.GoogleMapApiKey)
+	if err != nil {
+		log.Fatalf("init google map api error: %v", err)
 	}
 
 	// run server
 	store := db.NewStore(conn)
-	server := api.NewServer(store, bc)
+	server := api.NewServer(
+		store,
+		bc,
+		&placeApi,
+		messageCache,
+		nearByCache,
+	)
 
 	server.Start(port)
 }

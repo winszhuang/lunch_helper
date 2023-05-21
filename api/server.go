@@ -3,7 +3,9 @@ package api
 import (
 	"log"
 	"lunch_helper/bot"
+	"lunch_helper/cache"
 	db "lunch_helper/db/sqlc"
+	"lunch_helper/thirdparty"
 	"net/http"
 	"strings"
 
@@ -12,13 +14,22 @@ import (
 )
 
 type Server struct {
-	store  db.Store
-	router *gin.Engine
-	bot    *bot.BotClient
+	store        db.Store
+	router       *gin.Engine
+	bot          *bot.BotClient
+	placeApi     thirdparty.PlaceApi
+	messageCache *cache.MessageCache
+	nearByCache  *cache.NearByRestaurantCache
 }
 
-func NewServer(store db.Store, bot *bot.BotClient) *Server {
-	server := &Server{store: store, bot: bot}
+func NewServer(
+	store db.Store,
+	bot *bot.BotClient,
+	placeApi thirdparty.PlaceApi,
+	messageCache *cache.MessageCache,
+	nearByCache *cache.NearByRestaurantCache,
+) *Server {
+	server := &Server{store: store, bot: bot, placeApi: placeApi, messageCache: messageCache, nearByCache: nearByCache}
 	router := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
 
@@ -31,17 +42,15 @@ func NewServer(store db.Store, bot *bot.BotClient) *Server {
 
 		for _, event := range events {
 			switch event.Type {
-			// 使用者加 Line Bot 好友時觸發
 			case linebot.EventTypeFollow:
 				log.Printf("user %s EventTypeFollow", event.Source.UserID)
 				server.RegisterUser(c, event)
-			// 使用者刪除 Line Bot 好友時觸發
 			case linebot.EventTypeUnfollow:
 				log.Printf("user %s EventTypeUnfollow", event.Source.UserID)
 			case linebot.EventTypeMessage:
 				switch messageData := event.Message.(type) {
 				case *linebot.LocationMessage:
-					c.JSON(http.StatusOK, gin.H{})
+					server.SearchRestaurantByLocation(c, event)
 				case *linebot.TextMessage:
 					message := strings.TrimSpace(messageData.Text)
 					bot.SendText(event.ReplyToken, message)
