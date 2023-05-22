@@ -4,24 +4,31 @@ import (
 	"errors"
 	"log"
 	"lunch_helper/util"
+	"net/http"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-type BotClient struct {
+type BotClient interface {
+	ParseRequest(r *http.Request) ([]*linebot.Event, error)
+	SendText(replyToken, text string)
+	SendFlex(replyToken string, altText string, flexContainer linebot.FlexContainer)
+}
+
+type LineBotClient struct {
 	*linebot.Client
 }
 
-func NewBotClient(channelSecret, channelToken string) (*BotClient, error) {
+func NewBotClient(channelSecret, channelToken string) (*LineBotClient, error) {
 	bot, err := linebot.New(channelSecret, channelToken)
 	if err != nil {
 		return nil, err
 	}
 
-	return &BotClient{bot}, nil
+	return &LineBotClient{bot}, nil
 }
 
-func (bc *BotClient) SetWebHookUrl(apiBaseUrl, endPoint string) error {
+func (bc *LineBotClient) SetWebHookUrl(apiBaseUrl, endPoint string) error {
 	url, err := util.BindUrl(apiBaseUrl, endPoint)
 	if err != nil {
 		return errors.New("bind url error: " + err.Error())
@@ -33,7 +40,7 @@ func (bc *BotClient) SetWebHookUrl(apiBaseUrl, endPoint string) error {
 	return nil
 }
 
-func (bc *BotClient) SendText(replyToken, text string) {
+func (bc *LineBotClient) SendText(replyToken, text string) {
 	_, err := bc.ReplyMessage(
 		replyToken,
 		linebot.NewTextMessage(text),
@@ -43,7 +50,7 @@ func (bc *BotClient) SendText(replyToken, text string) {
 	}
 }
 
-func (bc *BotClient) SendFlex(replyToken string, altText string, flexContainer linebot.FlexContainer) {
+func (bc *LineBotClient) SendFlex(replyToken string, altText string, flexContainer linebot.FlexContainer) {
 	_, err := bc.ReplyMessage(
 		replyToken,
 		linebot.NewFlexMessage(altText, flexContainer),

@@ -16,7 +16,7 @@ import (
 type Server struct {
 	store        db.Store
 	router       *gin.Engine
-	bot          *bot.BotClient
+	bot          bot.BotClient
 	placeApi     thirdparty.PlaceApi
 	messageCache *cache.MessageCache
 	nearByCache  *cache.NearByRestaurantCache
@@ -24,7 +24,7 @@ type Server struct {
 
 func NewServer(
 	store db.Store,
-	bot *bot.BotClient,
+	bot bot.BotClient,
 	placeApi thirdparty.PlaceApi,
 	messageCache *cache.MessageCache,
 	nearByCache *cache.NearByRestaurantCache,
