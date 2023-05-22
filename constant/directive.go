@@ -3,16 +3,31 @@ package constant
 type Directive string
 
 const (
-	Pick   Directive = "/pick"
-	Add    Directive = "/add"
-	List   Directive = "/list"
-	Remove Directive = "/rm"
-	Near   Directive = "/near"
+	Search              Directive = "/s"
+	SearchLocation      Directive = "/sl"
+	SearchText          Directive = "/st"
+	SearchRadius        Directive = "/sr"
+	FavoriteRestaurants Directive = "/fr"
+	FavoriteFoods       Directive = "/ff"
+	PickRestaurant      Directive = "/pr"
+	NotificationSetting Directive = "ns"
+	UserOption          Directive = "/uo"
+	SearchOption        Directive = "/so"
 )
 
 func IsDirective(text string) bool {
 	switch text {
-	case string(Add), string(List), string(Remove), string(Pick), string(Near):
+	case
+		string(Search),
+		string(SearchLocation),
+		string(SearchText),
+		string(SearchRadius),
+		string(FavoriteRestaurants),
+		string(FavoriteFoods),
+		string(PickRestaurant),
+		string(NotificationSetting),
+		string(UserOption),
+		string(SearchOption):
 		return true
 	}
 	return false

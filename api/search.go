@@ -24,19 +24,23 @@ var defaultSearchRequest = &maps.NearbySearchRequest{
 	OpenNow:  true,
 }
 
-func (s *Server) SearchRestaurantByLocation(c *gin.Context, event *linebot.Event) {
-	messageData, ok := event.Message.(*linebot.LocationMessage)
+// steps:
+// 1. 查看
+func (s *Server) SearchRestaurants(c *gin.Context, event *linebot.Event) {
+	userId := event.Source.UserID
+	radius := s.messageCache.GetCurrentRadius(userId)
+	uc, ok := s.messageCache.GetCurrentLocation(userId)
 	if !ok {
-		s.bot.SendText(event.ReplyToken, "定位資訊有問題!!請從新發送")
+		s.bot.SendText(event.ReplyToken, "請先傳送位置資訊再做搜尋哦 ~")
 		return
 	}
 
 	for {
 		list, noMiss := s.nearByCache.GetRestaurantListByPagination(
 			cache.LocationArgs{
-				Lat:    messageData.Latitude,
-				Lng:    messageData.Longitude,
-				Radius: int(defaultSearchRequest.Radius),
+				Lat:    uc.LatLng.Lat,
+				Lng:    uc.LatLng.Lng,
+				Radius: radius,
 			},
 			DefaultPageIndex,
 			MaximumNumberOfCarouselItems,
@@ -48,8 +52,8 @@ func (s *Server) SearchRestaurantByLocation(c *gin.Context, event *linebot.Event
 					return carousel.CreateRestaurantContainer(restaurant)
 				},
 				DefaultPageIndex+1,
-				messageData.Latitude,
-				messageData.Longitude,
+				uc.LatLng.Lat,
+				uc.LatLng.Lng,
 			)
 			s.bot.SendFlex(event.ReplyToken, "carousel", component)
 			return
@@ -58,8 +62,8 @@ func (s *Server) SearchRestaurantByLocation(c *gin.Context, event *linebot.Event
 		// 資料不夠，繼續fetch
 		resp, pageToken, err := s.placeApi.NearbySearch(&maps.NearbySearchRequest{
 			Location: &maps.LatLng{
-				Lat: messageData.Latitude,
-				Lng: messageData.Longitude,
+				Lat: uc.LatLng.Lat,
+				Lng: uc.LatLng.Lng,
 			},
 			Radius:    defaultSearchRequest.Radius,
 			Type:      defaultSearchRequest.Type,
@@ -74,8 +78,8 @@ func (s *Server) SearchRestaurantByLocation(c *gin.Context, event *linebot.Event
 		}
 		s.nearByCache.Append(
 			cache.LocationArgs{
-				Lat:    messageData.Latitude,
-				Lng:    messageData.Longitude,
+				Lat:    uc.LatLng.Lat,
+				Lng:    uc.LatLng.Lng,
 				Radius: int(defaultSearchRequest.Radius),
 			},
 			adapter.SearchResultToRestaurant(resp),
