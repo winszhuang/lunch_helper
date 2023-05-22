@@ -51,7 +51,7 @@ func (s *Server) SearchRestaurantByLocation(c *gin.Context, event *linebot.Event
 				messageData.Latitude,
 				messageData.Longitude,
 			)
-			s.bot.SendFlex(event.ReplyToken, "", component)
+			s.bot.SendFlex(event.ReplyToken, "carousel", component)
 			return
 		}
 
