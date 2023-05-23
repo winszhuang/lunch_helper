@@ -13,6 +13,7 @@ type BotClient interface {
 	ParseRequest(r *http.Request) ([]*linebot.Event, error)
 	SendText(replyToken, text string)
 	SendFlex(replyToken string, altText string, flexContainer linebot.FlexContainer)
+	GetProfile(userID string) *linebot.GetProfileCall
 }
 
 type LineBotClient struct {
