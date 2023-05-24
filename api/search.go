@@ -4,6 +4,7 @@ import (
 	"log"
 	"lunch_helper/adapter"
 	"lunch_helper/bot/carousel"
+	"lunch_helper/bot/quickreply"
 	"lunch_helper/cache"
 	db "lunch_helper/db/sqlc"
 
@@ -31,7 +32,7 @@ func (s *Server) SearchRestaurants(c *gin.Context, event *linebot.Event) {
 	radius := s.messageCache.GetCurrentRadius(userId)
 	uc, ok := s.messageCache.GetCurrentLocation(userId)
 	if !ok {
-		s.bot.SendText(event.ReplyToken, "請先傳送位置資訊再做搜尋哦 ~")
+		s.bot.SendTextWithQuickReplies(event.ReplyToken, "請先傳送位置資訊再做搜尋哦 ~", quickreply.QuickReplyLocation())
 		return
 	}
 
@@ -60,6 +61,7 @@ func (s *Server) SearchRestaurants(c *gin.Context, event *linebot.Event) {
 		}
 
 		// 資料不夠，繼續fetch
+		log.Println("資料不夠，繼續fetch")
 		resp, pageToken, err := s.placeApi.NearbySearch(&maps.NearbySearchRequest{
 			Location: &maps.LatLng{
 				Lat: uc.LatLng.Lat,
@@ -76,14 +78,17 @@ func (s *Server) SearchRestaurants(c *gin.Context, event *linebot.Event) {
 			s.bot.SendText(event.ReplyToken, "取得附近店家資訊失敗!!")
 			return
 		}
-		s.nearByCache.Append(
+		if ok := s.nearByCache.Append(
 			cache.LocationArgs{
 				Lat:    uc.LatLng.Lat,
 				Lng:    uc.LatLng.Lng,
 				Radius: int(defaultSearchRequest.Radius),
 			},
-			adapter.SearchResultToRestaurant(resp),
+			adapter.SearchResultToRestaurant(resp, s.placeApi.GetApiKey()),
 			pageToken,
-		)
+		); !ok {
+			log.Println("沒有append成功，請檢查!!")
+			return
+		}
 	}
 }

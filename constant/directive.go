@@ -7,6 +7,7 @@ const (
 	SearchLocation      Directive = "/sl"
 	SearchText          Directive = "/st"
 	SearchRadius        Directive = "/sr"
+	SearchAI            Directive = "/sai"
 	FavoriteRestaurants Directive = "/fr"
 	FavoriteFoods       Directive = "/ff"
 	PickRestaurant      Directive = "/pr"
@@ -22,6 +23,7 @@ func IsDirective(text string) bool {
 		string(SearchLocation),
 		string(SearchText),
 		string(SearchRadius),
+		string(SearchAI),
 		string(FavoriteRestaurants),
 		string(FavoriteFoods),
 		string(PickRestaurant),

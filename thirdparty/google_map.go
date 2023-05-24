@@ -11,6 +11,7 @@ import (
 type PlaceApi interface {
 	NearbySearch(nearbySearchRequest *maps.NearbySearchRequest) ([]SearchResult, string, error)
 	TextSearch(query *maps.TextSearchRequest) ([]SearchResult, string, error)
+	GetApiKey() string
 }
 
 type GoogleMapPlaceApi struct {
@@ -51,26 +52,29 @@ func (m *GoogleMapPlaceApi) TextSearch(query *maps.TextSearchRequest) ([]SearchR
 	return results, resp.NextPageToken, nil
 }
 
+func (m *GoogleMapPlaceApi) GetApiKey() string {
+	return m.apiKey
+}
+
 func (m *GoogleMapPlaceApi) appendDetail(list []maps.PlacesSearchResult) []SearchResult {
 	var wg sync.WaitGroup
 	results := make([]SearchResult, len(list))
 	for i, result := range list {
 		wg.Add(1)
 		go func(i int, result maps.PlacesSearchResult) {
-			defer wg.Done()
-
 			detailResp, err := m.client.PlaceDetails(context.Background(), &maps.PlaceDetailsRequest{
 				PlaceID: result.PlaceID,
 			})
 			if err != nil {
-				log.Printf("Failed to get place details for %s: %v", result.PlaceID, err)
-				return
+				log.Printf("Failed to get place details for %s %s: %v", result.Name, result.Vicinity, err)
+				detailResp = maps.PlaceDetailsResult{}
 			}
 
 			results[i] = SearchResult{
 				Data:   result,
 				Detail: detailResp,
 			}
+			wg.Done()
 		}(i, result)
 	}
 

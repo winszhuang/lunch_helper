@@ -21,7 +21,7 @@ func CreateCarouselWithNext[T any](
 }
 
 func CreateCarousel[T any](list []T, createBubbleFunc func(T) *linebot.BubbleContainer) *linebot.CarouselContainer {
-	containerList := make([]*linebot.BubbleContainer, 0)
+	containerList := []*linebot.BubbleContainer{}
 
 	for _, item := range list {
 		containerList = append(containerList, createBubbleFunc(item))

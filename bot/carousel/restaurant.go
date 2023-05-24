@@ -6,13 +6,24 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
+const DEFAULT_IMAGE_URL = "https://mnapoli.fr/images/posts/null.png"
+
+// #TODO 要寫測試
 func CreateRestaurantContainer(r db.Restaurant) *linebot.BubbleContainer {
+	var image string
+	if r.Image.Valid {
+		image = r.Image.String
+	} else {
+		image = DEFAULT_IMAGE_URL
+	}
+
 	return &linebot.BubbleContainer{
 		Type: linebot.FlexContainerTypeBubble,
 		Size: linebot.FlexBubbleSizeTypeMicro,
 		Hero: &linebot.ImageComponent{
-			Type:        linebot.FlexComponentTypeImage,
-			URL:         r.Image.String,
+			Type: linebot.FlexComponentTypeImage,
+			// #NOTICE must be a valid image url
+			URL:         image,
 			Size:        "full",
 			AspectMode:  "cover",
 			AspectRatio: "320:213",

@@ -59,20 +59,16 @@ func (nb *NearByRestaurantCache) RemoveLocationContext(args LocationArgs) {
 	nb.Delete(key)
 }
 
-func (nb *NearByRestaurantCache) Append(args LocationArgs, list []db.Restaurant, pageToken string) {
+func (nb *NearByRestaurantCache) Append(args LocationArgs, list []db.Restaurant, pageToken string) bool {
 	lc := nb.checkLocationContext(args)
 	nb.mu.Lock()
-	if pageToken == lc.nextToken {
+	if pageToken == lc.nextToken || pageToken == "" {
 		nb.mu.Unlock()
-		return
-	}
-	if pageToken == "" {
-		lc.nextToken = LAST_TOKEN
-		nb.mu.Unlock()
-		return
+		return false
 	}
 	lc.list = append(lc.list, list...)
 	nb.mu.Unlock()
+	return true
 }
 
 func (nb *NearByRestaurantCache) GetRestaurantListByPagination(args LocationArgs, pageIndex, pageSize int) ([]db.Restaurant, bool) {

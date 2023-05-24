@@ -12,6 +12,7 @@ import (
 type BotClient interface {
 	ParseRequest(r *http.Request) ([]*linebot.Event, error)
 	SendText(replyToken, text string)
+	SendTextWithQuickReplies(replyToken, text string, replyItems *linebot.QuickReplyItems)
 	SendFlex(replyToken string, altText string, flexContainer linebot.FlexContainer)
 	GetProfile(userID string) *linebot.GetProfileCall
 }
@@ -41,6 +42,20 @@ func (bc *LineBotClient) SetWebHookUrl(apiBaseUrl, endPoint string) error {
 	return nil
 }
 
+func (bc *LineBotClient) SetupRichMenu(richMenu linebot.RichMenu, imagePath string) error {
+	resp, err := bc.CreateRichMenu(richMenu).Do()
+	log.Println(resp.RichMenuID)
+	if err != nil {
+		return err
+	}
+	_, err = bc.UploadRichMenuImage(resp.RichMenuID, imagePath).Do()
+	if err != nil {
+		return err
+	}
+	_, err = bc.SetDefaultRichMenu(resp.RichMenuID).Do()
+	return err
+}
+
 func (bc *LineBotClient) SendText(replyToken, text string) {
 	_, err := bc.ReplyMessage(
 		replyToken,
@@ -51,12 +66,22 @@ func (bc *LineBotClient) SendText(replyToken, text string) {
 	}
 }
 
+func (bc *LineBotClient) SendTextWithQuickReplies(replyToken, text string, replyItems *linebot.QuickReplyItems) {
+	_, err := bc.ReplyMessage(
+		replyToken,
+		linebot.NewTextMessage(text).WithQuickReplies(replyItems),
+	).Do()
+	if err != nil {
+		log.Printf("SendTextWithQuickReplies Error: %s", err)
+	}
+}
+
 func (bc *LineBotClient) SendFlex(replyToken string, altText string, flexContainer linebot.FlexContainer) {
 	_, err := bc.ReplyMessage(
 		replyToken,
 		linebot.NewFlexMessage(altText, flexContainer),
 	).Do()
 	if err != nil {
-		log.Printf("SendText Error: %s", err)
+		log.Printf("SendFlex Error: %s", err)
 	}
 }

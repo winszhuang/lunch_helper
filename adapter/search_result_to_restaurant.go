@@ -4,16 +4,20 @@ import (
 	"database/sql"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/thirdparty"
+	"lunch_helper/util"
 
 	"github.com/shopspring/decimal"
 )
 
-func SearchResultToRestaurant(result []thirdparty.SearchResult) []db.Restaurant {
+func SearchResultToRestaurant(result []thirdparty.SearchResult, apiKey string) []db.Restaurant {
 	var restaurants []db.Restaurant
 	for _, r := range result {
-		var photo string
+		var photo sql.NullString
 		if len(r.Data.Photos) > 0 {
-			photo = r.Data.Photos[0].PhotoReference
+			reference := r.Data.Photos[0].PhotoReference
+			photo = sql.NullString{String: util.GetGoogleImageUrl(reference, apiKey), Valid: true}
+		} else {
+			photo = sql.NullString{String: "", Valid: false}
 		}
 		restaurants = append(restaurants, db.Restaurant{
 			// id in this place is not important
@@ -25,7 +29,7 @@ func SearchResultToRestaurant(result []thirdparty.SearchResult) []db.Restaurant 
 			GoogleMapPlaceID: r.Data.PlaceID,
 			GoogleMapUrl:     r.Detail.URL,
 			PhoneNumber:      r.Detail.FormattedPhoneNumber,
-			Image:            sql.NullString{String: photo, Valid: true},
+			Image:            photo,
 		})
 	}
 	return restaurants

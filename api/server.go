@@ -3,6 +3,7 @@ package api
 import (
 	"log"
 	"lunch_helper/bot"
+	"lunch_helper/bot/quickreply"
 	"lunch_helper/cache"
 	"lunch_helper/constant"
 	db "lunch_helper/db/sqlc"
@@ -57,7 +58,7 @@ func NewServer(
 				case string(constant.Search):
 					server.SearchRestaurants(c, event)
 				case string(constant.SearchLocation):
-					server.bot.SendText(event.ReplyToken, "請傳送定位資訊")
+					server.bot.SendTextWithQuickReplies(event.ReplyToken, "請傳送定位資訊", quickreply.QuickReplyLocation())
 				case string(constant.SearchText):
 					server.messageCache.SetMode(userId, constant.SearchText)
 					server.bot.SendText(event.ReplyToken, "請輸入搜尋關鍵字")
@@ -65,6 +66,8 @@ func NewServer(
 					server.messageCache.SetMode(userId, constant.SearchRadius)
 					// #TODO 修改成flex message讓使用者只能點選500、1000、100等規格
 					server.bot.SendText(event.ReplyToken, "請輸入半徑(單位公尺)")
+				case string(constant.SearchAI):
+					// #TODO aiMode
 				case string(constant.UserOption):
 					// #TODO change richmenu to user option menu
 				case string(constant.FavoriteRestaurants):

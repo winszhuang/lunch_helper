@@ -6,6 +6,7 @@ import (
 	"log"
 	"lunch_helper/api"
 	"lunch_helper/bot"
+	"lunch_helper/bot/richmenu"
 	"lunch_helper/cache"
 	"lunch_helper/config"
 	db "lunch_helper/db/sqlc"
@@ -44,6 +45,11 @@ func main() {
 	err = bc.SetWebHookUrl(config.ApiUrl, config.LineBotEndpoint)
 	if err != nil {
 		log.Fatalf("setting linebot webhook url error: %v", err)
+	}
+	// setup richmenu
+	err = bc.SetupRichMenu(richmenu.CreateSearchRichMenu(), "richmenu.png")
+	if err != nil {
+		log.Fatalf("setup richmenu error: %v", err)
 	}
 
 	// init user input cache and nearby place cache
