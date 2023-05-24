@@ -14,8 +14,13 @@ type NearByRestaurantCache struct {
 }
 
 type LocationContext struct {
-	list      []db.Restaurant
-	nextToken string
+	pages []PageDataOfPlaces
+}
+
+type PageDataOfPlaces struct {
+	currentToken  string
+	nextPageToken string
+	data          []db.Restaurant
 }
 
 type LocationArgs struct {
@@ -24,10 +29,9 @@ type LocationArgs struct {
 	Radius int
 }
 
-const (
-	LAST_TOKEN  = "end"
-	FIRST_TOKEN = "start"
-)
+func NewPageDataOfPlaces(currentToken, nextPageToken string, data []db.Restaurant) PageDataOfPlaces {
+	return PageDataOfPlaces{currentToken, nextPageToken, data}
+}
 
 // e.g.
 // key := generateKey(args{24.1677759, 120.6654513, 500})
@@ -41,16 +45,9 @@ func NewNearByRestaurantCache() *NearByRestaurantCache {
 	return &NearByRestaurantCache{}
 }
 
-func newLocationContext() *LocationContext {
-	return &LocationContext{
-		list:      []db.Restaurant{},
-		nextToken: FIRST_TOKEN,
-	}
-}
-
 func (nb *NearByRestaurantCache) checkLocationContext(args LocationArgs) *LocationContext {
 	key := generateKey(args)
-	value, _ := nb.LoadOrStore(key, newLocationContext())
+	value, _ := nb.LoadOrStore(key, &LocationContext{pages: []PageDataOfPlaces{}})
 	return value.(*LocationContext)
 }
 
@@ -59,32 +56,71 @@ func (nb *NearByRestaurantCache) RemoveLocationContext(args LocationArgs) {
 	nb.Delete(key)
 }
 
-func (nb *NearByRestaurantCache) Append(args LocationArgs, list []db.Restaurant, pageToken string) bool {
-	lc := nb.checkLocationContext(args)
+func (nb *NearByRestaurantCache) Append(args LocationArgs, pageDataOfPlaces PageDataOfPlaces) {
 	nb.mu.Lock()
-	if pageToken == lc.nextToken || pageToken == "" {
-		nb.mu.Unlock()
-		return false
+	defer nb.mu.Unlock()
+
+	lc := nb.checkLocationContext(args)
+	if lc.isFull() || lc.isExist(pageDataOfPlaces) {
+		return
 	}
-	lc.list = append(lc.list, list...)
-	nb.mu.Unlock()
-	return true
+
+	if lc.canAdd(pageDataOfPlaces) {
+		lc.addPage(pageDataOfPlaces)
+	}
 }
 
+// if the second return value is false, it is mean amount of data is not enough, need call api to get more
 func (nb *NearByRestaurantCache) GetRestaurantListByPagination(args LocationArgs, pageIndex, pageSize int) ([]db.Restaurant, bool) {
+	nb.mu.Lock()
+	defer nb.mu.Unlock()
+
 	lc := nb.checkLocationContext(args)
-	result := util.Paginate(lc.list, pageIndex, pageSize)
-	if nb.isRestaurantListFull(args) {
-		return result, true
-	}
-	if len(result) == pageSize {
-		return result, true
-	}
-	return result, false
+	list := lc.listAll()
+	result := util.Paginate(list, pageIndex, pageSize)
+	isEnough := lc.isFull() || len(result) == pageSize
+
+	return result, isEnough
 }
 
-// 該定位的附近店家資訊是否已滿
-func (nb *NearByRestaurantCache) isRestaurantListFull(args LocationArgs) bool {
-	lc := nb.checkLocationContext(args)
-	return lc.nextToken == LAST_TOKEN
+func (lc *LocationContext) addPage(p PageDataOfPlaces) {
+	lc.pages = append(lc.pages, p)
+}
+
+func (lc *LocationContext) listAll() []db.Restaurant {
+	result := []db.Restaurant{}
+	for _, page := range lc.pages {
+		result = append(result, page.data...)
+	}
+	return result
+}
+
+func (lc *LocationContext) isExist(p PageDataOfPlaces) bool {
+	exist := false
+	for _, page := range lc.pages {
+		if page.currentToken == p.currentToken && page.nextPageToken == p.nextPageToken {
+			exist = true
+			break
+		}
+	}
+	return exist
+}
+
+func (lc *LocationContext) isFull() bool {
+	for _, page := range lc.pages {
+		if page.nextPageToken == "" {
+			return true
+		}
+	}
+	return false
+}
+
+func (lc *LocationContext) canAdd(p PageDataOfPlaces) bool {
+	// 首筆資料一定能新增
+	if p.currentToken == "" && len(lc.pages) == 0 {
+		return true
+	}
+
+	len := len(lc.pages)
+	return p.currentToken == lc.pages[len-1].nextPageToken
 }

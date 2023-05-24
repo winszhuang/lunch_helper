@@ -78,17 +78,13 @@ func (s *Server) SearchRestaurants(c *gin.Context, event *linebot.Event) {
 			s.bot.SendText(event.ReplyToken, "取得附近店家資訊失敗!!")
 			return
 		}
-		if ok := s.nearByCache.Append(
+		s.nearByCache.Append(
 			cache.LocationArgs{
 				Lat:    uc.LatLng.Lat,
 				Lng:    uc.LatLng.Lng,
 				Radius: int(defaultSearchRequest.Radius),
 			},
-			adapter.SearchResultToRestaurant(resp, s.placeApi.GetApiKey()),
-			pageToken,
-		); !ok {
-			log.Println("沒有append成功，請檢查!!")
-			return
-		}
+			cache.NewPageDataOfPlaces("", pageToken, adapter.SearchResultToRestaurant(resp, s.placeApi.GetApiKey())),
+		)
 	}
 }
