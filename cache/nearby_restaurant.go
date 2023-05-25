@@ -83,6 +83,15 @@ func (nb *NearByRestaurantCache) GetRestaurantListByPagination(args LocationArgs
 	return result, isEnough
 }
 
+func (nb *NearByRestaurantCache) GetLastPageToken(args LocationArgs) string {
+	lc := nb.checkLocationContext(args)
+	lc.mu.RLock()
+	defer lc.mu.RUnlock()
+
+	length := len(lc.pages)
+	return lc.pages[length-1].nextPageToken
+}
+
 func (lc *LocationContext) addPage(p PageDataOfPlaces) {
 	lc.pages = append(lc.pages, p)
 }

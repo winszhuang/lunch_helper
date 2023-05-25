@@ -82,6 +82,10 @@ func NewServer(
 				case string(constant.SearchOption):
 					// #TODO change richmenu to search option menu
 				}
+				switch {
+				case constant.LatLngPageIndex.MatchString(event.Postback.Data):
+					server.SearchNextPageRestaurants(c, event)
+				}
 			case linebot.EventTypeMessage:
 				switch messageData := event.Message.(type) {
 				case *linebot.LocationMessage:

@@ -1,5 +1,7 @@
 package constant
 
+import "regexp"
+
 type Directive string
 
 const (
@@ -34,3 +36,7 @@ func IsDirective(text string) bool {
 	}
 	return false
 }
+
+var (
+	LatLngPageIndex *regexp.Regexp = regexp.MustCompile(`lat=([-+]?[\d.]+),lng=([-+]?[\d.]+),radius=(\d+),pageIndex=(\d+)`)
+)

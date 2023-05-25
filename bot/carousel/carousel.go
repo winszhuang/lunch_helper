@@ -12,10 +12,11 @@ func CreateCarouselWithNext[T any](
 	createBubbleFunc func(T) *linebot.BubbleContainer,
 	nextPageIndex int,
 	lat, lng float64,
+	radius int,
 ) *linebot.CarouselContainer {
 	bubble := CreateCarousel(list, createBubbleFunc)
 	if nextPageIndex > 1 {
-		bubble.Contents = append(bubble.Contents, createNext(nextPageIndex, lat, lng))
+		bubble.Contents = append(bubble.Contents, createNext(nextPageIndex, lat, lng, radius))
 	}
 	return bubble
 }
@@ -33,11 +34,12 @@ func CreateCarousel[T any](list []T, createBubbleFunc func(T) *linebot.BubbleCon
 	}
 }
 
-func createNext(nextPageIndex int, lat, lng float64) *linebot.BubbleContainer {
+func createNext(nextPageIndex int, lat, lng float64, radius int) *linebot.BubbleContainer {
 	nextData := fmt.Sprintf(
-		"lat=%s,lng=%s,pageIndex=%d",
+		"lat=%s,lng=%s,radius=%d,pageIndex=%d",
 		strconv.FormatFloat(lat, 'f', 6, 64),
 		strconv.FormatFloat(lng, 'f', 6, 64),
+		radius,
 		nextPageIndex,
 	)
 
