@@ -10,6 +10,7 @@ import (
 	"lunch_helper/cache"
 	"lunch_helper/config"
 	db "lunch_helper/db/sqlc"
+	"lunch_helper/service"
 	"lunch_helper/thirdparty"
 )
 
@@ -62,14 +63,17 @@ func main() {
 		log.Fatalf("init google map api error: %v", err)
 	}
 
+	// init service
+	searchService := service.NewSearchService(nearByCache, &placeApi)
+
 	// run server
 	store := db.NewStore(conn)
 	server := api.NewServer(
 		store,
 		bc,
-		&placeApi,
 		messageCache,
 		nearByCache,
+		searchService,
 	)
 
 	server.Start(port)

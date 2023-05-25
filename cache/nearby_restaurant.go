@@ -89,6 +89,9 @@ func (nb *NearByRestaurantCache) GetLastPageToken(args LocationArgs) string {
 	defer lc.mu.RUnlock()
 
 	length := len(lc.pages)
+	if length == 0 {
+		return ""
+	}
 	return lc.pages[length-1].nextPageToken
 }
 

@@ -7,7 +7,7 @@ import (
 	"lunch_helper/cache"
 	"lunch_helper/constant"
 	db "lunch_helper/db/sqlc"
-	"lunch_helper/thirdparty"
+	"lunch_helper/service"
 	"net/http"
 	"strconv"
 	"strings"
@@ -18,22 +18,28 @@ import (
 )
 
 type Server struct {
-	store        db.Store
-	router       *gin.Engine
-	bot          bot.BotClient
-	placeApi     thirdparty.PlaceApi
-	messageCache *cache.MessageCache
-	nearByCache  *cache.NearByRestaurantCache
+	store         db.Store
+	router        *gin.Engine
+	bot           bot.BotClient
+	messageCache  *cache.MessageCache
+	nearByCache   *cache.NearByRestaurantCache
+	searchService *service.SearchService
 }
 
 func NewServer(
 	store db.Store,
 	bot bot.BotClient,
-	placeApi thirdparty.PlaceApi,
 	messageCache *cache.MessageCache,
 	nearByCache *cache.NearByRestaurantCache,
+	searchService *service.SearchService,
 ) *Server {
-	server := &Server{store: store, bot: bot, placeApi: placeApi, messageCache: messageCache, nearByCache: nearByCache}
+	server := &Server{
+		store:         store,
+		bot:           bot,
+		messageCache:  messageCache,
+		nearByCache:   nearByCache,
+		searchService: searchService,
+	}
 	router := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
 
@@ -56,7 +62,7 @@ func NewServer(
 			case linebot.EventTypePostback:
 				switch event.Postback.Data {
 				case string(constant.Search):
-					server.SearchRestaurants(c, event)
+					server.SearchFirstPageRestaurants(c, event)
 				case string(constant.SearchLocation):
 					server.bot.SendTextWithQuickReplies(event.ReplyToken, "請傳送定位資訊", quickreply.QuickReplyLocation())
 				case string(constant.SearchText):
@@ -100,7 +106,7 @@ func NewServer(
 					message := strings.TrimSpace(messageData.Text)
 					switch message {
 					case string(constant.Search):
-						server.SearchRestaurants(c, event)
+						server.SearchFirstPageRestaurants(c, event)
 					case string(constant.SearchLocation):
 						server.bot.SendText(event.ReplyToken, "請傳送定位資訊")
 					case string(constant.SearchText):
