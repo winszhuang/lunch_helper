@@ -366,19 +366,19 @@ func TestNearByRestaurantCache_GetRestaurantListByPagination(t *testing.T) {
 		require.Equal(t, generateMockRestaurants(37, 54), list)
 	})
 
-	// #FIX panic: test timed out after 30s
 	t.Run("concurrent: for loop to append then get", func(t *testing.T) {
 		nearByRestaurantCache, args := initData()
 
-		const LENGTH = 3
+		const LENGTH = 1000
 		wg := sync.WaitGroup{}
 		wg.Add(LENGTH)
 		for i := 0; i < LENGTH; i++ {
 			go func() {
+				defer wg.Done()
 				count := 1
 				var isEnough bool
 				for {
-					_, isEnough = nearByRestaurantCache.GetRestaurantListByPagination(args, 3, 18)
+					_, isEnough = nearByRestaurantCache.GetRestaurantListByPagination(args, 35, 18)
 					start := (count-1)*20 + 1
 					end := count * 20
 					if !isEnough {
@@ -397,14 +397,11 @@ func TestNearByRestaurantCache_GetRestaurantListByPagination(t *testing.T) {
 						break
 					}
 				}
-
-				require.Equal(t, 4, count)
-				wg.Done()
 			}()
 		}
 
 		wg.Wait()
-		result, _ := nearByRestaurantCache.GetRestaurantListByPagination(args, 3, 18)
-		require.Equal(t, generateMockRestaurants(37, 54), result)
+		result, _ := nearByRestaurantCache.GetRestaurantListByPagination(args, 35, 18)
+		require.Equal(t, generateMockRestaurants(613, 630), result)
 	})
 }

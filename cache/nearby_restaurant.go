@@ -10,10 +10,10 @@ import (
 // #TODO refactor to use redis
 type NearByRestaurantCache struct {
 	sync.Map
-	mu sync.Mutex
 }
 
 type LocationContext struct {
+	mu    sync.RWMutex
 	pages []PageDataOfPlaces
 }
 
@@ -57,10 +57,10 @@ func (nb *NearByRestaurantCache) RemoveLocationContext(args LocationArgs) {
 }
 
 func (nb *NearByRestaurantCache) Append(args LocationArgs, pageDataOfPlaces PageDataOfPlaces) {
-	nb.mu.Lock()
-	defer nb.mu.Unlock()
-
 	lc := nb.checkLocationContext(args)
+	lc.mu.Lock()
+	defer lc.mu.Unlock()
+
 	if lc.isFull() || lc.isExist(pageDataOfPlaces) {
 		return
 	}
@@ -72,10 +72,10 @@ func (nb *NearByRestaurantCache) Append(args LocationArgs, pageDataOfPlaces Page
 
 // if the second return value is false, it is mean amount of data is not enough, need call api to get more
 func (nb *NearByRestaurantCache) GetRestaurantListByPagination(args LocationArgs, pageIndex, pageSize int) ([]db.Restaurant, bool) {
-	nb.mu.Lock()
-	defer nb.mu.Unlock()
-
 	lc := nb.checkLocationContext(args)
+	lc.mu.RLock()
+	defer lc.mu.RUnlock()
+
 	list := lc.listAll()
 	result := util.Paginate(list, pageIndex, pageSize)
 	isEnough := lc.isFull() || len(result) == pageSize
