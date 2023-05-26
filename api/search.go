@@ -41,15 +41,22 @@ func (s *Server) SearchFirstPageRestaurants(c *gin.Context, event *linebot.Event
 		return
 	}
 
+	if len(list) == 0 {
+		s.bot.SendText(event.ReplyToken, "附近沒有店家")
+		return
+	}
+
 	component := carousel.CreateCarouselWithNext(
 		list,
 		func(restaurant db.Restaurant) *linebot.BubbleContainer {
 			return carousel.CreateRestaurantContainer(restaurant)
 		},
-		DefaultPageIndex+1,
-		uc.LatLng.Lat,
-		uc.LatLng.Lng,
-		radius,
+		func() *linebot.BubbleContainer {
+			if len(list) < MaximumNumberOfCarouselItems {
+				return nil
+			}
+			return carousel.CreateRestaurantNextPageContainer(DefaultPageIndex+1, uc.LatLng.Lat, uc.LatLng.Lng, radius)
+		},
 	)
 	s.bot.SendFlex(event.ReplyToken, "carousel", component)
 }
@@ -95,15 +102,22 @@ func (s *Server) SearchNextPageRestaurants(c *gin.Context, event *linebot.Event)
 		return
 	}
 
+	if len(list) == 0 {
+		s.bot.SendText(event.ReplyToken, "附近沒有店家")
+		return
+	}
+
 	component := carousel.CreateCarouselWithNext(
 		list,
 		func(restaurant db.Restaurant) *linebot.BubbleContainer {
 			return carousel.CreateRestaurantContainer(restaurant)
 		},
-		pageIndex+1,
-		lat,
-		lng,
-		radius,
+		func() *linebot.BubbleContainer {
+			if len(list) < MaximumNumberOfCarouselItems {
+				return nil
+			}
+			return carousel.CreateRestaurantNextPageContainer(pageIndex+1, lat, lng, radius)
+		},
 	)
 	s.bot.SendFlex(event.ReplyToken, "carousel", component)
 }

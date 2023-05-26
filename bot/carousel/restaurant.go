@@ -1,12 +1,54 @@
 package carousel
 
 import (
+	"fmt"
 	db "lunch_helper/db/sqlc"
+	"strconv"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 const DEFAULT_IMAGE_URL = "https://mnapoli.fr/images/posts/null.png"
+
+func CreateRestaurantNextPageContainer(nextPageIndex int, lat, lng float64, radius int) *linebot.BubbleContainer {
+	nextData := fmt.Sprintf(
+		"lat=%s,lng=%s,radius=%d,pageIndex=%d",
+		strconv.FormatFloat(lat, 'f', 6, 64),
+		strconv.FormatFloat(lng, 'f', 6, 64),
+		radius,
+		nextPageIndex,
+	)
+
+	return &linebot.BubbleContainer{
+		Type: linebot.FlexContainerTypeBubble,
+		Size: linebot.FlexBubbleSizeTypeMicro,
+		Body: &linebot.BoxComponent{
+			Type:    linebot.FlexComponentTypeBox,
+			Layout:  linebot.FlexBoxLayoutTypeVertical,
+			Spacing: "xs",
+			Contents: []linebot.FlexComponent{
+				&linebot.ButtonComponent{
+					Type:   linebot.FlexComponentTypeButton,
+					Height: "sm",
+					Action: &linebot.PostbackAction{
+						Label: "下一頁資料",
+						Data:  nextData,
+					},
+					Margin: linebot.FlexComponentMarginTypeLg,
+				},
+				&linebot.ButtonComponent{
+					Type:   linebot.FlexComponentTypeButton,
+					Height: "sm",
+					Style:  linebot.FlexButtonStyleTypeLink,
+					Action: &linebot.URIAction{
+						Label: "地圖上查看",
+						URI:   "https://mileslin.github.io/2020/08/Golang/Live-Reload-For-Go/",
+					},
+				},
+			},
+		},
+	}
+}
 
 // #TODO 要寫測試
 func CreateRestaurantContainer(r db.Restaurant) *linebot.BubbleContainer {
