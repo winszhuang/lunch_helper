@@ -71,10 +71,12 @@ func NewServer(
 				case string(constant.SearchRadius):
 					server.messageCache.SetMode(userId, constant.SearchRadius)
 					// #TODO 修改成flex message讓使用者只能點選500、1000、100等規格
-					server.bot.SendText(event.ReplyToken, "請輸入半徑(單位公尺)")
+					server.bot.SendTextWithQuickReplies(event.ReplyToken, "請選擇半徑(單位公尺)", quickreply.QuickReplyRadiusOptions())
 				case string(constant.SearchAI):
 					// #TODO aiMode
+					server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
 				case string(constant.UserOption):
+					server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
 					// #TODO change richmenu to user option menu
 				case string(constant.FavoriteRestaurants):
 					// #TODO server.ListFavoriteRestaurants api

@@ -52,7 +52,7 @@ type RichMenuAction_New struct {
 	Min             string                     `json:"min,omitempty"`
 	RichMenuAliasID string                     `json:"richMenuAliasId,omitempty"`
 	// 補上下面幾個新的
-	InputOption string `json:"inputOption"`
+	InputOption string `json:"inputOption,omitempty"`
 }
 
 type CreateRichMenuResponse struct {
