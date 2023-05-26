@@ -1,7 +1,11 @@
 package bot
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"lunch_helper/util"
 	"net/http"
@@ -19,6 +23,40 @@ type BotClient interface {
 
 type LineBotClient struct {
 	*linebot.Client
+	channelToken string
+}
+
+type RichMenu_New struct {
+	Size        linebot.RichMenuSize `json:"size"`
+	Selected    bool                 `json:"selected"`
+	Name        string               `json:"name"`
+	ChatBarText string               `json:"chatBarText"`
+	Areas       []AreaDetail_New     `json:"areas"`
+}
+
+type AreaDetail_New struct {
+	Bounds linebot.RichMenuBounds `json:"bounds"`
+	Action RichMenuAction_New     `json:"action"`
+}
+
+type RichMenuAction_New struct {
+	Type            linebot.RichMenuActionType `json:"type"`
+	URI             string                     `json:"uri,omitempty"`
+	Text            string                     `json:"text,omitempty"`
+	DisplayText     string                     `json:"displayText,omitempty"`
+	Label           string                     `json:"label,omitempty"`
+	Data            string                     `json:"data,omitempty"`
+	Mode            string                     `json:"mode,omitempty"`
+	Initial         string                     `json:"initial,omitempty"`
+	Max             string                     `json:"max,omitempty"`
+	Min             string                     `json:"min,omitempty"`
+	RichMenuAliasID string                     `json:"richMenuAliasId,omitempty"`
+	// 補上下面幾個新的
+	InputOption string `json:"inputOption"`
+}
+
+type CreateRichMenuResponse struct {
+	RichMenuID string `json:"richMenuId"`
 }
 
 func NewBotClient(channelSecret, channelToken string) (*LineBotClient, error) {
@@ -27,7 +65,7 @@ func NewBotClient(channelSecret, channelToken string) (*LineBotClient, error) {
 		return nil, err
 	}
 
-	return &LineBotClient{bot}, nil
+	return &LineBotClient{bot, channelToken}, nil
 }
 
 func (bc *LineBotClient) SetWebHookUrl(apiBaseUrl, endPoint string) error {
@@ -42,18 +80,60 @@ func (bc *LineBotClient) SetWebHookUrl(apiBaseUrl, endPoint string) error {
 	return nil
 }
 
-func (bc *LineBotClient) SetupRichMenu(richMenu linebot.RichMenu, imagePath string) error {
-	resp, err := bc.CreateRichMenu(richMenu).Do()
+func (bc *LineBotClient) SetupRichMenu(richMenu RichMenu_New, imagePath string) error {
+	resp, err := bc.CreateRichMenu_New(richMenu)
 	log.Println(resp.RichMenuID)
 	if err != nil {
 		return err
 	}
+
 	_, err = bc.UploadRichMenuImage(resp.RichMenuID, imagePath).Do()
 	if err != nil {
 		return err
 	}
 	_, err = bc.SetDefaultRichMenu(resp.RichMenuID).Do()
 	return err
+}
+
+// 原始createRichMenu內RichMenuAction沒有提供inputOption，因此重寫function
+func (bc *LineBotClient) CreateRichMenu_New(richMenu RichMenu_New) (*CreateRichMenuResponse, error) {
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	err := enc.Encode(richMenu)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		"https://api.line.me/v2/bot/richmenu",
+		&buf,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("Authorization", "Bearer "+bc.channelToken)
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	source, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	response := CreateRichMenuResponse{}
+	if err := json.Unmarshal(source, &response); err != nil {
+		return nil, fmt.Errorf("Unmarshal response body failed:", err)
+	}
+
+	return &response, nil
 }
 
 func (bc *LineBotClient) SendText(replyToken, text string) {
