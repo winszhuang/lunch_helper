@@ -20,3 +20,6 @@ WHERE id = $5;
 -- name: DeleteFood :exec
 DELETE FROM food
 WHERE id = $1;
+
+-- name: GetFoodsByRestaurantId :many
+SELECT * FROM food WHERE restaurant_id = $1;

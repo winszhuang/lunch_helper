@@ -66,6 +66,42 @@ func (q *Queries) DeleteFood(ctx context.Context, id int32) error {
 	return err
 }
 
+const getFoodsByRestaurantId = `-- name: GetFoodsByRestaurantId :many
+SELECT id, name, price, image, description, restaurant_id, version, edit_by FROM food WHERE restaurant_id = $1
+`
+
+func (q *Queries) GetFoodsByRestaurantId(ctx context.Context, restaurantID int32) ([]Food, error) {
+	rows, err := q.db.QueryContext(ctx, getFoodsByRestaurantId, restaurantID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Food
+	for rows.Next() {
+		var i Food
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Price,
+			&i.Image,
+			&i.Description,
+			&i.RestaurantID,
+			&i.Version,
+			&i.EditBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateFood = `-- name: UpdateFood :exec
 UPDATE food
 SET name = $1, price = $2, image = $3, edit_by = $4, version = version + 1

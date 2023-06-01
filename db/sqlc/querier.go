@@ -23,6 +23,7 @@ type Querier interface {
 	GetFeedback(ctx context.Context, arg GetFeedbackParams) ([]Feedback, error)
 	GetFeedbackByDateRange(ctx context.Context, arg GetFeedbackByDateRangeParams) ([]Feedback, error)
 	GetFeedbackByStatus(ctx context.Context) ([]Feedback, error)
+	GetFoodsByRestaurantId(ctx context.Context, restaurantID int32) ([]Food, error)
 	GetOperateRecords(ctx context.Context, arg GetOperateRecordsParams) ([]OperateRecord, error)
 	GetOperateRecordsByDateRange(ctx context.Context, arg GetOperateRecordsByDateRangeParams) ([]OperateRecord, error)
 	GetOperateRecordsByUserID(ctx context.Context, arg GetOperateRecordsByUserIDParams) ([]OperateRecord, error)
