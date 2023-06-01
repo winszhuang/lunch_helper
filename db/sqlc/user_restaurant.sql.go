@@ -50,7 +50,7 @@ func (q *Queries) DeleteUserRestaurant(ctx context.Context, arg DeleteUserRestau
 }
 
 const getUserRestaurants = `-- name: GetUserRestaurants :many
-SELECT id, name, rating, user_ratings_total, address, google_map_place_id, google_map_url, phone_number, image, user_id, restaurant_id
+SELECT id, name, rating, user_ratings_total, address, google_map_place_id, google_map_url, phone_number, image, menu_crawled, user_id, restaurant_id
 FROM restaurant
 JOIN user_restaurant ON user_restaurant.restaurant_id = restaurant.id
 WHERE user_restaurant.user_id = $1
@@ -66,6 +66,7 @@ type GetUserRestaurantsRow struct {
 	GoogleMapUrl     string          `json:"google_map_url"`
 	PhoneNumber      string          `json:"phone_number"`
 	Image            sql.NullString  `json:"image"`
+	MenuCrawled      bool            `json:"menu_crawled"`
 	UserID           int32           `json:"user_id"`
 	RestaurantID     int32           `json:"restaurant_id"`
 }
@@ -89,6 +90,7 @@ func (q *Queries) GetUserRestaurants(ctx context.Context, userID int32) ([]GetUs
 			&i.GoogleMapUrl,
 			&i.PhoneNumber,
 			&i.Image,
+			&i.MenuCrawled,
 			&i.UserID,
 			&i.RestaurantID,
 		); err != nil {

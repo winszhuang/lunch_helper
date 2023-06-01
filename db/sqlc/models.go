@@ -51,6 +51,7 @@ type Restaurant struct {
 	GoogleMapUrl     string          `json:"google_map_url"`
 	PhoneNumber      string          `json:"phone_number"`
 	Image            sql.NullString  `json:"image"`
+	MenuCrawled      bool            `json:"menu_crawled"`
 }
 
 type Role struct {

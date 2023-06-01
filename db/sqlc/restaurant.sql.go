@@ -20,11 +20,12 @@ INSERT INTO restaurant (
     address,
     google_map_place_id,
     google_map_url,
-    phone_number
+    phone_number,
+    image
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7
+    $1, $2, $3, $4, $5, $6, $7, $8
 )
-RETURNING id, name, rating, user_ratings_total, address, google_map_place_id, google_map_url, phone_number, image
+RETURNING id, name, rating, user_ratings_total, address, google_map_place_id, google_map_url, phone_number, image, menu_crawled
 `
 
 type CreateRestaurantParams struct {
@@ -35,6 +36,7 @@ type CreateRestaurantParams struct {
 	GoogleMapPlaceID string          `json:"google_map_place_id"`
 	GoogleMapUrl     string          `json:"google_map_url"`
 	PhoneNumber      string          `json:"phone_number"`
+	Image            sql.NullString  `json:"image"`
 }
 
 func (q *Queries) CreateRestaurant(ctx context.Context, arg CreateRestaurantParams) (Restaurant, error) {
@@ -46,6 +48,7 @@ func (q *Queries) CreateRestaurant(ctx context.Context, arg CreateRestaurantPara
 		arg.GoogleMapPlaceID,
 		arg.GoogleMapUrl,
 		arg.PhoneNumber,
+		arg.Image,
 	)
 	var i Restaurant
 	err := row.Scan(
@@ -58,6 +61,65 @@ func (q *Queries) CreateRestaurant(ctx context.Context, arg CreateRestaurantPara
 		&i.GoogleMapUrl,
 		&i.PhoneNumber,
 		&i.Image,
+		&i.MenuCrawled,
 	)
 	return i, err
+}
+
+const getRestaurant = `-- name: GetRestaurant :one
+SELECT id, name, rating, user_ratings_total, address, google_map_place_id, google_map_url, phone_number, image, menu_crawled FROM Restaurant WHERE id = $1
+`
+
+func (q *Queries) GetRestaurant(ctx context.Context, id int32) (Restaurant, error) {
+	row := q.db.QueryRowContext(ctx, getRestaurant, id)
+	var i Restaurant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Rating,
+		&i.UserRatingsTotal,
+		&i.Address,
+		&i.GoogleMapPlaceID,
+		&i.GoogleMapUrl,
+		&i.PhoneNumber,
+		&i.Image,
+		&i.MenuCrawled,
+	)
+	return i, err
+}
+
+const getRestaurantByGoogleMapPlaceId = `-- name: GetRestaurantByGoogleMapPlaceId :one
+SELECT id, name, rating, user_ratings_total, address, google_map_place_id, google_map_url, phone_number, image, menu_crawled FROM Restaurant WHERE google_map_place_id = $1
+`
+
+func (q *Queries) GetRestaurantByGoogleMapPlaceId(ctx context.Context, googleMapPlaceID string) (Restaurant, error) {
+	row := q.db.QueryRowContext(ctx, getRestaurantByGoogleMapPlaceId, googleMapPlaceID)
+	var i Restaurant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Rating,
+		&i.UserRatingsTotal,
+		&i.Address,
+		&i.GoogleMapPlaceID,
+		&i.GoogleMapUrl,
+		&i.PhoneNumber,
+		&i.Image,
+		&i.MenuCrawled,
+	)
+	return i, err
+}
+
+const updateMenuCrawled = `-- name: UpdateMenuCrawled :exec
+UPDATE Restaurant SET menu_crawled = $1 WHERE id = $2
+`
+
+type UpdateMenuCrawledParams struct {
+	MenuCrawled bool  `json:"menu_crawled"`
+	ID          int32 `json:"id"`
+}
+
+func (q *Queries) UpdateMenuCrawled(ctx context.Context, arg UpdateMenuCrawledParams) error {
+	_, err := q.db.ExecContext(ctx, updateMenuCrawled, arg.MenuCrawled, arg.ID)
+	return err
 }

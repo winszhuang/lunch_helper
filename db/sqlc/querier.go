@@ -26,12 +26,15 @@ type Querier interface {
 	GetOperateRecords(ctx context.Context, arg GetOperateRecordsParams) ([]OperateRecord, error)
 	GetOperateRecordsByDateRange(ctx context.Context, arg GetOperateRecordsByDateRangeParams) ([]OperateRecord, error)
 	GetOperateRecordsByUserID(ctx context.Context, arg GetOperateRecordsByUserIDParams) ([]OperateRecord, error)
+	GetRestaurant(ctx context.Context, id int32) (Restaurant, error)
+	GetRestaurantByGoogleMapPlaceId(ctx context.Context, googleMapPlaceID string) (Restaurant, error)
 	GetRoles(ctx context.Context) ([]Role, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserByLineID(ctx context.Context, lineID string) (User, error)
 	GetUserRestaurants(ctx context.Context, userID int32) ([]GetUserRestaurantsRow, error)
 	GetUsers(ctx context.Context, arg GetUsersParams) ([]User, error)
 	UpdateFood(ctx context.Context, arg UpdateFoodParams) error
+	UpdateMenuCrawled(ctx context.Context, arg UpdateMenuCrawledParams) error
 	UpdateRole(ctx context.Context, arg UpdateRoleParams) (Role, error)
 }
 
