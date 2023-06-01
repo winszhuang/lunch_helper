@@ -63,17 +63,20 @@ func main() {
 		log.Fatalf("init google map api error: %v", err)
 	}
 
+	// init db store
+	store := db.NewStore(conn)
+
 	// init service
 	searchService := service.NewSearchService(nearByCache, &placeApi)
+	userService := service.NewUserService(store)
 
-	// run server
-	store := db.NewStore(conn)
+	// init api server
 	server := api.NewServer(
-		store,
 		bc,
 		messageCache,
 		nearByCache,
 		searchService,
+		userService,
 	)
 
 	server.Start(port)

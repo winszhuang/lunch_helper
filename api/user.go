@@ -18,7 +18,7 @@ func (s *Server) RegisterUser(c *gin.Context, event *linebot.Event) {
 		return
 	}
 
-	existUser, err := s.store.GetUserByLineID(c, userId)
+	existUser, err := s.userService.GetUserByLineID(c, userId)
 	if err == nil {
 		msg := fmt.Sprintf("歡迎%s重新回到服務~", existUser.Name)
 		s.bot.SendText(event.ReplyToken, msg)
@@ -31,7 +31,7 @@ func (s *Server) RegisterUser(c *gin.Context, event *linebot.Event) {
 		Picture: userProfile.PictureURL,
 	}
 
-	_, err = s.store.CreateUser(c, arg)
+	_, err = s.userService.CreateUser(c, arg)
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok {
 			s.bot.SendText(event.ReplyToken, fmt.Sprintf("資料庫使用者建檔失敗:  %s", pgErr.Code.Name()))

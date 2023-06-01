@@ -6,7 +6,6 @@ import (
 	"lunch_helper/bot/quickreply"
 	"lunch_helper/cache"
 	"lunch_helper/constant"
-	db "lunch_helper/db/sqlc"
 	"lunch_helper/service"
 	"net/http"
 	"strconv"
@@ -18,31 +17,34 @@ import (
 )
 
 type Server struct {
-	store         db.Store
 	router        *gin.Engine
 	bot           bot.BotClient
 	messageCache  *cache.MessageCache
 	nearByCache   *cache.NearByRestaurantCache
 	searchService *service.SearchService
+	userService   *service.UserService
 }
 
 func NewServer(
-	store db.Store,
 	bot bot.BotClient,
 	messageCache *cache.MessageCache,
 	nearByCache *cache.NearByRestaurantCache,
 	searchService *service.SearchService,
+	userService *service.UserService,
 ) *Server {
 	server := &Server{
-		store:         store,
 		bot:           bot,
 		messageCache:  messageCache,
 		nearByCache:   nearByCache,
 		searchService: searchService,
+		userService:   userService,
 	}
 	router := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
 
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"data": "hello"})
+	})
 	router.POST("/callback", func(c *gin.Context) {
 		events, err := bot.ParseRequest(c.Request)
 		if err != nil {
