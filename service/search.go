@@ -1,12 +1,14 @@
 package service
 
 import (
+	"database/sql"
 	"log"
 	"lunch_helper/adapter"
 	"lunch_helper/cache"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/thirdparty"
 
+	"golang.org/x/net/context"
 	"googlemaps.github.io/maps"
 )
 
@@ -17,14 +19,114 @@ var defaultSearchRequest = &maps.NearbySearchRequest{
 }
 
 type SearchService struct {
-	nearByCache *cache.NearByRestaurantCache
-	placeApi    thirdparty.PlaceApi
+	nearByCache       *cache.NearByRestaurantCache
+	placeApi          thirdparty.PlaceApi
+	crawlerService    *CrawlerService
+	restaurantService *RestaurantService
+	foodService       *FoodService
+	workChan          chan thirdparty.SearchResult
 }
 
-func NewSearchService(nearByCache *cache.NearByRestaurantCache, placeApi thirdparty.PlaceApi) *SearchService {
-	return &SearchService{
-		nearByCache: nearByCache,
-		placeApi:    placeApi,
+const WORKER_CHAN_SIZE = 10
+
+func NewSearchService(
+	nearByCache *cache.NearByRestaurantCache,
+	placeApi thirdparty.PlaceApi,
+	crawlerService *CrawlerService,
+	restaurantService *RestaurantService,
+	foodService *FoodService,
+	workerCount int,
+) *SearchService {
+	service := &SearchService{
+		nearByCache:       nearByCache,
+		placeApi:          placeApi,
+		crawlerService:    crawlerService,
+		restaurantService: restaurantService,
+		foodService:       foodService,
+		workChan:          make(chan thirdparty.SearchResult, WORKER_CHAN_SIZE),
+	}
+
+	for i := 0; i < workerCount; i++ {
+		go service.doWork()
+	}
+
+	return service
+}
+
+func (s *SearchService) doWork() {
+	ctx := context.Background()
+	apiKey := s.placeApi.GetApiKey()
+
+	for w := range s.workChan {
+		// 1. 確認資料庫是否有該餐廳資訊，沒有就註冊
+		// 2. 確認餐廳是否有被爬取過餐點資訊，有的話就跳過，沒有的話就爬取
+		// 3. 爬取後更新餐點到資料庫
+		restaurant, err := s.restaurantService.GetRestaurantByGoogleMapPlaceId(ctx, w.Data.PlaceID)
+		if err != nil {
+			item := adapter.SearchResultToRestaurant(w, apiKey)
+			restaurant, err = s.restaurantService.CreateRestaurant(ctx, db.CreateRestaurantParams{
+				Name:             item.Name,
+				Rating:           item.Rating,
+				UserRatingsTotal: item.UserRatingsTotal,
+				Address:          item.Address,
+				GoogleMapPlaceID: item.GoogleMapPlaceID,
+				GoogleMapUrl:     item.GoogleMapUrl,
+				PhoneNumber:      item.PhoneNumber,
+				Image:            item.Image,
+			})
+			if err != nil {
+				log.Printf("Create Restaurant %s error: %v", item.Name, err)
+			}
+		}
+
+		// 沒有爬取過就爬取
+		if !restaurant.MenuCrawled {
+			foods, err := s.crawlerService.CrawlFoodsFromGoogleMap(restaurant.GoogleMapUrl)
+			if err != nil {
+				log.Printf("Crawl Foods From Google Map %s error: %v", restaurant.GoogleMapUrl, err)
+			}
+
+			for _, food := range foods {
+				var correctFood sql.NullString
+				if food.Image == "" {
+					correctFood = sql.NullString{String: "", Valid: false}
+				} else {
+					correctFood = sql.NullString{String: food.Image, Valid: true}
+				}
+				var correctDescription sql.NullString
+				if food.Description == "" {
+					correctDescription = sql.NullString{String: "", Valid: false}
+				} else {
+					correctDescription = sql.NullString{String: food.Description, Valid: true}
+				}
+				if _, err := s.foodService.CreateFood(ctx, db.CreateFoodParams{
+					Name:         food.Name,
+					Price:        food.Price,
+					Image:        correctFood,
+					Description:  correctDescription,
+					RestaurantID: restaurant.ID,
+					EditBy:       sql.NullInt32{},
+				}); err != nil {
+					log.Printf("Create Food %s error: %v", food.Name, err)
+				}
+			}
+
+			if err = s.restaurantService.UpdateMenuCrawled(ctx, db.UpdateMenuCrawledParams{
+				ID:          restaurant.ID,
+				MenuCrawled: true,
+			}); err != nil {
+				log.Printf("Update MenuCrawled error: %v", err)
+			}
+
+		}
+	}
+}
+
+func (s *SearchService) sendSearchDataToWorker(data []thirdparty.SearchResult) {
+	for _, d := range data {
+		go func(singleDeliverData thirdparty.SearchResult) {
+			s.workChan <- singleDeliverData
+		}(d)
 	}
 }
 
@@ -64,13 +166,18 @@ func (s *SearchService) Search(lat, lng float64, radius, pageIndex, pageSize int
 		if err != nil {
 			return nil, err
 		}
+
+		// 獲取到的店家資訊丟給worker來爬蟲
+		s.sendSearchDataToWorker(resp)
+
+		// 加入cache清單
 		s.nearByCache.Append(
 			cache.LocationArgs{
 				Lat:    lat,
 				Lng:    lng,
 				Radius: radius,
 			},
-			cache.NewPageDataOfPlaces(currentToken, nextPageToken, adapter.SearchResultToRestaurant(resp, s.placeApi.GetApiKey())),
+			cache.NewPageDataOfPlaces(currentToken, nextPageToken, adapter.SearchResultsToRestaurants(resp, s.placeApi.GetApiKey())),
 		)
 		currentToken = nextPageToken
 	}

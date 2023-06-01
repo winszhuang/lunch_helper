@@ -67,8 +67,18 @@ func main() {
 	store := db.NewStore(conn)
 
 	// init service
-	searchService := service.NewSearchService(nearByCache, &placeApi)
 	userService := service.NewUserService(store)
+	restaurantService := service.NewRestaurantService(store)
+	foodService := service.NewFoodService(store)
+	crawlerService := service.NewCrawlerService(restaurantService)
+	searchService := service.NewSearchService(
+		nearByCache,
+		&placeApi,
+		crawlerService,
+		restaurantService,
+		foodService,
+		5,
+	)
 
 	// init api server
 	server := api.NewServer(
