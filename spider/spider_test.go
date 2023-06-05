@@ -1,4 +1,4 @@
-package main
+package spider
 
 import (
 	"testing"
@@ -10,8 +10,8 @@ const (
 	driverPath = "D:/chromedriver_win32/chromedriver.exe"
 )
 
-func TestDeliverLinkSpider_ScrapeDeliverLink(t *testing.T) {
-	spider, err := NewDeliverLinkSpider(driverPath)
+func TestGoogleDeliverLinkSpider_ScrapeDeliverLink(t *testing.T) {
+	spider, err := NewGoogleDeliverLinkSpider(driverPath)
 	require.NoError(t, err)
 
 	type args struct {
@@ -19,7 +19,7 @@ func TestDeliverLinkSpider_ScrapeDeliverLink(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		d       *DeliverLinkSpider
+		d       DeliverLinkSpider
 		args    args
 		want    string
 		wantErr bool

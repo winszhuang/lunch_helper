@@ -1,4 +1,4 @@
-package main
+package spider
 
 import (
 	"fmt"
@@ -8,13 +8,18 @@ import (
 	"github.com/tebeka/selenium/chrome"
 )
 
-type DeliverLinkSpider struct {
+type DeliverLinkSpider interface {
+	ScrapeDeliverLink(url string) (string, error)
+	Quit()
+}
+
+type GoogleDeliverLinkSpider struct {
 	service   *selenium.Service
 	WebDriver selenium.WebDriver
 }
 
 // 抓取外送平台店家網址
-func NewDeliverLinkSpider(chromeDriverPath string) (*DeliverLinkSpider, error) {
+func NewGoogleDeliverLinkSpider(chromeDriverPath string) (*GoogleDeliverLinkSpider, error) {
 	service, err := selenium.NewChromeDriverService(chromeDriverPath, 4444)
 	if err != nil {
 		return nil, err
@@ -49,18 +54,18 @@ func NewDeliverLinkSpider(chromeDriverPath string) (*DeliverLinkSpider, error) {
 		return nil, err
 	}
 
-	d := &DeliverLinkSpider{
+	d := &GoogleDeliverLinkSpider{
 		WebDriver: wd,
 		service:   service,
 	}
 	return d, nil
 }
 
-func (d *DeliverLinkSpider) Quit() {
+func (d *GoogleDeliverLinkSpider) Quit() {
 	d.service.Stop()
 }
 
-func (d *DeliverLinkSpider) findDeliverLink() (string, error) {
+func (d *GoogleDeliverLinkSpider) findDeliverLink() (string, error) {
 	foodpandaUrl, err := d.WebDriver.FindElement(selenium.ByCSSSelector, "[aria-label='foodpanda.com.tw']")
 	if err != nil {
 		return "", err
@@ -79,7 +84,7 @@ func (d *DeliverLinkSpider) findDeliverLink() (string, error) {
 	return "", nil
 }
 
-func (d *DeliverLinkSpider) ScrapeDeliverLink(url string) (string, error) {
+func (d *GoogleDeliverLinkSpider) ScrapeDeliverLink(url string) (string, error) {
 	err := d.WebDriver.Get(url)
 	if err != nil {
 		return "", err
