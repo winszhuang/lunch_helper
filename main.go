@@ -11,6 +11,7 @@ import (
 	"lunch_helper/config"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/service"
+	"lunch_helper/spider"
 	"lunch_helper/thirdparty"
 )
 
@@ -66,17 +67,25 @@ func main() {
 	// init db store
 	store := db.NewStore(conn)
 
+	// init crawler
+	deliverLinkSpider, err := spider.NewGoogleDeliverLinkSpider("D:/chromedriver_win32/chromedriver.exe")
+	if err != nil {
+		log.Fatalf("init google deliver link spider error: %v", err)
+	}
+
+	// init food deliver api
+	foodDeliverApi := thirdparty.NewCommonFoodDeliverApi()
+
 	// init service
 	userService := service.NewUserService(store)
 	restaurantService := service.NewRestaurantService(store)
 	foodService := service.NewFoodService(store)
-	crawlerService := service.NewCrawlerService(restaurantService)
+	crawlerService := service.NewCrawlerService(deliverLinkSpider, foodDeliverApi, *foodService)
 	searchService := service.NewSearchService(
 		nearByCache,
 		&placeApi,
 		crawlerService,
 		restaurantService,
-		foodService,
 		5,
 	)
 
