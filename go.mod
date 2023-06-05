@@ -9,12 +9,14 @@ require (
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
+	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/mmcloughlin/geohash v0.10.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/stretchr/testify v1.8.2 // indirect
+	github.com/tebeka/selenium v0.9.9 // indirect
 )
 
 require (
