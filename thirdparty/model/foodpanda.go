@@ -1,7 +1,7 @@
 package model
 
 type ProductVariation struct {
-	Price string `json:"price"`
+	Price float64 `json:"price"`
 }
 
 type Image struct {
