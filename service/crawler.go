@@ -59,7 +59,9 @@ func NewCrawlerService(
 }
 
 func (s *CrawlerService) SendWork(googleMapRestaurantUrl string) {
-	s.googleMapLinkChan <- googleMapRestaurantUrl
+	go func() {
+		s.googleMapLinkChan <- googleMapRestaurantUrl
+	}()
 }
 
 func (s *CrawlerService) crawlFoodDeliverLinks() {
