@@ -16,6 +16,7 @@ type DeliverLinkSpider interface {
 type GoogleDeliverLinkSpider struct {
 	service   *selenium.Service
 	WebDriver selenium.WebDriver
+	doing     chan bool
 }
 
 // 抓取外送平台店家網址
@@ -57,6 +58,7 @@ func NewGoogleDeliverLinkSpider(chromeDriverPath string) (*GoogleDeliverLinkSpid
 	d := &GoogleDeliverLinkSpider{
 		WebDriver: wd,
 		service:   service,
+		doing:     make(chan bool, 1),
 	}
 	return d, nil
 }
@@ -85,6 +87,12 @@ func (d *GoogleDeliverLinkSpider) findDeliverLink() (string, error) {
 }
 
 func (d *GoogleDeliverLinkSpider) ScrapeDeliverLink(url string) (string, error) {
+	// 確保一次只能有一個抓取動作
+	d.doing <- true
+	defer func() {
+		<-d.doing
+	}()
+
 	err := d.WebDriver.Get(url)
 	if err != nil {
 		return "", err

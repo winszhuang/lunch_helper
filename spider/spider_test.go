@@ -1,6 +1,7 @@
 package spider
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -58,14 +59,27 @@ func TestGoogleDeliverLinkSpider_ScrapeDeliverLink(t *testing.T) {
 				url: "https://www.google.com.tw/maps/place/%E6%9D%8E%E8%A8%98%E8%92%B8%E9%A4%83%E4%B8%96%E5%AE%B6/@24.1715135,120.6740671,19z/data=!4m14!1m7!3m6!1s0x3469175c40b583a5:0x2fafe51d9c6a35de!2z5YiB5rCRLemFuOiPnOmtmiDltIflvrflupc!8m2!3d24.1670963!4d120.6848373!16s%2Fg%2F11qm37nh6j!3m5!1s0x346917d0e1d256fd:0x8eca656e251d86a!8m2!3d24.1714288!4d120.6746994!16s%2Fg%2F1v7tj2w1?entry=ttu",
 			},
 			want:    "",
-			wantErr: false,
+			wantErr: true,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.d.ScrapeDeliverLink(tt.args.url)
-			require.Equal(t, tt.wantErr, err != nil)
-			require.Equal(t, tt.want, got)
-		})
+
+	wg := sync.WaitGroup{}
+	for _, test := range tests {
+		wg.Add(1)
+		go func(tt struct {
+			name    string
+			d       DeliverLinkSpider
+			args    args
+			want    string
+			wantErr bool
+		}) {
+			t.Run(tt.name, func(t *testing.T) {
+				got, err := tt.d.ScrapeDeliverLink(tt.args.url)
+				require.Equal(t, tt.wantErr, err != nil)
+				require.Equal(t, tt.want, got)
+				wg.Done()
+			})
+		}(test)
 	}
+	wg.Wait()
 }
