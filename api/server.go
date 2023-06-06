@@ -24,6 +24,7 @@ type Server struct {
 	searchService     *service.SearchService
 	userService       *service.UserService
 	restaurantService *service.RestaurantService
+	foodService       *service.FoodService
 	crawlerService    *service.CrawlerService
 }
 
@@ -34,6 +35,7 @@ func NewServer(
 	searchService *service.SearchService,
 	userService *service.UserService,
 	restaurantService *service.RestaurantService,
+	foodService *service.FoodService,
 	crawlerService *service.CrawlerService,
 ) *Server {
 	server := &Server{
@@ -43,6 +45,7 @@ func NewServer(
 		searchService:     searchService,
 		userService:       userService,
 		restaurantService: restaurantService,
+		foodService:       foodService,
 		crawlerService:    crawlerService,
 	}
 	router := gin.Default()
@@ -102,7 +105,7 @@ func NewServer(
 				case constant.LatLngPageIndex.MatchString(event.Postback.Data):
 					server.HandleSearchNextPageRestaurants(c, event)
 				case strings.Contains(event.Postback.Data, "/restaurantmenu"):
-					// server.GetFoods(c, event)
+					server.HandleGetFoods(c, event)
 				}
 			case linebot.EventTypeMessage:
 				switch messageData := event.Message.(type) {

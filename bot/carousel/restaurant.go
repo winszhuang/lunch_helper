@@ -59,6 +59,11 @@ func CreateRestaurantContainer(r db.Restaurant) *linebot.BubbleContainer {
 		image = DEFAULT_IMAGE_URL
 	}
 
+	if r.GoogleMapUrl == "" {
+		fmt.Sprintf("%s找不到google map url", r.Name)
+		r.GoogleMapUrl = "https://www.google.com.tw/maps"
+	}
+
 	return &linebot.BubbleContainer{
 		Type: linebot.FlexContainerTypeBubble,
 		Size: linebot.FlexBubbleSizeTypeMicro,
@@ -191,8 +196,8 @@ func CreateRestaurantContainer(r db.Restaurant) *linebot.BubbleContainer {
 					Type:   linebot.FlexComponentTypeButton,
 					Height: "sm",
 					Action: &linebot.PostbackAction{
-						Label: "選擇餐廳",
-						Data:  "&action=restaurant",
+						Label: "查看菜單",
+						Data:  fmt.Sprintf("/restaurantmenu=%d", r.ID),
 					},
 					Margin: linebot.FlexComponentMarginTypeLg,
 				},
@@ -201,8 +206,8 @@ func CreateRestaurantContainer(r db.Restaurant) *linebot.BubbleContainer {
 					Height: "sm",
 					Style:  linebot.FlexButtonStyleTypeLink,
 					Action: &linebot.URIAction{
-						Label: "詳細資料",
-						URI:   "https://mileslin.github.io/2020/08/Golang/Live-Reload-For-Go/",
+						Label: "地圖上查看",
+						URI:   r.GoogleMapUrl,
 					},
 				},
 			},

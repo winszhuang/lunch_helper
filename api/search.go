@@ -108,6 +108,8 @@ func (s *Server) searchSaveAndSend(
 	}
 
 	restaurantList := s.saveRestaurantsToDB(c, list)
+	// #TODO 如果爬過就不再爬
+	s.sendToCrawlerWork(restaurantList)
 	s.sendRestaurantsWithCarousel(event, restaurantList, args)
 }
 
@@ -147,4 +149,11 @@ func (s *Server) saveRestaurantsToDB(c *gin.Context, list []db.Restaurant) []db.
 		}
 	}
 	return restaurantList
+}
+
+// 送去給爬蟲服務爬蟲
+func (s *Server) sendToCrawlerWork(restaurantList []db.Restaurant) {
+	for _, restaurant := range restaurantList {
+		s.crawlerService.SendWork(restaurant)
+	}
 }
