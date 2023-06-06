@@ -1,7 +1,6 @@
 package service
 
 import (
-	"database/sql"
 	"log"
 	"lunch_helper/adapter"
 	"lunch_helper/cache"
@@ -23,7 +22,6 @@ type SearchService struct {
 	placeApi          thirdparty.PlaceApi
 	crawlerService    *CrawlerService
 	restaurantService *RestaurantService
-	foodService       *FoodService
 	workChan          chan thirdparty.SearchResult
 }
 
@@ -34,7 +32,6 @@ func NewSearchService(
 	placeApi thirdparty.PlaceApi,
 	crawlerService *CrawlerService,
 	restaurantService *RestaurantService,
-	foodService *FoodService,
 	workerCount int,
 ) *SearchService {
 	service := &SearchService{
@@ -42,7 +39,6 @@ func NewSearchService(
 		placeApi:          placeApi,
 		crawlerService:    crawlerService,
 		restaurantService: restaurantService,
-		foodService:       foodService,
 		workChan:          make(chan thirdparty.SearchResult, WORKER_CHAN_SIZE),
 	}
 
@@ -81,35 +77,8 @@ func (s *SearchService) doWork() {
 
 		// 沒有爬取過就爬取
 		if !restaurant.MenuCrawled {
-			foods, err := s.crawlerService.CrawlFoodsFromGoogleMap(restaurant.GoogleMapUrl)
-			if err != nil {
-				log.Printf("Crawl Foods From Google Map %s error: %v", restaurant.GoogleMapUrl, err)
-			}
-
-			for _, food := range foods {
-				var correctFood sql.NullString
-				if food.Image == "" {
-					correctFood = sql.NullString{String: "", Valid: false}
-				} else {
-					correctFood = sql.NullString{String: food.Image, Valid: true}
-				}
-				var correctDescription sql.NullString
-				if food.Description == "" {
-					correctDescription = sql.NullString{String: "", Valid: false}
-				} else {
-					correctDescription = sql.NullString{String: food.Description, Valid: true}
-				}
-				if _, err := s.foodService.CreateFood(ctx, db.CreateFoodParams{
-					Name:         food.Name,
-					Price:        food.Price,
-					Image:        correctFood,
-					Description:  correctDescription,
-					RestaurantID: restaurant.ID,
-					EditBy:       sql.NullInt32{},
-				}); err != nil {
-					log.Printf("Create Food %s error: %v", food.Name, err)
-				}
-			}
+			// 加入爬蟲代辦清單，並且更新dishes至資料庫
+			s.crawlerService.SendWork(restaurant.GoogleMapUrl)
 
 			if err = s.restaurantService.UpdateMenuCrawled(ctx, db.UpdateMenuCrawledParams{
 				ID:          restaurant.ID,
