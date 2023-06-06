@@ -18,18 +18,6 @@ type CrawlerService struct {
 	foodService       FoodService
 }
 
-type CrawFood struct {
-	Name        string
-	Price       string
-	Image       string
-	Description string
-	Category    string
-}
-
-type CrawlRequest struct {
-	name string
-}
-
 const (
 	MAX_COUNT_OF_DELIVER_LINK_CHAN      = 100
 	MAX_COUNT_OF_DO_FETCH_DISHES_WORKER = 10
