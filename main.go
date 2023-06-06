@@ -81,13 +81,7 @@ func main() {
 	restaurantService := service.NewRestaurantService(store)
 	foodService := service.NewFoodService(store)
 	crawlerService := service.NewCrawlerService(deliverLinkSpider, foodDeliverApi, *foodService)
-	searchService := service.NewSearchService(
-		nearByCache,
-		&placeApi,
-		crawlerService,
-		restaurantService,
-		5,
-	)
+	searchService := service.NewSearchService(nearByCache, &placeApi)
 
 	// init api server
 	server := api.NewServer(
@@ -96,6 +90,9 @@ func main() {
 		nearByCache,
 		searchService,
 		userService,
+		restaurantService,
+		foodService,
+		crawlerService,
 	)
 
 	server.Start(port)

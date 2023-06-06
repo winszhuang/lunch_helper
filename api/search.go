@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"lunch_helper/bot/carousel"
 	"lunch_helper/bot/quickreply"
 	"lunch_helper/constant"
@@ -18,7 +19,14 @@ const (
 	MaximumNumberOfCarouselItems = 10
 )
 
-func (s *Server) SearchFirstPageRestaurants(c *gin.Context, event *linebot.Event) {
+type SearchArgs struct {
+	lat       float64
+	lng       float64
+	radius    int
+	pageIndex int
+}
+
+func (s *Server) HandleSearchFirstPageRestaurants(c *gin.Context, event *linebot.Event) {
 	userId := event.Source.UserID
 
 	radius := s.messageCache.GetCurrentRadius(userId)
@@ -28,40 +36,17 @@ func (s *Server) SearchFirstPageRestaurants(c *gin.Context, event *linebot.Event
 		return
 	}
 
-	list, err := s.searchService.Search(
-		uc.LatLng.Lat,
-		uc.LatLng.Lng,
-		radius,
-		DefaultPageIndex,
-		MaximumNumberOfCarouselItems,
-	)
-	if err != nil {
-		msg := fmt.Sprintf("搜尋有問題: %v", err)
-		s.bot.SendText(event.ReplyToken, msg)
-		return
+	searchArgs := &SearchArgs{
+		lat:       uc.LatLng.Lat,
+		lng:       uc.LatLng.Lng,
+		pageIndex: DefaultPageIndex,
+		radius:    radius,
 	}
 
-	if len(list) == 0 {
-		s.bot.SendText(event.ReplyToken, "附近沒有店家")
-		return
-	}
-
-	component := carousel.CreateCarouselWithNext(
-		list,
-		func(restaurant db.Restaurant) *linebot.BubbleContainer {
-			return carousel.CreateRestaurantContainer(restaurant)
-		},
-		func() *linebot.BubbleContainer {
-			if len(list) < MaximumNumberOfCarouselItems {
-				return nil
-			}
-			return carousel.CreateRestaurantNextPageContainer(DefaultPageIndex+1, uc.LatLng.Lat, uc.LatLng.Lng, radius)
-		},
-	)
-	s.bot.SendFlex(event.ReplyToken, "carousel", component)
+	s.searchSaveAndSend(c, event, searchArgs)
 }
 
-func (s *Server) SearchNextPageRestaurants(c *gin.Context, event *linebot.Event) {
+func (s *Server) HandleSearchNextPageRestaurants(c *gin.Context, event *linebot.Event) {
 	args := util.ParseRegexQuery(event.Postback.Data, constant.LatLngPageIndex)
 	if len(args) != 4 {
 		s.bot.SendText(event.ReplyToken, "下一頁參數錯誤!!")
@@ -89,11 +74,26 @@ func (s *Server) SearchNextPageRestaurants(c *gin.Context, event *linebot.Event)
 		return
 	}
 
+	searchArgs := &SearchArgs{
+		lat:       lat,
+		lng:       lng,
+		pageIndex: pageIndex,
+		radius:    radius,
+	}
+
+	s.searchSaveAndSend(c, event, searchArgs)
+}
+
+func (s *Server) searchSaveAndSend(
+	c *gin.Context,
+	event *linebot.Event,
+	args *SearchArgs,
+) {
 	list, err := s.searchService.Search(
-		lat,
-		lng,
-		radius,
-		pageIndex,
+		args.lat,
+		args.lng,
+		args.radius,
+		args.pageIndex,
 		MaximumNumberOfCarouselItems,
 	)
 	if err != nil {
@@ -107,17 +107,44 @@ func (s *Server) SearchNextPageRestaurants(c *gin.Context, event *linebot.Event)
 		return
 	}
 
+	restaurantList := s.saveRestaurantsToDB(c, list)
+	s.sendRestaurantsWithCarousel(event, restaurantList, args)
+}
+
+func (s *Server) sendRestaurantsWithCarousel(event *linebot.Event, restaurantList []db.Restaurant, args *SearchArgs) {
 	component := carousel.CreateCarouselWithNext(
-		list,
+		restaurantList,
 		func(restaurant db.Restaurant) *linebot.BubbleContainer {
 			return carousel.CreateRestaurantContainer(restaurant)
 		},
 		func() *linebot.BubbleContainer {
-			if len(list) < MaximumNumberOfCarouselItems {
+			if len(restaurantList) < MaximumNumberOfCarouselItems {
 				return nil
 			}
-			return carousel.CreateRestaurantNextPageContainer(pageIndex+1, lat, lng, radius)
+			return carousel.CreateRestaurantNextPageContainer(args.pageIndex+1, args.lat, args.lng, args.radius)
 		},
 	)
 	s.bot.SendFlex(event.ReplyToken, "carousel", component)
+}
+
+func (s *Server) saveRestaurantsToDB(c *gin.Context, list []db.Restaurant) []db.Restaurant {
+	restaurantList := []db.Restaurant{}
+	for _, restaurant := range list {
+		r, err := s.restaurantService.CreateRestaurant(c, db.CreateRestaurantParams{
+			Name:             restaurant.Name,
+			Rating:           restaurant.Rating,
+			UserRatingsTotal: restaurant.UserRatingsTotal,
+			Address:          restaurant.Address,
+			GoogleMapPlaceID: restaurant.GoogleMapPlaceID,
+			GoogleMapUrl:     restaurant.GoogleMapUrl,
+			PhoneNumber:      restaurant.PhoneNumber,
+			Image:            restaurant.Image,
+		})
+		if err != nil {
+			log.Printf("CreateRestaurant error: %v", err)
+		} else {
+			restaurantList = append(restaurantList, r)
+		}
+	}
+	return restaurantList
 }

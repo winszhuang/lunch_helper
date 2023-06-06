@@ -17,12 +17,14 @@ import (
 )
 
 type Server struct {
-	router        *gin.Engine
-	bot           bot.BotClient
-	messageCache  *cache.MessageCache
-	nearByCache   *cache.NearByRestaurantCache
-	searchService *service.SearchService
-	userService   *service.UserService
+	router            *gin.Engine
+	bot               bot.BotClient
+	messageCache      *cache.MessageCache
+	nearByCache       *cache.NearByRestaurantCache
+	searchService     *service.SearchService
+	userService       *service.UserService
+	restaurantService *service.RestaurantService
+	crawlerService    *service.CrawlerService
 }
 
 func NewServer(
@@ -31,13 +33,17 @@ func NewServer(
 	nearByCache *cache.NearByRestaurantCache,
 	searchService *service.SearchService,
 	userService *service.UserService,
+	restaurantService *service.RestaurantService,
+	crawlerService *service.CrawlerService,
 ) *Server {
 	server := &Server{
-		bot:           bot,
-		messageCache:  messageCache,
-		nearByCache:   nearByCache,
-		searchService: searchService,
-		userService:   userService,
+		bot:               bot,
+		messageCache:      messageCache,
+		nearByCache:       nearByCache,
+		searchService:     searchService,
+		userService:       userService,
+		restaurantService: restaurantService,
+		crawlerService:    crawlerService,
 	}
 	router := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
@@ -64,7 +70,7 @@ func NewServer(
 			case linebot.EventTypePostback:
 				switch event.Postback.Data {
 				case string(constant.Search):
-					server.SearchFirstPageRestaurants(c, event)
+					server.HandleSearchFirstPageRestaurants(c, event)
 				case string(constant.SearchLocation):
 					server.bot.SendTextWithQuickReplies(event.ReplyToken, "請傳送定位資訊", quickreply.QuickReplyLocation())
 				case string(constant.SearchText):
@@ -94,7 +100,9 @@ func NewServer(
 				}
 				switch {
 				case constant.LatLngPageIndex.MatchString(event.Postback.Data):
-					server.SearchNextPageRestaurants(c, event)
+					server.HandleSearchNextPageRestaurants(c, event)
+				case strings.Contains(event.Postback.Data, "/restaurantmenu"):
+					// server.GetFoods(c, event)
 				}
 			case linebot.EventTypeMessage:
 				switch messageData := event.Message.(type) {
@@ -110,7 +118,7 @@ func NewServer(
 					message := strings.TrimSpace(messageData.Text)
 					switch message {
 					case string(constant.Search):
-						server.SearchFirstPageRestaurants(c, event)
+						server.HandleSearchFirstPageRestaurants(c, event)
 					case string(constant.SearchLocation):
 						server.bot.SendText(event.ReplyToken, "請傳送定位資訊")
 					case string(constant.SearchText):
