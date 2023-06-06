@@ -66,7 +66,7 @@ func (m *GoogleMapPlaceApi) appendDetail(list []maps.PlacesSearchResult) []Searc
 				PlaceID: result.PlaceID,
 			})
 			if err != nil {
-				log.Printf("Failed to get place details for %s %s: %v", result.Name, result.Vicinity, err)
+				log.Printf("Failed to get place details for %s %s: %v, placeId is %s", result.Name, result.Vicinity, err, result.PlaceID)
 				detailResp = maps.PlaceDetailsResult{}
 			}
 
