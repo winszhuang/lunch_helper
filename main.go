@@ -72,6 +72,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("init google deliver link spider error: %v", err)
 	}
+	defer deliverLinkSpider.Quit()
 
 	// init food deliver api
 	foodDeliverApi := thirdparty.NewCommonFoodDeliverApi()
@@ -83,8 +84,8 @@ func main() {
 	userService := service.NewUserService(store)
 	restaurantService := service.NewRestaurantService(store)
 	foodService := service.NewFoodService(store)
-	crawlerService := service.NewCrawlerService(deliverLinkSpider, foodDeliverApi, *foodService, *logService)
 	searchService := service.NewSearchService(nearByCache, &placeApi)
+	crawlerService := service.NewCrawlerService(deliverLinkSpider, foodDeliverApi, *foodService, *logService)
 
 	// init api server
 	server := api.NewServer(

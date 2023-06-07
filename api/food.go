@@ -38,11 +38,18 @@ func (s *Server) HandleGetFoods(c *gin.Context, event *linebot.Event) {
 
 	// 沒有菜單的情況
 	if restaurant.GoogleMapUrl == "" {
+		s.logService.Errorf("restaurant %s has no google map url. google map id is %s", restaurant.Name, restaurant.GoogleMapPlaceID)
 		s.bot.SendText(event.ReplyToken, "未在google上找到相關菜單")
 		return
 	}
+
+	if restaurant.MenuCrawled {
+		s.bot.SendText(event.ReplyToken, "網路上爬不到菜單哦")
+		return
+	}
+
+	s.bot.SendText(event.ReplyToken, "暫時沒菜單，我再爬看看 ~ 請稍後再試")
 	s.crawlerService.SendPriorityWork(restaurant)
-	s.bot.SendText(event.ReplyToken, "爬取菜單中，請稍後再試")
 
 	// #TODO 等待直到該任務爬蟲完
 	// s.crawlerService.CheckWorkDone(restaurant.GoogleMapUrl)

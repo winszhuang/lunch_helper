@@ -114,7 +114,7 @@ func (d *GoogleDeliverLinkSpider) ScrapeDeliverLink(url string) (string, error) 
 		return orderEl != nil, err
 	}
 
-	err = d.WebDriver.WaitWithTimeout(getOrderButtonCondition, time.Second*5)
+	err = d.WebDriver.WaitWithTimeout(getOrderButtonCondition, time.Second*4)
 	if err != nil {
 		return "", err
 	}
@@ -145,7 +145,7 @@ func (d *GoogleDeliverLinkSpider) ScrapeDeliverLink(url string) (string, error) 
 		return el != nil, err
 	}
 
-	err = d.WebDriver.WaitWithTimeout(selectDeliversCondition, 5*time.Second)
+	err = d.WebDriver.WaitWithTimeout(selectDeliversCondition, 2*time.Second)
 	if err != nil {
 		return "", err
 	}

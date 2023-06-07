@@ -87,19 +87,22 @@ func (s *Server) searchSaveAndSend(
 	event *linebot.Event,
 	args *SearchArgs,
 ) {
-	list, errList := s.searchService.Search(
+	list, searchErr := s.searchService.Search(
 		args.lat,
 		args.lng,
 		args.radius,
 		args.pageIndex,
 		MaximumNumberOfCarouselItems,
 	)
-	if len(errList) > 0 {
+	if searchErr.Err != nil {
+		s.logService.Error(searchErr.Err)
 		s.bot.SendText(event.ReplyToken, "搜尋有問題")
-		for _, e := range errList {
-			s.logService.Error(e)
-		}
 		return
+	}
+
+	// 紀錄呼叫map detail api是否有異常
+	for _, e := range searchErr.DetailErrors {
+		s.logService.Error(e)
 	}
 
 	if len(list) == 0 {
@@ -108,9 +111,18 @@ func (s *Server) searchSaveAndSend(
 	}
 
 	restaurantList := s.saveRestaurantsToDB(c, list)
-	// #TODO 如果爬過就不再爬
-	s.sendToCrawlerWork(restaurantList)
 	s.sendRestaurantsWithCarousel(event, restaurantList, args)
+
+	// send to crawl
+	for _, r := range restaurantList {
+		if !r.MenuCrawled {
+			s.sendToCrawlerWork(r)
+			s.restaurantService.UpdateMenuCrawled(c, db.UpdateMenuCrawledParams{
+				MenuCrawled: true,
+				ID:          r.ID,
+			})
+		}
+	}
 }
 
 func (s *Server) sendRestaurantsWithCarousel(event *linebot.Event, restaurantList []db.Restaurant, args *SearchArgs) {
@@ -152,8 +164,6 @@ func (s *Server) saveRestaurantsToDB(c *gin.Context, list []db.Restaurant) []db.
 }
 
 // 送去給爬蟲服務爬蟲
-func (s *Server) sendToCrawlerWork(restaurantList []db.Restaurant) {
-	for _, restaurant := range restaurantList {
-		s.crawlerService.SendWork(restaurant)
-	}
+func (s *Server) sendToCrawlerWork(restaurant db.Restaurant) {
+	s.crawlerService.SendWork(restaurant)
 }

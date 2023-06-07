@@ -33,7 +33,8 @@ func NewSearchService(
 	}
 }
 
-func (s *SearchService) Search(lat, lng float64, radius, pageIndex, pageSize int) ([]db.Restaurant, []error) {
+func (s *SearchService) Search(lat, lng float64, radius, pageIndex, pageSize int) ([]db.Restaurant, thirdparty.SearchError) {
+	detailErrorList := []error{}
 	currentToken := s.nearByCache.GetLastPageToken(cache.LocationArgs{
 		Lat:    lat,
 		Lng:    lng,
@@ -50,12 +51,12 @@ func (s *SearchService) Search(lat, lng float64, radius, pageIndex, pageSize int
 			pageSize,
 		)
 		if isEnough {
-			return list, nil
+			return list, thirdparty.SearchError{Err: nil, DetailErrors: detailErrorList}
 		}
 
 		// 資料不夠，繼續fetch
 		log.Println("資料不夠，繼續fetch")
-		resp, nextPageToken, err := s.placeApi.NearbySearch(&maps.NearbySearchRequest{
+		resp, nextPageToken, searchErr := s.placeApi.NearbySearch(&maps.NearbySearchRequest{
 			Location: &maps.LatLng{
 				Lat: lat,
 				Lng: lng,
@@ -66,9 +67,11 @@ func (s *SearchService) Search(lat, lng float64, radius, pageIndex, pageSize int
 			OpenNow:   defaultSearchRequest.OpenNow,
 			PageToken: currentToken,
 		})
-		if err != nil {
-			return nil, err
+		if searchErr.Err != nil {
+			return []db.Restaurant{}, searchErr
 		}
+
+		detailErrorList = append(detailErrorList, searchErr.DetailErrors...)
 
 		// 加入cache清單
 		s.nearByCache.Append(

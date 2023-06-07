@@ -86,6 +86,7 @@ func (s *CrawlerService) doCrawl() {
 		select {
 		// 急件處理
 		case chanData := <-s.priorityGoogleMapLinkChan:
+			s.logService.Debugf("進來急件處理: %s", chanData.GoogleMapRestaurantUrl)
 			s.crawlFoodDeliverLinks(chanData)
 		default:
 			chanData := <-s.googleMapLinkChan

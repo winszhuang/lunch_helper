@@ -9,8 +9,8 @@ import (
 )
 
 type PlaceApi interface {
-	NearbySearch(nearbySearchRequest *maps.NearbySearchRequest) ([]SearchResult, string, []error)
-	TextSearch(query *maps.TextSearchRequest) ([]SearchResult, string, []error)
+	NearbySearch(nearbySearchRequest *maps.NearbySearchRequest) ([]SearchResult, string, SearchError)
+	TextSearch(query *maps.TextSearchRequest) ([]SearchResult, string, SearchError)
 	GetApiKey() string
 }
 
@@ -22,6 +22,11 @@ type GoogleMapPlaceApi struct {
 type SearchResult struct {
 	Data   maps.PlacesSearchResult
 	Detail maps.PlaceDetailsResult
+}
+
+type SearchError struct {
+	Err          error
+	DetailErrors []error
 }
 
 var defaultFields = []maps.PlaceDetailsFieldMask{
@@ -37,24 +42,24 @@ func NewGoogleMapPlaceApi(apiKey string) (GoogleMapPlaceApi, error) {
 	return GoogleMapPlaceApi{client, apiKey}, nil
 }
 
-func (m *GoogleMapPlaceApi) NearbySearch(nearbySearchRequest *maps.NearbySearchRequest) ([]SearchResult, string, []error) {
+func (m *GoogleMapPlaceApi) NearbySearch(nearbySearchRequest *maps.NearbySearchRequest) ([]SearchResult, string, SearchError) {
 	resp, err := m.client.NearbySearch(context.Background(), nearbySearchRequest)
 	if err != nil {
-		return nil, "", []error{err}
+		return nil, "", SearchError{Err: err}
 	}
 
 	results, errs := m.appendDetail(resp.Results)
-	return results, resp.NextPageToken, errs
+	return results, resp.NextPageToken, SearchError{Err: nil, DetailErrors: errs}
 }
 
-func (m *GoogleMapPlaceApi) TextSearch(query *maps.TextSearchRequest) ([]SearchResult, string, []error) {
+func (m *GoogleMapPlaceApi) TextSearch(query *maps.TextSearchRequest) ([]SearchResult, string, SearchError) {
 	resp, err := m.client.TextSearch(context.Background(), query)
 	if err != nil {
-		return nil, "", []error{err}
+		return nil, "", SearchError{Err: err}
 	}
 
 	results, errs := m.appendDetail(resp.Results)
-	return results, resp.NextPageToken, errs
+	return results, resp.NextPageToken, SearchError{Err: nil, DetailErrors: errs}
 }
 
 func (m *GoogleMapPlaceApi) GetApiKey() string {
@@ -64,7 +69,7 @@ func (m *GoogleMapPlaceApi) GetApiKey() string {
 func (m *GoogleMapPlaceApi) appendDetail(list []maps.PlacesSearchResult) ([]SearchResult, []error) {
 	var wg sync.WaitGroup
 	results := make([]SearchResult, len(list))
-	errs := make([]error, len(list))
+	errorList := []error{}
 	for i, result := range list {
 		wg.Add(1)
 		go func(i int, result maps.PlacesSearchResult, errList []error) {
@@ -84,9 +89,9 @@ func (m *GoogleMapPlaceApi) appendDetail(list []maps.PlacesSearchResult) ([]Sear
 				Detail: detailResp,
 			}
 			wg.Done()
-		}(i, result, errs)
+		}(i, result, errorList)
 	}
 
 	wg.Wait()
-	return results, errs
+	return results, errorList
 }
