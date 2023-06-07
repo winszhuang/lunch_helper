@@ -114,13 +114,16 @@ func (s *Server) searchSaveAndSend(
 	s.sendRestaurantsWithCarousel(event, restaurantList, args)
 
 	// send to crawl
-	for _, r := range restaurantList {
-		if !r.MenuCrawled {
-			s.sendToCrawlerWork(r)
-			s.restaurantService.UpdateMenuCrawled(c, db.UpdateMenuCrawledParams{
-				MenuCrawled: true,
-				ID:          r.ID,
-			})
+	for _, restaurant := range restaurantList {
+		if !restaurant.MenuCrawled {
+			go func(r db.Restaurant) {
+				<-s.crawlerService.SendWork(r)
+				// 確定做完才更新"已爬蟲"
+				s.restaurantService.UpdateMenuCrawled(c, db.UpdateMenuCrawledParams{
+					MenuCrawled: true,
+					ID:          r.ID,
+				})
+			}(restaurant)
 		}
 	}
 }
@@ -161,9 +164,4 @@ func (s *Server) saveRestaurantsToDB(c *gin.Context, list []db.Restaurant) []db.
 		}
 	}
 	return restaurantList
-}
-
-// 送去給爬蟲服務爬蟲
-func (s *Server) sendToCrawlerWork(restaurant db.Restaurant) {
-	s.crawlerService.SendWork(restaurant)
 }

@@ -24,6 +24,7 @@ type ChanData struct {
 	GoogleMapRestaurantUrl   string
 	FoodDeliverRestaurantUrl string
 	RestaurantId             int32
+	done                     chan bool
 }
 
 const (
@@ -57,29 +58,30 @@ func NewCrawlerService(
 	return service
 }
 
-func (s *CrawlerService) SendWork(restaurantData db.Restaurant) {
+func (s *CrawlerService) SendWork(restaurantData db.Restaurant) chan bool {
+	done := make(chan bool, 1)
 	go func() {
 		s.googleMapLinkChan <- ChanData{
 			GoogleMapRestaurantUrl: restaurantData.GoogleMapUrl,
 			RestaurantId:           restaurantData.ID,
+			done:                   done,
 		}
 	}()
+	return done
 }
 
 // 發送優先任務，worker中其他工作會先暫緩，優先處理這個
-func (s *CrawlerService) SendPriorityWork(restaurantData db.Restaurant) {
+func (s *CrawlerService) SendPriorityWork(restaurantData db.Restaurant) chan bool {
+	done := make(chan bool, 1)
 	go func() {
 		s.priorityGoogleMapLinkChan <- ChanData{
 			GoogleMapRestaurantUrl: restaurantData.GoogleMapUrl,
 			RestaurantId:           restaurantData.ID,
+			done:                   done,
 		}
 	}()
+	return done
 }
-
-// #TODO 可等待任務完成
-// func (s *CrawlerService) CheckWorkDone(googleMapRestaurantUrl string) {
-
-// }
 
 func (s *CrawlerService) doCrawl() {
 	for {
@@ -114,6 +116,7 @@ func (s *CrawlerService) fetchDishes() {
 		dishes, err := s.foodDeliverApi.GetDishes(chanData.FoodDeliverRestaurantUrl)
 		if err != nil {
 			s.logService.Errorf("url %s dishes fetch error: %v", chanData.FoodDeliverRestaurantUrl, err)
+			chanData.done <- false
 			continue
 		}
 
@@ -123,6 +126,7 @@ func (s *CrawlerService) fetchDishes() {
 				s.logService.Errorf("url %s dishes save error: %v", chanData.FoodDeliverRestaurantUrl, err)
 			}
 		}
+		chanData.done <- true
 	}
 }
 
