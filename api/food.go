@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"lunch_helper/bot/flex"
 	"strconv"
 	"strings"
@@ -11,23 +10,23 @@ import (
 )
 
 func (s *Server) HandleGetFoods(c *gin.Context, event *linebot.Event) {
-	log.Printf("event.Postback.Data: %s", event.Postback.Data)
+	s.logService.Debugf("event.Postback.Data: %s", event.Postback.Data)
 	restaurantId := strings.Split(event.Postback.Data, "/restaurantmenu=")[1]
 	id, err := strconv.Atoi(restaurantId)
 	if err != nil {
-		log.Printf("failed to parse restaurant id: %v", err)
+		s.logService.Errorf("failed to parse restaurant id: %v", err)
 	}
 
 	restaurant, err := s.restaurantService.GetRestaurant(c, int32(id))
 	if err != nil {
-		log.Printf("failed to get restaurant: %v", err)
+		s.logService.Errorf("failed to get restaurant: %v", err)
 		return
 	}
 
 	foods, err := s.foodService.GetFoods(c, int32(id))
 	if err != nil {
 		s.bot.SendText(event.ReplyToken, "取得菜單失敗")
-		log.Printf("failed to get foods: %v", err)
+		s.logService.Errorf("failed to get foods: %v", err)
 		return
 	}
 

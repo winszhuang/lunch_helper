@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"log"
 	"lunch_helper/bot/carousel"
 	"lunch_helper/bot/quickreply"
 	"lunch_helper/constant"
@@ -143,7 +142,7 @@ func (s *Server) saveRestaurantsToDB(c *gin.Context, list []db.Restaurant) []db.
 			Image:            restaurant.Image,
 		})
 		if err != nil {
-			log.Printf("CreateRestaurant error: %v", err)
+			s.logService.Errorf("CreateRestaurant error: %v", err)
 		} else {
 			restaurantList = append(restaurantList, r)
 		}

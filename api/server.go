@@ -26,6 +26,7 @@ type Server struct {
 	restaurantService *service.RestaurantService
 	foodService       *service.FoodService
 	crawlerService    *service.CrawlerService
+	logService        *service.LogService
 }
 
 func NewServer(
@@ -37,6 +38,7 @@ func NewServer(
 	restaurantService *service.RestaurantService,
 	foodService *service.FoodService,
 	crawlerService *service.CrawlerService,
+	logService *service.LogService,
 ) *Server {
 	server := &Server{
 		bot:               bot,
@@ -47,6 +49,7 @@ func NewServer(
 		restaurantService: restaurantService,
 		foodService:       foodService,
 		crawlerService:    crawlerService,
+		logService:        logService,
 	}
 	router := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
