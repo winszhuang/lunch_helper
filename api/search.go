@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"lunch_helper/bot/carousel"
 	"lunch_helper/bot/quickreply"
 	"lunch_helper/constant"
@@ -88,16 +87,18 @@ func (s *Server) searchSaveAndSend(
 	event *linebot.Event,
 	args *SearchArgs,
 ) {
-	list, err := s.searchService.Search(
+	list, errList := s.searchService.Search(
 		args.lat,
 		args.lng,
 		args.radius,
 		args.pageIndex,
 		MaximumNumberOfCarouselItems,
 	)
-	if err != nil {
-		msg := fmt.Sprintf("搜尋有問題: %v", err)
-		s.bot.SendText(event.ReplyToken, msg)
+	if len(errList) > 0 {
+		s.bot.SendText(event.ReplyToken, "搜尋有問題")
+		for _, e := range errList {
+			s.logService.Error(e)
+		}
 		return
 	}
 

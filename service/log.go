@@ -35,6 +35,10 @@ func (ls *LogService) Infof(template string, args ...interface{}) {
 	ls.logger.Infof(template, args...)
 }
 
+func (ls *LogService) Error(args ...interface{}) {
+	ls.logger.Error(args...)
+}
+
 func (ls *LogService) Errorf(template string, args ...interface{}) {
 	ls.logger.Errorf(template, args...)
 }

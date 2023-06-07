@@ -33,7 +33,7 @@ func NewSearchService(
 	}
 }
 
-func (s *SearchService) Search(lat, lng float64, radius, pageIndex, pageSize int) ([]db.Restaurant, error) {
+func (s *SearchService) Search(lat, lng float64, radius, pageIndex, pageSize int) ([]db.Restaurant, []error) {
 	currentToken := s.nearByCache.GetLastPageToken(cache.LocationArgs{
 		Lat:    lat,
 		Lng:    lng,
