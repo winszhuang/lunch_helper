@@ -77,13 +77,14 @@ func main() {
 	foodDeliverApi := thirdparty.NewCommonFoodDeliverApi()
 
 	// init service
+	logService := service.NewLogService("log/test.txt")
+	defer logService.Sync()
+
 	userService := service.NewUserService(store)
 	restaurantService := service.NewRestaurantService(store)
 	foodService := service.NewFoodService(store)
-	crawlerService := service.NewCrawlerService(deliverLinkSpider, foodDeliverApi, *foodService)
+	crawlerService := service.NewCrawlerService(deliverLinkSpider, foodDeliverApi, *foodService, *logService)
 	searchService := service.NewSearchService(nearByCache, &placeApi)
-	logService := service.NewLogService("log/test.txt")
-	defer logService.Sync()
 
 	// init api server
 	server := api.NewServer(

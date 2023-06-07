@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"database/sql"
-	"log"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/spider"
 	"lunch_helper/thirdparty"
@@ -18,6 +17,7 @@ type CrawlerService struct {
 	priorityGoogleMapLinkChan chan ChanData
 	deliverLinkChan           chan ChanData
 	foodService               FoodService
+	logService                LogService
 }
 
 type ChanData struct {
@@ -35,11 +35,13 @@ func NewCrawlerService(
 	deliverLinkSpider spider.DeliverLinkSpider,
 	foodDeliverApi thirdparty.FoodDeliverApi,
 	foodService FoodService,
+	logService LogService,
 ) *CrawlerService {
 	service := &CrawlerService{
 		deliverLinkSpider:         deliverLinkSpider,
 		foodDeliverApi:            foodDeliverApi,
 		foodService:               foodService,
+		logService:                logService,
 		googleMapLinkChan:         make(chan ChanData),
 		priorityGoogleMapLinkChan: make(chan ChanData),
 		deliverLinkChan:           make(chan ChanData, MAX_COUNT_OF_DELIVER_LINK_CHAN),
@@ -101,7 +103,7 @@ func (s *CrawlerService) crawlFoodDeliverLinks(chanData ChanData) {
 			s.deliverLinkChan <- chanData
 		}(chanData)
 	} else {
-		log.Printf("url %s crawl error: %v", chanData.GoogleMapRestaurantUrl, err)
+		s.logService.Errorf("url %s crawl error: %v", chanData.GoogleMapRestaurantUrl, err)
 	}
 }
 
@@ -110,14 +112,14 @@ func (s *CrawlerService) fetchDishes() {
 	for chanData := range s.deliverLinkChan {
 		dishes, err := s.foodDeliverApi.GetDishes(chanData.FoodDeliverRestaurantUrl)
 		if err != nil {
-			log.Printf("url %s dishes fetch error: %v", chanData.FoodDeliverRestaurantUrl, err)
+			s.logService.Errorf("url %s dishes fetch error: %v", chanData.FoodDeliverRestaurantUrl, err)
 			continue
 		}
 
 		errList := s.saveFoods(ctx, dishes, chanData.RestaurantId)
 		if len(errList) > 0 {
 			for _, err := range errList {
-				log.Printf("url %s dishes save error: %v", chanData.FoodDeliverRestaurantUrl, err)
+				s.logService.Errorf("url %s dishes save error: %v", chanData.FoodDeliverRestaurantUrl, err)
 			}
 		}
 	}
