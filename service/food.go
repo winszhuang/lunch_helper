@@ -28,6 +28,10 @@ func (fs *FoodService) CreateFood(ctx context.Context, arg db.CreateFoodParams) 
 	return fs.dbStore.CreateFood(ctx, arg)
 }
 
+func (fs *FoodService) GetFood(ctx context.Context, id int32) (db.Food, error) {
+	return fs.dbStore.GetFood(ctx, id)
+}
+
 func (fs *FoodService) GetFoods(ctx context.Context, restaurantID int32) ([]db.Food, error) {
 	return fs.dbStore.GetFoodsByRestaurantId(ctx, restaurantID)
 }

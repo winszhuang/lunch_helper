@@ -3,19 +3,18 @@ package api
 import (
 	"lunch_helper/bot/flex"
 	db "lunch_helper/db/sqlc"
-	"strconv"
-	"strings"
+	"lunch_helper/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 func (s *Server) HandleGetFoods(c *gin.Context, event *linebot.Event) {
-	s.logService.Debugf("event.Postback.Data: %s", event.Postback.Data)
-	restaurantId := strings.Split(event.Postback.Data, "/restaurantmenu=")[1]
-	id, err := strconv.Atoi(restaurantId)
+	id, err := util.ParseId("restaurantmenu", event.Postback.Data)
 	if err != nil {
-		s.logService.Errorf("failed to parse restaurant id: %v", err)
+		s.logService.Errorf("failed to parse restaurant id: %v, error: %s", id, err)
+		s.bot.SendText(event.ReplyToken, "取得餐點失敗")
+		return
 	}
 
 	restaurant, err := s.restaurantService.GetRestaurant(c, int32(id))
@@ -68,4 +67,49 @@ func (s *Server) HandleGetFoods(c *gin.Context, event *linebot.Event) {
 		ID:          restaurant.ID,
 		MenuCrawled: true,
 	})
+}
+
+func (s *Server) HandleShowFood(c *gin.Context, event *linebot.Event) {
+	id, err := util.ParseId("showfood", event.Postback.Data)
+	if err != nil {
+		s.logService.Errorf("failed to parse food id: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得餐點失敗(parse error)")
+		return
+	}
+
+	food, err := s.foodService.GetFood(c, int32(id))
+	if err != nil {
+		s.logService.Errorf("failed to get food: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得餐點失敗")
+		return
+	}
+
+	container := flex.CreateFoodItem(food)
+	s.bot.SendFlex(event.ReplyToken, food.Name, &container)
+}
+
+func (s *Server) HandleLikeFood(c *gin.Context, event *linebot.Event) {
+	foodId, err := util.ParseId("userlikefood", event.Postback.Data)
+	if err != nil {
+		s.logService.Errorf("failed to parse food: %v, data: %s", err, event.Postback.Data)
+		s.bot.SendText(event.ReplyToken, "取得餐點失敗(parse error)")
+		return
+	}
+
+	userLineId := event.Source.UserID
+	user, err := s.userService.GetUserByLineID(c, userLineId)
+	if err != nil {
+		s.logService.Errorf("failed to get user id: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者資訊失敗")
+		return
+	}
+
+	_, err = s.userFoodService.Create(c, user.ID, int32(foodId))
+	if err != nil {
+		s.logService.Errorf("failed to create user food: %v", err)
+		s.bot.SendText(event.ReplyToken, "加入使用者收藏餐點失敗")
+		return
+	}
+
+	s.bot.SendText(event.ReplyToken, "成功加入收藏餐點")
 }

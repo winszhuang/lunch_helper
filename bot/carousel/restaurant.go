@@ -2,13 +2,12 @@ package carousel
 
 import (
 	"fmt"
+	"lunch_helper/constant"
 	db "lunch_helper/db/sqlc"
 	"strconv"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
-
-const DEFAULT_IMAGE_URL = "https://mnapoli.fr/images/posts/null.png"
 
 func CreateRestaurantNextPageContainer(nextPageIndex int, lat, lng float64, radius int) *linebot.BubbleContainer {
 	nextData := fmt.Sprintf(
@@ -56,7 +55,7 @@ func CreateRestaurantContainer(r db.Restaurant) *linebot.BubbleContainer {
 	if r.Image.Valid {
 		image = r.Image.String
 	} else {
-		image = DEFAULT_IMAGE_URL
+		image = constant.DEFAULT_IMAGE_URL
 	}
 
 	if r.GoogleMapUrl == "" {

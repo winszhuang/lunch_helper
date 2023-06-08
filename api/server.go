@@ -23,6 +23,7 @@ type Server struct {
 	nearByCache       *cache.NearByRestaurantCache
 	searchService     *service.SearchService
 	userService       *service.UserService
+	userFoodService   *service.UserFoodService
 	restaurantService *service.RestaurantService
 	foodService       *service.FoodService
 	crawlerService    *service.CrawlerService
@@ -35,6 +36,7 @@ func NewServer(
 	nearByCache *cache.NearByRestaurantCache,
 	searchService *service.SearchService,
 	userService *service.UserService,
+	userFoodService *service.UserFoodService,
 	restaurantService *service.RestaurantService,
 	foodService *service.FoodService,
 	crawlerService *service.CrawlerService,
@@ -46,6 +48,7 @@ func NewServer(
 		nearByCache:       nearByCache,
 		searchService:     searchService,
 		userService:       userService,
+		userFoodService:   userFoodService,
 		restaurantService: restaurantService,
 		foodService:       foodService,
 		crawlerService:    crawlerService,
@@ -74,6 +77,7 @@ func NewServer(
 			case linebot.EventTypeUnfollow:
 				log.Printf("user %s EventTypeUnfollow", event.Source.UserID)
 			case linebot.EventTypePostback:
+				server.logService.Debugf("current postback data: %s", event.Postback.Data)
 				switch event.Postback.Data {
 				case string(constant.Search):
 					server.HandleSearchFirstPageRestaurants(c, event)
@@ -109,6 +113,10 @@ func NewServer(
 					server.HandleSearchNextPageRestaurants(c, event)
 				case strings.Contains(event.Postback.Data, "/restaurantmenu"):
 					server.HandleGetFoods(c, event)
+				case strings.Contains(event.Postback.Data, "/showfood"):
+					server.HandleShowFood(c, event)
+				case strings.Contains(event.Postback.Data, "/userlikefood"):
+					server.HandleLikeFood(c, event)
 				}
 			case linebot.EventTypeMessage:
 				switch messageData := event.Message.(type) {

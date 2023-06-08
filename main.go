@@ -82,6 +82,7 @@ func main() {
 	defer logService.Sync()
 
 	userService := service.NewUserService(store)
+	userFoodService := service.NewUserFoodService(store)
 	restaurantService := service.NewRestaurantService(store)
 	foodService := service.NewFoodService(store)
 	searchService := service.NewSearchService(nearByCache, &placeApi)
@@ -94,6 +95,7 @@ func main() {
 		nearByCache,
 		searchService,
 		userService,
+		userFoodService,
 		restaurantService,
 		foodService,
 		crawlerService,
