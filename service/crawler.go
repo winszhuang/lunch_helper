@@ -72,6 +72,7 @@ func (s *CrawlerService) SendWork(restaurantData db.Restaurant) chan bool {
 
 // 發送優先任務，worker中其他工作會先暫緩，優先處理這個
 func (s *CrawlerService) SendPriorityWork(restaurantData db.Restaurant) chan bool {
+	s.logService.Debugf("SendPriorityWork: %s", restaurantData.GoogleMapUrl)
 	done := make(chan bool, 1)
 	go func() {
 		s.priorityGoogleMapLinkChan <- ChanData{
@@ -98,6 +99,10 @@ func (s *CrawlerService) doCrawl() {
 }
 
 func (s *CrawlerService) crawlFoodDeliverLinks(chanData ChanData) {
+	if s.isRestaurantAlreadyCrawled(chanData.RestaurantId) {
+		return
+	}
+
 	// 從 google map 網站上的店家頁面爬取合作外送平台的url
 	foodDeliverLink, err := s.deliverLinkSpider.ScrapeDeliverLink(chanData.GoogleMapRestaurantUrl)
 	if err == nil {
@@ -107,6 +112,7 @@ func (s *CrawlerService) crawlFoodDeliverLinks(chanData ChanData) {
 		}(chanData)
 	} else {
 		s.logService.Errorf("url %s crawl error: %v", chanData.GoogleMapRestaurantUrl, err)
+		chanData.done <- false
 	}
 }
 
@@ -128,6 +134,15 @@ func (s *CrawlerService) fetchDishes() {
 		}
 		chanData.done <- true
 	}
+}
+
+func (s *CrawlerService) isRestaurantAlreadyCrawled(restaurantId int32) bool {
+	ctx := context.Background()
+	foods, err := s.foodService.GetFoods(ctx, restaurantId)
+	if err != nil {
+		return false
+	}
+	return len(foods) > 0
 }
 
 func (s *CrawlerService) saveFoods(ctx context.Context, dishes []model.Dish, restaurantId int32) []error {

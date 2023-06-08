@@ -15,9 +15,11 @@ import (
 
 type BotClient interface {
 	ParseRequest(r *http.Request) ([]*linebot.Event, error)
+	PushText(userID, text string)
+	PushFlex(userID string, altText string, flexContainer linebot.FlexContainer)
 	SendText(replyToken, text string)
-	SendTextWithQuickReplies(replyToken, text string, replyItems *linebot.QuickReplyItems)
 	SendFlex(replyToken string, altText string, flexContainer linebot.FlexContainer)
+	SendTextWithQuickReplies(replyToken, text string, replyItems *linebot.QuickReplyItems)
 	GetProfile(userID string) *linebot.GetProfileCall
 }
 
@@ -146,6 +148,13 @@ func (bc *LineBotClient) SendText(replyToken, text string) {
 	}
 }
 
+func (bc *LineBotClient) PushText(userID string, text string) {
+	_, err := bc.PushMessage(userID, linebot.NewTextMessage(text)).Do()
+	if err != nil {
+		log.Printf("PushText Error: %s", err)
+	}
+}
+
 func (bc *LineBotClient) SendTextWithQuickReplies(replyToken, text string, replyItems *linebot.QuickReplyItems) {
 	_, err := bc.ReplyMessage(
 		replyToken,
@@ -163,5 +172,12 @@ func (bc *LineBotClient) SendFlex(replyToken string, altText string, flexContain
 	).Do()
 	if err != nil {
 		log.Printf("SendFlex Error: %s", err)
+	}
+}
+
+func (bc *LineBotClient) PushFlex(userID string, altText string, flexContainer linebot.FlexContainer) {
+	_, err := bc.PushMessage(userID, linebot.NewFlexMessage(altText, flexContainer)).Do()
+	if err != nil {
+		log.Printf("PushFlex Error: %s", err)
 	}
 }

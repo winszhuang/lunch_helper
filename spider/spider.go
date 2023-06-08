@@ -114,7 +114,7 @@ func (d *GoogleDeliverLinkSpider) ScrapeDeliverLink(url string) (string, error) 
 		return orderEl != nil, err
 	}
 
-	err = d.WebDriver.WaitWithTimeout(getOrderButtonCondition, time.Second*4)
+	err = d.WebDriver.WaitWithTimeout(getOrderButtonCondition, 3500)
 	if err != nil {
 		return "", err
 	}
@@ -124,9 +124,9 @@ func (d *GoogleDeliverLinkSpider) ScrapeDeliverLink(url string) (string, error) 
 	}
 
 	// 只有一個合作店家的情況
-	url, _ = orderEl.GetAttribute("href")
-	if url != "" {
-		return url, nil
+	href, _ := orderEl.GetAttribute("href")
+	if href != "" {
+		return href, nil
 	}
 
 	orderEl.Click()
@@ -138,14 +138,14 @@ func (d *GoogleDeliverLinkSpider) ScrapeDeliverLink(url string) (string, error) 
 
 		// #NOTICE 這段很重要!! 沒有加上這個會等不到幾秒就抱錯
 		enabled, err := el.IsEnabled()
-		if !enabled {
+		if enabled {
+			return true, nil
+		} else {
 			return false, nil
 		}
-
-		return el != nil, err
 	}
 
-	err = d.WebDriver.WaitWithTimeout(selectDeliversCondition, 2*time.Second)
+	err = d.WebDriver.WaitWithTimeout(selectDeliversCondition, 5*time.Second)
 	if err != nil {
 		return "", err
 	}

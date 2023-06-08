@@ -2,6 +2,7 @@ package api
 
 import (
 	"lunch_helper/bot/flex"
+	db "lunch_helper/db/sqlc"
 	"strconv"
 	"strings"
 
@@ -48,11 +49,23 @@ func (s *Server) HandleGetFoods(c *gin.Context, event *linebot.Event) {
 		return
 	}
 
-	s.bot.SendText(event.ReplyToken, "暫時沒菜單，我再爬看看 ~ 請稍後再試")
-	s.crawlerService.SendPriorityWork(restaurant)
+	s.bot.SendText(event.ReplyToken, "暫時沒菜單，請等我爬取(等個3秒以上)")
 
-	// #TODO 等待直到該任務爬蟲完
-	// s.crawlerService.CheckWorkDone(restaurant.GoogleMapUrl)
-	// container := flex.CreateFoodListContainer(foods, restaurant)
-	// s.bot.SendFlex(event.ReplyToken, "菜單", &container)
+	// 等待爬蟲完該任務再執行後續處理
+	crawlSuccess := <-s.crawlerService.SendPriorityWork(restaurant)
+	if crawlSuccess {
+		foods, err := s.foodService.GetFoods(c, int32(id))
+		if err != nil {
+			s.bot.PushText(event.Source.UserID, "取得菜單失敗")
+			return
+		}
+		container := flex.CreateFoodListContainer(foods, restaurant)
+		s.bot.PushFlex(event.Source.UserID, "菜單", &container)
+	} else {
+		s.bot.PushText(event.Source.UserID, "爬不到菜單哦")
+	}
+	s.restaurantService.UpdateMenuCrawled(c, db.UpdateMenuCrawledParams{
+		ID:          restaurant.ID,
+		MenuCrawled: true,
+	})
 }
