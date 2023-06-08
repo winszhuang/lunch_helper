@@ -19,7 +19,8 @@ func NewLogService(logFile string) *LogService {
 	encoder := getEncoder()
 	core := zapcore.NewCore(encoder, writeSyncer, zapcore.DebugLevel)
 
-	logger := zap.New(core, zap.AddCaller())
+	// AddCallerSkip確保不會每次打印出來都是service/log.go
+	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	sugarLogger = logger.Sugar()
 
 	return &LogService{
