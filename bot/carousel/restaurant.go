@@ -203,6 +203,15 @@ func CreateRestaurantContainer(r db.Restaurant) *linebot.BubbleContainer {
 				&linebot.ButtonComponent{
 					Type:   linebot.FlexComponentTypeButton,
 					Height: "sm",
+					Action: &linebot.PostbackAction{
+						Label: "加入收藏",
+						Data:  fmt.Sprintf("/userlikerestaurant=%d", r.ID),
+					},
+					Margin: linebot.FlexComponentMarginTypeLg,
+				},
+				&linebot.ButtonComponent{
+					Type:   linebot.FlexComponentTypeButton,
+					Height: "sm",
 					Style:  linebot.FlexButtonStyleTypeLink,
 					Action: &linebot.URIAction{
 						Label: "地圖上查看",

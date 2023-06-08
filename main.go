@@ -84,6 +84,7 @@ func main() {
 	userService := service.NewUserService(store)
 	userFoodService := service.NewUserFoodService(store)
 	restaurantService := service.NewRestaurantService(store)
+	userRestaurantService := service.NewUserRestaurantService(store)
 	foodService := service.NewFoodService(store)
 	searchService := service.NewSearchService(nearByCache, &placeApi)
 	crawlerService := service.NewCrawlerService(deliverLinkSpider, foodDeliverApi, *foodService, *logService)
@@ -97,6 +98,7 @@ func main() {
 		userService,
 		userFoodService,
 		restaurantService,
+		userRestaurantService,
 		foodService,
 		crawlerService,
 		logService,

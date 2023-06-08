@@ -17,17 +17,18 @@ import (
 )
 
 type Server struct {
-	router            *gin.Engine
-	bot               bot.BotClient
-	messageCache      *cache.MessageCache
-	nearByCache       *cache.NearByRestaurantCache
-	searchService     *service.SearchService
-	userService       *service.UserService
-	userFoodService   *service.UserFoodService
-	restaurantService *service.RestaurantService
-	foodService       *service.FoodService
-	crawlerService    *service.CrawlerService
-	logService        *service.LogService
+	router                *gin.Engine
+	bot                   bot.BotClient
+	messageCache          *cache.MessageCache
+	nearByCache           *cache.NearByRestaurantCache
+	searchService         *service.SearchService
+	userService           *service.UserService
+	userFoodService       *service.UserFoodService
+	restaurantService     *service.RestaurantService
+	userRestaurantService *service.UserRestaurantService
+	foodService           *service.FoodService
+	crawlerService        *service.CrawlerService
+	logService            *service.LogService
 }
 
 func NewServer(
@@ -38,21 +39,23 @@ func NewServer(
 	userService *service.UserService,
 	userFoodService *service.UserFoodService,
 	restaurantService *service.RestaurantService,
+	userRestaurantService *service.UserRestaurantService,
 	foodService *service.FoodService,
 	crawlerService *service.CrawlerService,
 	logService *service.LogService,
 ) *Server {
 	server := &Server{
-		bot:               bot,
-		messageCache:      messageCache,
-		nearByCache:       nearByCache,
-		searchService:     searchService,
-		userService:       userService,
-		userFoodService:   userFoodService,
-		restaurantService: restaurantService,
-		foodService:       foodService,
-		crawlerService:    crawlerService,
-		logService:        logService,
+		bot:                   bot,
+		messageCache:          messageCache,
+		nearByCache:           nearByCache,
+		searchService:         searchService,
+		userService:           userService,
+		userFoodService:       userFoodService,
+		restaurantService:     restaurantService,
+		userRestaurantService: userRestaurantService,
+		foodService:           foodService,
+		crawlerService:        crawlerService,
+		logService:            logService,
 	}
 	router := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
@@ -117,6 +120,8 @@ func NewServer(
 					server.HandleShowFood(c, event)
 				case strings.Contains(event.Postback.Data, "/userlikefood"):
 					server.HandleLikeFood(c, event)
+				case strings.Contains(event.Postback.Data, "/userlikerestaurant"):
+					server.HandleLikeRestaurant(c, event)
 				}
 			case linebot.EventTypeMessage:
 				switch messageData := event.Message.(type) {
