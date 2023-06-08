@@ -56,14 +56,14 @@ func CreateFoodListContainer(foods []db.Food, r db.Restaurant) linebot.BubbleCon
 					Contents: []linebot.FlexComponent{
 						&linebot.TextComponent{
 							Type:  "text",
-							Text:  "PAYMENT ID",
+							Text:  "電話",
 							Size:  "xs",
 							Color: "#aaaaaa",
 							Flex:  linebot.IntPtr(0),
 						},
 						&linebot.TextComponent{
 							Type:  "text",
-							Text:  "#743289384279",
+							Text:  r.PhoneNumber,
 							Color: "#aaaaaa",
 							Size:  "xs",
 							Align: "end",
