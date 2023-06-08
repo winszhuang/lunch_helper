@@ -1,6 +1,8 @@
 package service
 
 import (
+	"io"
+	"os"
 	"time"
 
 	"go.uber.org/zap"
@@ -14,11 +16,15 @@ type LogService struct {
 	logger *zap.SugaredLogger
 }
 
-func NewLogService(logFile string) *LogService {
-	writeSyncer := getLogWriter(logFile)
+func NewLogService(logFile, logErrorFile string) *LogService {
 	encoder := getEncoder()
-	core := zapcore.NewCore(encoder, writeSyncer, zapcore.DebugLevel)
 
+	// handle debug level
+	debugCore := zapcore.NewCore(encoder, getLogWriter(logFile), zapcore.DebugLevel)
+	// handle error level
+	coreError := zapcore.NewCore(encoder, getLogWriter(logErrorFile), zapcore.ErrorLevel)
+
+	core := zapcore.NewTee(debugCore, coreError)
 	// AddCallerSkip確保不會每次打印出來都是service/log.go
 	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	sugarLogger = logger.Sugar()
@@ -64,7 +70,9 @@ func getLogWriter(fileName string) zapcore.WriteSyncer {
 		MaxAge:     30,
 		Compress:   false,
 	}
-	return zapcore.AddSync(lumberJackLogger)
+	// 寫入檔案且打印至terminal
+	mw := io.MultiWriter(lumberJackLogger, os.Stdout)
+	return zapcore.AddSync(mw)
 }
 
 func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {

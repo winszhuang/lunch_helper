@@ -78,7 +78,7 @@ func main() {
 	foodDeliverApi := thirdparty.NewCommonFoodDeliverApi()
 
 	// init service
-	logService := service.NewLogService("log/test.txt")
+	logService := service.NewLogService("log/debug.txt", "log/error.txt")
 	defer logService.Sync()
 
 	userService := service.NewUserService(store)
