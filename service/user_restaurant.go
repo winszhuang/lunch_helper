@@ -21,3 +21,7 @@ func (uf *UserRestaurantService) Create(ctx context.Context, userId int32, resta
 		RestaurantID: restaurantId,
 	})
 }
+
+func (uf *UserRestaurantService) List(ctx context.Context, arg db.GetUserRestaurantsParams) ([]db.GetUserRestaurantsRow, error) {
+	return uf.dbStore.GetUserRestaurants(ctx, arg)
+}

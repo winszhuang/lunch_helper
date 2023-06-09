@@ -96,11 +96,8 @@ func NewServer(
 				case string(constant.SearchAI):
 					// #TODO aiMode
 					server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
-				case string(constant.UserOption):
-					server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
-					// #TODO change richmenu to user option menu
 				case string(constant.FavoriteRestaurants):
-					// #TODO server.ListFavoriteRestaurants api
+					server.HandleShowUserRestaurant(c, event)
 				case string(constant.FavoriteFoods):
 					// #TODO server.ListFavoriteFoods api
 				case string(constant.PickRestaurant):
