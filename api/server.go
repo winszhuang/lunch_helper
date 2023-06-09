@@ -96,13 +96,10 @@ func NewServer(
 				case string(constant.SearchAI):
 					// #TODO aiMode
 					server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
-				case string(constant.UserOption):
-					server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
-					// #TODO change richmenu to user option menu
 				case string(constant.FavoriteRestaurants):
-					// #TODO server.ListFavoriteRestaurants api
+					server.HandleShowFirstPageUserRestaurants(c, event)
 				case string(constant.FavoriteFoods):
-					// #TODO server.ListFavoriteFoods api
+					server.HandleShowFirstPageUserFoods(c, event)
 				case string(constant.PickRestaurant):
 					// #TODO server.PickRestaurant api
 				case string(constant.NotificationSetting):
@@ -112,7 +109,7 @@ func NewServer(
 					// #TODO change richmenu to search option menu
 				}
 				switch {
-				case constant.LatLngPageIndex.MatchString(event.Postback.Data):
+				case strings.Contains(event.Postback.Data, "/searchnext"):
 					server.HandleSearchNextPageRestaurants(c, event)
 				case strings.Contains(event.Postback.Data, "/restaurantmenu"):
 					server.HandleGetFoods(c, event)
@@ -122,6 +119,10 @@ func NewServer(
 					server.HandleLikeFood(c, event)
 				case strings.Contains(event.Postback.Data, "/userlikerestaurant"):
 					server.HandleLikeRestaurant(c, event)
+				case strings.Contains(event.Postback.Data, "/showuserlikerestaurantnext"):
+					server.HandleShowNextPageUserRestaurants(c, event)
+				case strings.Contains(event.Postback.Data, "/showuserlikefoodnext"):
+					server.HandleShowNextPageUserFoods(c, event)
 				}
 			case linebot.EventTypeMessage:
 				switch messageData := event.Message.(type) {

@@ -1,9 +1,15 @@
 package api
 
 import (
+	"fmt"
+	"lunch_helper/adapter"
+	"lunch_helper/bot/carousel"
 	"lunch_helper/bot/flex"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/util"
+	"net/url"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
@@ -112,4 +118,103 @@ func (s *Server) HandleLikeFood(c *gin.Context, event *linebot.Event) {
 	}
 
 	s.bot.SendText(event.ReplyToken, "成功加入收藏餐點")
+}
+
+func (s *Server) HandleShowFirstPageUserFoods(c *gin.Context, event *linebot.Event) {
+	userLineId := event.Source.UserID
+	user, err := s.userService.GetUserByLineID(c, userLineId)
+	if err != nil {
+		s.logService.Errorf("failed to get user id: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者資訊失敗")
+		return
+	}
+
+	listArgs := &ListArgs{PageIndex: 1, PageSize: 10}
+	foodList, err := s.userFoodService.List(c, db.GetUserFoodsParams{
+		UserID: user.ID,
+		Limit:  int32(listArgs.PageSize),
+		Offset: int32((listArgs.PageIndex - 1) * 10),
+	})
+	if err != nil {
+		s.logService.Errorf("failed to get user foods: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者收藏餐點失敗")
+		return
+	}
+
+	s.sendUserFoodsWithCarousel(
+		event,
+		adapter.UserFoodRowsToFoods(foodList),
+		&ListArgs{PageIndex: listArgs.PageIndex + 1, PageSize: listArgs.PageSize},
+	)
+}
+
+func (s *Server) HandleShowNextPageUserFoods(c *gin.Context, event *linebot.Event) {
+	userLineId := event.Source.UserID
+	user, err := s.userService.GetUserByLineID(c, userLineId)
+	if err != nil {
+		s.logService.Errorf("failed to get user id: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者資訊失敗")
+		return
+	}
+
+	query := strings.Split(event.Postback.Data, "?")[1]
+	values, err := url.ParseQuery(query)
+	if err != nil {
+		s.logService.Errorf("parse query params error: %v", err)
+		s.bot.SendText(event.ReplyToken, "下一頁參數錯誤!!")
+		return
+	}
+
+	pageIndexStr := values.Get("pageIndex")
+	pageSizeStr := values.Get("pageSize")
+
+	pageIndex, err := strconv.Atoi(pageIndexStr)
+	if err != nil {
+		s.bot.SendText(event.ReplyToken, "解析pageIndex失敗")
+		return
+	}
+
+	pageSize, err := strconv.Atoi(pageSizeStr)
+	if err != nil {
+		s.bot.SendText(event.ReplyToken, "解析pageSize失敗")
+		return
+	}
+
+	foodList, err := s.userFoodService.List(c, db.GetUserFoodsParams{
+		UserID: user.ID,
+		Limit:  int32(pageSize),
+		Offset: int32((pageIndex - 1) * pageSize),
+	})
+	if err != nil {
+		s.logService.Errorf("failed to get user foods: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者收藏餐點失敗")
+		return
+	}
+
+	s.sendUserFoodsWithCarousel(
+		event,
+		adapter.UserFoodRowsToFoods(foodList),
+		&ListArgs{PageIndex: pageIndex + 1, PageSize: pageSize},
+	)
+}
+
+func (s *Server) sendUserFoodsWithCarousel(event *linebot.Event, foodList []db.Food, nextListArgs *ListArgs) {
+	component := carousel.CreateCarouselWithNext(
+		foodList,
+		func(food db.Food) *linebot.BubbleContainer {
+			return carousel.CreateFoodCarouselItem(food)
+		},
+		func() *linebot.BubbleContainer {
+			if len(foodList) < MaximumNumberOfCarouselItems {
+				return nil
+			}
+			nextData := fmt.Sprintf(
+				"/showuserlikefoodnext?pageIndex=%d&pageSize=%d",
+				nextListArgs.PageIndex,
+				nextListArgs.PageSize,
+			)
+			return carousel.CreateNextPageContainer(nextData)
+		},
+	)
+	s.bot.SendFlex(event.ReplyToken, "carousel", component)
 }

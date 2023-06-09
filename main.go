@@ -9,6 +9,7 @@ import (
 	"lunch_helper/bot/richmenu"
 	"lunch_helper/cache"
 	"lunch_helper/config"
+	"lunch_helper/constant"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/service"
 	"lunch_helper/spider"
@@ -44,13 +45,32 @@ func main() {
 		log.Fatalf("init linebot client error: %v", err)
 	}
 	// set linebot webhook url
-	err = bc.SetWebHookUrl(config.ApiUrl, config.LineBotEndpoint)
-	if err != nil {
+	if err = bc.SetWebHookUrl(config.ApiUrl, config.LineBotEndpoint); err != nil {
 		log.Fatalf("setting linebot webhook url error: %v", err)
 	}
+
+	// clean richmenu
+	if errList := bc.ResetRichMenu(); len(errList) > 0 {
+		errString := ""
+		for _, err := range errList {
+			errString += err.Error() + "\n"
+		}
+		log.Fatalf(errString)
+	}
+
 	// setup richmenu
-	err = bc.SetupRichMenu(richmenu.CreateSearchRichMenu(), "richmenu.png")
-	if err != nil {
+	if err = bc.SetupRichMenu(
+		bot.RichMenuRequest{
+			AliasName:      constant.RichMenuSearch,
+			ImagePath:      "richmenu-search.png",
+			RichMenuStruct: richmenu.CreateSearchRichMenu(),
+		},
+		bot.RichMenuRequest{
+			AliasName:      constant.RichMenuUser,
+			ImagePath:      "richmenu-user.png",
+			RichMenuStruct: richmenu.CreateUserRichMenu(),
+		},
+	); err != nil {
 		log.Fatalf("setup richmenu error: %v", err)
 	}
 

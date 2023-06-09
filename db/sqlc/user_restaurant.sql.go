@@ -54,7 +54,14 @@ SELECT id, name, rating, user_ratings_total, address, google_map_place_id, googl
 FROM restaurant
 JOIN user_restaurant ON user_restaurant.restaurant_id = restaurant.id
 WHERE user_restaurant.user_id = $1
+LIMIT $2 OFFSET $3
 `
+
+type GetUserRestaurantsParams struct {
+	UserID int32 `json:"user_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
 
 type GetUserRestaurantsRow struct {
 	ID               int32           `json:"id"`
@@ -71,8 +78,8 @@ type GetUserRestaurantsRow struct {
 	RestaurantID     int32           `json:"restaurant_id"`
 }
 
-func (q *Queries) GetUserRestaurants(ctx context.Context, userID int32) ([]GetUserRestaurantsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUserRestaurants, userID)
+func (q *Queries) GetUserRestaurants(ctx context.Context, arg GetUserRestaurantsParams) ([]GetUserRestaurantsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserRestaurants, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

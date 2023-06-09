@@ -2,3 +2,5 @@ prod.env
 dev.env
 Makefile
 tmp
+log
+.vscode

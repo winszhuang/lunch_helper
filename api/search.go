@@ -1,12 +1,13 @@
 package api
 
 import (
+	"fmt"
 	"lunch_helper/bot/carousel"
 	"lunch_helper/bot/quickreply"
-	"lunch_helper/constant"
 	db "lunch_helper/db/sqlc"
-	"lunch_helper/util"
+	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
@@ -45,28 +46,35 @@ func (s *Server) HandleSearchFirstPageRestaurants(c *gin.Context, event *linebot
 }
 
 func (s *Server) HandleSearchNextPageRestaurants(c *gin.Context, event *linebot.Event) {
-	args := util.ParseRegexQuery(event.Postback.Data, constant.LatLngPageIndex)
-	if len(args) != 4 {
+	query := strings.Split(event.Postback.Data, "?")[1]
+	values, err := url.ParseQuery(query)
+	if err != nil {
+		s.logService.Errorf("parse query params error: %v", err)
 		s.bot.SendText(event.ReplyToken, "下一頁參數錯誤!!")
 		return
 	}
 
-	lat, err := strconv.ParseFloat(args[0], 64)
+	latStr := values.Get("lat")
+	lngStr := values.Get("lng")
+	radiusStr := values.Get("radius")
+	pageIndexStr := values.Get("pageIndex")
+
+	lat, err := strconv.ParseFloat(latStr, 64)
 	if err != nil {
 		s.bot.SendText(event.ReplyToken, "解析Lat失敗")
 		return
 	}
-	lng, err := strconv.ParseFloat(args[1], 64)
+	lng, err := strconv.ParseFloat(lngStr, 64)
 	if err != nil {
 		s.bot.SendText(event.ReplyToken, "解析Lng失敗")
 		return
 	}
-	radius, err := strconv.Atoi(args[2])
+	radius, err := strconv.Atoi(radiusStr)
 	if err != nil {
 		s.bot.SendText(event.ReplyToken, "解析半徑失敗")
 		return
 	}
-	pageIndex, err := strconv.Atoi(args[3])
+	pageIndex, err := strconv.Atoi(pageIndexStr)
 	if err != nil {
 		s.bot.SendText(event.ReplyToken, "解析頁數失敗")
 		return
@@ -132,13 +140,20 @@ func (s *Server) sendRestaurantsWithCarousel(event *linebot.Event, restaurantLis
 	component := carousel.CreateCarouselWithNext(
 		restaurantList,
 		func(restaurant db.Restaurant) *linebot.BubbleContainer {
-			return carousel.CreateRestaurantContainer(restaurant)
+			return carousel.CreateRestaurantCarouselItem(restaurant)
 		},
 		func() *linebot.BubbleContainer {
 			if len(restaurantList) < MaximumNumberOfCarouselItems {
 				return nil
 			}
-			return carousel.CreateRestaurantNextPageContainer(args.pageIndex+1, args.lat, args.lng, args.radius)
+			nextData := fmt.Sprintf(
+				"/searchnext?lat=%s&lng=%s&radius=%d&pageIndex=%d",
+				strconv.FormatFloat(args.lat, 'f', 6, 64),
+				strconv.FormatFloat(args.lng, 'f', 6, 64),
+				args.radius,
+				args.pageIndex+1,
+			)
+			return carousel.CreateNextPageContainer(nextData)
 		},
 	)
 	s.bot.SendFlex(event.ReplyToken, "carousel", component)
