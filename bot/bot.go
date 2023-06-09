@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"lunch_helper/constant"
 	"lunch_helper/util"
 	"net/http"
 
@@ -61,6 +62,12 @@ type CreateRichMenuResponse struct {
 	RichMenuID string `json:"richMenuId"`
 }
 
+type RichMenuRequest struct {
+	ImagePath      string
+	AliasName      constant.RichMenuAliasName
+	RichMenuStruct RichMenu_New
+}
+
 func NewBotClient(channelSecret, channelToken string) (*LineBotClient, error) {
 	bot, err := linebot.New(channelSecret, channelToken)
 	if err != nil {
@@ -82,19 +89,79 @@ func (bc *LineBotClient) SetWebHookUrl(apiBaseUrl, endPoint string) error {
 	return nil
 }
 
-func (bc *LineBotClient) SetupRichMenu(richMenu RichMenu_New, imagePath string) error {
-	resp, err := bc.CreateRichMenu_New(richMenu)
-	log.Println(resp.RichMenuID)
+func (bc *LineBotClient) SetupRichMenu(richMenuRequest ...RichMenuRequest) error {
+	richMenuIdList := []string{}
+	for _, request := range richMenuRequest {
+		resp, err := bc.CreateRichMenu_New(request.RichMenuStruct)
+		if err != nil {
+			return err
+		}
+		log.Println(resp.RichMenuID)
+
+		richMenuIdList = append(richMenuIdList, resp.RichMenuID)
+
+		_, err = bc.UploadRichMenuImage(resp.RichMenuID, request.ImagePath).Do()
+		if err != nil {
+			return err
+		}
+	}
+
+	// set default richmenu
+	_, err := bc.SetDefaultRichMenu(richMenuIdList[0]).Do()
 	if err != nil {
 		return err
 	}
 
-	_, err = bc.UploadRichMenuImage(resp.RichMenuID, imagePath).Do()
-	if err != nil {
-		return err
+	// create richmenu alias
+	for index, request := range richMenuRequest {
+		_, err := bc.CreateRichMenuAlias(string(request.AliasName), richMenuIdList[index]).Do()
+		if err != nil {
+			return err
+		}
 	}
-	_, err = bc.SetDefaultRichMenu(resp.RichMenuID).Do()
-	return err
+
+	return nil
+}
+
+func (bc *LineBotClient) ResetRichMenu() []error {
+	aliasList, err := bc.GetRichMenuAliasList().Do()
+	if err != nil {
+		return []error{err}
+	}
+
+	errList := []error{}
+	for _, alias := range aliasList {
+		_, err := bc.DeleteRichMenuAlias(alias.RichMenuAliasID).Do()
+		if err != nil {
+			errList = append(errList, err)
+		}
+	}
+	if len(errList) > 0 {
+		return errList
+	}
+
+	return []error{}
+
+	// richMenu, err := bc.GetRichMenuList().Do()
+	// log.Printf("總長度為: %d", len(richMenu))
+	// if err != nil {
+	// 	return []error{err}
+	// }
+
+	// for index, rich := range richMenu {
+	// 	time.Sleep(time.Second * 5)
+	// 	_, err := bc.DeleteRichMenu(rich.RichMenuID).Do()
+	// 	if err != nil {
+	// 		errList = append(errList, err)
+	// 	} else {
+	// 		log.Printf("刪除第%d個id，還剩%d個", index+1, len(richMenu)-(index+1))
+	// 	}
+	// }
+	// if len(errList) > 0 {
+	// 	return errList
+	// }
+
+	// return []error{}
 }
 
 // 原始createRichMenu內RichMenuAction沒有提供inputOption，因此重寫function

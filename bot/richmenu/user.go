@@ -7,23 +7,14 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-type InputOptionType string
-
-const (
-	CloseRichMenu InputOptionType = "closeRichMenu"
-	OpenRichMenu  InputOptionType = "openRichMenu"
-	OpenKeyBoard  InputOptionType = "openKeyboard"
-	OpenVoice     InputOptionType = "openVoice"
-)
-
-func CreateSearchRichMenu() bot.RichMenu_New {
+func CreateUserRichMenu() bot.RichMenu_New {
 	return bot.RichMenu_New{
 		Size: linebot.RichMenuSize{
 			Width:  2500,
 			Height: 1686,
 		},
-		Name:        "richmenu-search",
-		ChatBarText: "搜尋功能",
+		Name:        "richmenu-user",
+		ChatBarText: "使用者選單",
 		Areas: []bot.AreaDetail_New{
 			// 左上
 			{
@@ -35,7 +26,7 @@ func CreateSearchRichMenu() bot.RichMenu_New {
 				},
 				Action: bot.RichMenuAction_New{
 					Type: "postback",
-					Data: string(constant.Search),
+					Data: string(constant.FavoriteRestaurants),
 				},
 			},
 			// 中間上
@@ -48,7 +39,7 @@ func CreateSearchRichMenu() bot.RichMenu_New {
 				},
 				Action: bot.RichMenuAction_New{
 					Type: "postback",
-					Data: string(constant.SearchLocation),
+					Data: string(constant.FavoriteFoods),
 				},
 			},
 			// 右上
@@ -60,9 +51,8 @@ func CreateSearchRichMenu() bot.RichMenu_New {
 					Height: 843,
 				},
 				Action: bot.RichMenuAction_New{
-					Type:        "postback",
-					Data:        string(constant.SearchText),
-					InputOption: string(OpenKeyBoard),
+					Type: "postback",
+					Data: string(constant.PickRestaurant),
 				},
 			},
 			// 左下
@@ -75,7 +65,7 @@ func CreateSearchRichMenu() bot.RichMenu_New {
 				},
 				Action: bot.RichMenuAction_New{
 					Type: "postback",
-					Data: string(constant.SearchRadius),
+					Data: string(constant.NotificationSetting),
 				},
 			},
 			// 中間下
@@ -88,7 +78,8 @@ func CreateSearchRichMenu() bot.RichMenu_New {
 				},
 				Action: bot.RichMenuAction_New{
 					Type: "postback",
-					Data: string(constant.SearchAI),
+					// #TODO 增加趨勢功能
+					Data: "/trend",
 				},
 			},
 			// 右下
@@ -101,8 +92,8 @@ func CreateSearchRichMenu() bot.RichMenu_New {
 				},
 				Action: bot.RichMenuAction_New{
 					Type:            "richmenuswitch",
-					RichMenuAliasID: "richmenu-user",
-					Data:            string(constant.UserOption),
+					RichMenuAliasID: "richmenu-search",
+					Data:            string(constant.SearchOption),
 				},
 			},
 		},
