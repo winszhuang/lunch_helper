@@ -6,6 +6,8 @@ import (
 	"lunch_helper/bot/carousel"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/util"
+	"net/url"
+	"strings"
 
 	"strconv"
 
@@ -75,13 +77,6 @@ func (s *Server) HandleShowFirstPageUserRestaurants(c *gin.Context, event *lineb
 }
 
 func (s *Server) HandleShowNextPageUserRestaurants(c *gin.Context, event *linebot.Event) {
-	args, err := util.ParseQuery(event.Postback.Data)
-	if err != nil {
-		s.logService.Errorf("parse query params error: %v", err)
-		s.bot.SendText(event.ReplyToken, "下一頁參數錯誤!!")
-		return
-	}
-
 	userLineId := event.Source.UserID
 	user, err := s.userService.GetUserByLineID(c, userLineId)
 	if err != nil {
@@ -90,13 +85,24 @@ func (s *Server) HandleShowNextPageUserRestaurants(c *gin.Context, event *linebo
 		return
 	}
 
-	pageIndex, err := strconv.Atoi(args[0])
+	query := strings.Split(event.Postback.Data, "?")[1]
+	values, err := url.ParseQuery(query)
+	if err != nil {
+		s.logService.Errorf("parse query params error: %v", err)
+		s.bot.SendText(event.ReplyToken, "下一頁參數錯誤!!")
+		return
+	}
+
+	pageIndexStr := values.Get("pageIndex")
+	pageSizeStr := values.Get("pageSize")
+
+	pageIndex, err := strconv.Atoi(pageIndexStr)
 	if err != nil {
 		s.bot.SendText(event.ReplyToken, "解析pageIndex失敗")
 		return
 	}
 
-	pageSize, err := strconv.Atoi(args[1])
+	pageSize, err := strconv.Atoi(pageSizeStr)
 	if err != nil {
 		s.bot.SendText(event.ReplyToken, "解析pageSize失敗")
 		return
@@ -131,7 +137,7 @@ func (s *Server) sendUserRestaurantsWithCarousel(event *linebot.Event, restauran
 				return nil
 			}
 			nextData := fmt.Sprintf(
-				"/showuserlikerestaurantnext?paegIndex=%d&pageSize=%d",
+				"/showuserlikerestaurantnext?pageIndex=%d&pageSize=%d",
 				nextListArgs.PageIndex,
 				nextListArgs.PageSize,
 			)
