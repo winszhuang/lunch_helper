@@ -104,7 +104,7 @@ func createFoodContent(food db.Food) linebot.FlexComponent {
 				Color: "#5d99d9",
 				Flex:  linebot.IntPtr(0),
 				Action: &linebot.PostbackAction{
-					Label: food.Name,
+					Label: checkLen(food.Name),
 					Data:  fmt.Sprintf("/showfood=%d", food.ID),
 				},
 			},
@@ -117,4 +117,12 @@ func createFoodContent(food db.Food) linebot.FlexComponent {
 			},
 		},
 	}
+}
+
+// linebot要求某些欄位最多只能40個字
+func checkLen(str string) string {
+	if len(str) > 40 {
+		str = str[:40]
+	}
+	return str
 }
