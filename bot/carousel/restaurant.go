@@ -8,40 +8,7 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-func CreateRestaurantNextPageContainer(data string) *linebot.BubbleContainer {
-	return &linebot.BubbleContainer{
-		Type: linebot.FlexContainerTypeBubble,
-		Size: linebot.FlexBubbleSizeTypeMicro,
-		Body: &linebot.BoxComponent{
-			Type:    linebot.FlexComponentTypeBox,
-			Layout:  linebot.FlexBoxLayoutTypeVertical,
-			Spacing: "xs",
-			Contents: []linebot.FlexComponent{
-				&linebot.ButtonComponent{
-					Type:   linebot.FlexComponentTypeButton,
-					Height: "sm",
-					Action: &linebot.PostbackAction{
-						Label: "下一頁資料",
-						Data:  data,
-					},
-					Margin: linebot.FlexComponentMarginTypeLg,
-				},
-				&linebot.ButtonComponent{
-					Type:   linebot.FlexComponentTypeButton,
-					Height: "sm",
-					Style:  linebot.FlexButtonStyleTypeLink,
-					Action: &linebot.URIAction{
-						Label: "地圖上查看",
-						URI:   "https://mileslin.github.io/2020/08/Golang/Live-Reload-For-Go/",
-					},
-				},
-			},
-		},
-	}
-}
-
-// #TODO 要寫測試
-func CreateRestaurantContainer(r db.Restaurant) *linebot.BubbleContainer {
+func CreateRestaurantCarouselItem(r db.Restaurant) *linebot.BubbleContainer {
 	var image string
 	if r.Image.Valid {
 		image = r.Image.String

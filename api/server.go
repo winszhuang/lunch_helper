@@ -99,7 +99,7 @@ func NewServer(
 				case string(constant.FavoriteRestaurants):
 					server.HandleShowFirstPageUserRestaurants(c, event)
 				case string(constant.FavoriteFoods):
-					// #TODO server.ListFavoriteFoods api
+					server.HandleShowFirstPageUserFoods(c, event)
 				case string(constant.PickRestaurant):
 					// #TODO server.PickRestaurant api
 				case string(constant.NotificationSetting):
@@ -121,6 +121,8 @@ func NewServer(
 					server.HandleLikeRestaurant(c, event)
 				case strings.Contains(event.Postback.Data, "/showuserlikerestaurantnext"):
 					server.HandleShowNextPageUserRestaurants(c, event)
+				case strings.Contains(event.Postback.Data, "/showuserlikefoodnext"):
+					server.HandleShowNextPageUserFoods(c, event)
 				}
 			case linebot.EventTypeMessage:
 				switch messageData := event.Message.(type) {

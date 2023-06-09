@@ -140,7 +140,7 @@ func (s *Server) sendRestaurantsWithCarousel(event *linebot.Event, restaurantLis
 	component := carousel.CreateCarouselWithNext(
 		restaurantList,
 		func(restaurant db.Restaurant) *linebot.BubbleContainer {
-			return carousel.CreateRestaurantContainer(restaurant)
+			return carousel.CreateRestaurantCarouselItem(restaurant)
 		},
 		func() *linebot.BubbleContainer {
 			if len(restaurantList) < MaximumNumberOfCarouselItems {
@@ -153,7 +153,7 @@ func (s *Server) sendRestaurantsWithCarousel(event *linebot.Event, restaurantLis
 				args.radius,
 				args.pageIndex+1,
 			)
-			return carousel.CreateRestaurantNextPageContainer(nextData)
+			return carousel.CreateNextPageContainer(nextData)
 		},
 	)
 	s.bot.SendFlex(event.ReplyToken, "carousel", component)
