@@ -140,28 +140,22 @@ func (bc *LineBotClient) ResetRichMenu() []error {
 		return errList
 	}
 
+	richMenu, err := bc.GetRichMenuList().Do()
+	if err != nil {
+		return []error{err}
+	}
+
+	for _, rich := range richMenu {
+		_, err := bc.DeleteRichMenu(rich.RichMenuID).Do()
+		if err != nil {
+			errList = append(errList, err)
+		}
+	}
+	if len(errList) > 0 {
+		return errList
+	}
+
 	return []error{}
-
-	// richMenu, err := bc.GetRichMenuList().Do()
-	// log.Printf("總長度為: %d", len(richMenu))
-	// if err != nil {
-	// 	return []error{err}
-	// }
-
-	// for index, rich := range richMenu {
-	// 	time.Sleep(time.Second * 5)
-	// 	_, err := bc.DeleteRichMenu(rich.RichMenuID).Do()
-	// 	if err != nil {
-	// 		errList = append(errList, err)
-	// 	} else {
-	// 		log.Printf("刪除第%d個id，還剩%d個", index+1, len(richMenu)-(index+1))
-	// 	}
-	// }
-	// if len(errList) > 0 {
-	// 	return errList
-	// }
-
-	// return []error{}
 }
 
 // 原始createRichMenu內RichMenuAction沒有提供inputOption，因此重寫function
