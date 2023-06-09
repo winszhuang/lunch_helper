@@ -124,6 +124,34 @@ func (s *Server) HandleLikeFood(c *gin.Context, event *linebot.Event) {
 	s.bot.SendText(event.ReplyToken, "成功加入收藏餐點")
 }
 
+func (s *Server) HandleUnlikeFood(c *gin.Context, event *linebot.Event) {
+	foodId, err := util.ParseId("userunlikefood", event.Postback.Data)
+	if err != nil {
+		s.logService.Errorf("failed to parse food: %v, data: %s", err, event.Postback.Data)
+		s.bot.SendText(event.ReplyToken, "取得餐點失敗(parse error)")
+		return
+	}
+
+	userLineId := event.Source.UserID
+	user, err := s.userService.GetUserByLineID(c, userLineId)
+	if err != nil {
+		s.logService.Errorf("failed to get user id: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者資訊失敗")
+		return
+	}
+
+	if err = s.userFoodService.Delete(c, db.DeleteUserFoodParams{
+		UserID: user.ID,
+		FoodID: int32(foodId),
+	}); err != nil {
+		s.logService.Errorf("failed to delete user food: %v", err)
+		s.bot.SendText(event.ReplyToken, "取消收藏餐點失敗")
+		return
+	}
+
+	s.bot.SendText(event.ReplyToken, "成功取消收藏餐點")
+}
+
 func (s *Server) HandleShowFirstPageUserFoods(c *gin.Context, event *linebot.Event) {
 	userLineId := event.Source.UserID
 	user, err := s.userService.GetUserByLineID(c, userLineId)
