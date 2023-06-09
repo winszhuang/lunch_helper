@@ -36,13 +36,17 @@ func (s *Server) HandleGetFoods(c *gin.Context, event *linebot.Event) {
 		return
 	}
 
-	if len(foods) > 0 {
+	hasMenu := len(foods) > 0
+	if hasMenu {
 		container := flex.CreateFoodListContainer(foods, restaurant)
 		s.bot.SendFlex(event.ReplyToken, "菜單", &container)
-		return
+	} else {
+		s.handleNoMenuCase(c, event, restaurant)
 	}
+}
 
-	// 沒有菜單的情況
+// 處理沒有菜單的情況
+func (s *Server) handleNoMenuCase(c *gin.Context, event *linebot.Event, restaurant db.Restaurant) {
 	if restaurant.GoogleMapUrl == "" {
 		s.logService.Errorf("restaurant %s has no google map url. google map id is %s", restaurant.Name, restaurant.GoogleMapPlaceID)
 		s.bot.SendText(event.ReplyToken, "未在google上找到相關菜單")
@@ -59,7 +63,7 @@ func (s *Server) HandleGetFoods(c *gin.Context, event *linebot.Event) {
 	// 等待爬蟲完該任務再執行後續處理
 	crawlSuccess := <-s.crawlerService.SendPriorityWork(restaurant)
 	if crawlSuccess {
-		foods, err := s.foodService.GetFoods(c, int32(id))
+		foods, err := s.foodService.GetFoods(c, int32(restaurant.ID))
 		if err != nil {
 			s.bot.PushText(event.Source.UserID, "取得菜單失敗")
 			return
