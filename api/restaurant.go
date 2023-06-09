@@ -1,18 +1,21 @@
 package api
 
 import (
+	"fmt"
 	"lunch_helper/adapter"
 	"lunch_helper/bot/carousel"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/util"
+
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 type ListArgs struct {
-	limit  int
-	offset int
+	PageIndex int
+	PageSize  int
 }
 
 func (s *Server) HandleLikeRestaurant(c *gin.Context, event *linebot.Event) {
@@ -38,10 +41,12 @@ func (s *Server) HandleLikeRestaurant(c *gin.Context, event *linebot.Event) {
 		return
 	}
 
+	// #TODO 需要補上店家名稱
+	// msg := fmt.Sprintf("-%s-成功加入收藏店家")
 	s.bot.SendText(event.ReplyToken, "成功加入收藏店家")
 }
 
-func (s *Server) HandleShowUserRestaurant(c *gin.Context, event *linebot.Event) {
+func (s *Server) HandleShowFirstPageUserRestaurants(c *gin.Context, event *linebot.Event) {
 	userLineId := event.Source.UserID
 	user, err := s.userService.GetUserByLineID(c, userLineId)
 	if err != nil {
@@ -50,10 +55,11 @@ func (s *Server) HandleShowUserRestaurant(c *gin.Context, event *linebot.Event) 
 		return
 	}
 
+	listArgs := &ListArgs{PageIndex: 1, PageSize: 10}
 	restaurantList, err := s.userRestaurantService.List(c, db.GetUserRestaurantsParams{
 		UserID: user.ID,
-		Limit:  10,
-		Offset: 0,
+		Limit:  int32(listArgs.PageSize),
+		Offset: int32((listArgs.PageIndex - 1) * 10),
 	})
 	if err != nil {
 		s.logService.Errorf("failed to get user restaurant: %v", err)
@@ -64,26 +70,72 @@ func (s *Server) HandleShowUserRestaurant(c *gin.Context, event *linebot.Event) 
 	s.sendUserRestaurantsWithCarousel(
 		event,
 		adapter.UserRestaurantRowsToRestaurants(restaurantList),
-		&ListArgs{
-			limit:  10,
-			offset: 0,
-		},
+		&ListArgs{PageIndex: listArgs.PageIndex + 1, PageSize: listArgs.PageSize},
 	)
 }
 
-func (s *Server) sendUserRestaurantsWithCarousel(event *linebot.Event, restaurantList []db.Restaurant, args *ListArgs) {
+func (s *Server) HandleShowNextPageUserRestaurants(c *gin.Context, event *linebot.Event) {
+	args, err := util.ParseQuery(event.Postback.Data)
+	if err != nil {
+		s.logService.Errorf("parse query params error: %v", err)
+		s.bot.SendText(event.ReplyToken, "下一頁參數錯誤!!")
+		return
+	}
+
+	userLineId := event.Source.UserID
+	user, err := s.userService.GetUserByLineID(c, userLineId)
+	if err != nil {
+		s.logService.Errorf("failed to get user id: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者資訊失敗")
+		return
+	}
+
+	pageIndex, err := strconv.Atoi(args[0])
+	if err != nil {
+		s.bot.SendText(event.ReplyToken, "解析pageIndex失敗")
+		return
+	}
+
+	pageSize, err := strconv.Atoi(args[1])
+	if err != nil {
+		s.bot.SendText(event.ReplyToken, "解析pageSize失敗")
+		return
+	}
+
+	restaurantList, err := s.userRestaurantService.List(c, db.GetUserRestaurantsParams{
+		UserID: user.ID,
+		Limit:  int32(pageSize),
+		Offset: int32((pageIndex - 1) * pageSize),
+	})
+	if err != nil {
+		s.logService.Errorf("failed to get user restaurant: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者收藏餐廳失敗")
+		return
+	}
+
+	s.sendUserRestaurantsWithCarousel(
+		event,
+		adapter.UserRestaurantRowsToRestaurants(restaurantList),
+		&ListArgs{PageIndex: pageIndex + 1, PageSize: pageSize},
+	)
+}
+
+func (s *Server) sendUserRestaurantsWithCarousel(event *linebot.Event, restaurantList []db.Restaurant, nextListArgs *ListArgs) {
 	component := carousel.CreateCarouselWithNext(
 		restaurantList,
 		func(restaurant db.Restaurant) *linebot.BubbleContainer {
 			return carousel.CreateRestaurantContainer(restaurant)
 		},
 		func() *linebot.BubbleContainer {
-			// #TODO 補上下一頁item
-			return nil
-			// if len(restaurantList) < MaximumNumberOfCarouselItems {
-			// 	return nil
-			// }
-			// return carousel.CreateRestaurantNextPageContainer(args.pageIndex+1, args.lat, args.lng, args.radius)
+			if len(restaurantList) < MaximumNumberOfCarouselItems {
+				return nil
+			}
+			nextData := fmt.Sprintf(
+				"/showuserlikerestaurantnext?paegIndex=%d&pageSize=%d",
+				nextListArgs.PageIndex,
+				nextListArgs.PageSize,
+			)
+			return carousel.CreateRestaurantNextPageContainer(nextData)
 		},
 	)
 	s.bot.SendFlex(event.ReplyToken, "carousel", component)

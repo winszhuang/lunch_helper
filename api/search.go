@@ -1,9 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"lunch_helper/bot/carousel"
 	"lunch_helper/bot/quickreply"
-	"lunch_helper/constant"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/util"
 	"strconv"
@@ -45,8 +45,9 @@ func (s *Server) HandleSearchFirstPageRestaurants(c *gin.Context, event *linebot
 }
 
 func (s *Server) HandleSearchNextPageRestaurants(c *gin.Context, event *linebot.Event) {
-	args := util.ParseRegexQuery(event.Postback.Data, constant.LatLngPageIndex)
-	if len(args) != 4 {
+	args, err := util.ParseQuery(event.Postback.Data)
+	if err != nil {
+		s.logService.Errorf("parse query params error: %v", err)
 		s.bot.SendText(event.ReplyToken, "下一頁參數錯誤!!")
 		return
 	}
@@ -63,6 +64,7 @@ func (s *Server) HandleSearchNextPageRestaurants(c *gin.Context, event *linebot.
 	}
 	radius, err := strconv.Atoi(args[2])
 	if err != nil {
+		// #TODO got error
 		s.bot.SendText(event.ReplyToken, "解析半徑失敗")
 		return
 	}
@@ -138,7 +140,14 @@ func (s *Server) sendRestaurantsWithCarousel(event *linebot.Event, restaurantLis
 			if len(restaurantList) < MaximumNumberOfCarouselItems {
 				return nil
 			}
-			return carousel.CreateRestaurantNextPageContainer(args.pageIndex+1, args.lat, args.lng, args.radius)
+			nextData := fmt.Sprintf(
+				"/searchnext?lat=%s&lng=%s&radius=%d&pageIndex=%d",
+				strconv.FormatFloat(args.lat, 'f', 6, 64),
+				strconv.FormatFloat(args.lng, 'f', 6, 64),
+				args.radius,
+				args.pageIndex+1,
+			)
+			return carousel.CreateRestaurantNextPageContainer(nextData)
 		},
 	)
 	s.bot.SendFlex(event.ReplyToken, "carousel", component)

@@ -22,6 +22,7 @@ func (uf *UserRestaurantService) Create(ctx context.Context, userId int32, resta
 	})
 }
 
+// #TODO arg改成pageIndex和pageSize比較直觀
 func (uf *UserRestaurantService) List(ctx context.Context, arg db.GetUserRestaurantsParams) ([]db.GetUserRestaurantsRow, error) {
 	return uf.dbStore.GetUserRestaurants(ctx, arg)
 }

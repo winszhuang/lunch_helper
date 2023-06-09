@@ -1,6 +1,7 @@
 package util
 
 import (
+	"reflect"
 	"regexp"
 	"testing"
 
@@ -46,6 +47,56 @@ func TestParseRegexQuery(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			result := ParseRegexQuery(testCase.input, regex)
 			require.Equal(t, testCase.expected, result)
+		})
+	}
+}
+
+func TestParseQuery(t *testing.T) {
+	type args struct {
+		input string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []string
+		wantErr bool
+	}{
+		{
+			name: "valid input",
+			args: args{
+				input: "/searchnext?lat=24.17829&lng=120.68012&radius=500&pageIndex=2",
+			},
+			want:    []string{"24.17829", "120.68012", "500", "2"},
+			wantErr: false,
+		},
+		{
+			name: "miss some args",
+			args: args{
+				input: "/searchnext?lat&lng=120.68012&radius=500&pageIndex=2",
+			},
+			want:    []string{"", "120.68012", "500", "2"},
+			wantErr: false,
+		},
+		{
+			name: "miss arg",
+			args: args{
+				input: "/userrestaurantnext?pageIndex=",
+			},
+			want:    []string{""},
+			wantErr: false,
+		},
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ParseQuery(tt.args.input)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ParseQuery() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ParseQuery() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
