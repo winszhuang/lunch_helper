@@ -47,6 +47,49 @@ func (q *Queries) DeleteUserFood(ctx context.Context, arg DeleteUserFoodParams) 
 	return err
 }
 
+const getUserFoodByFoodId = `-- name: GetUserFoodByFoodId :one
+SELECT id, name, price, image, description, restaurant_id, version, edit_by, user_id, food_id
+FROM food
+JOIN user_food ON user_food.food_id = food.id
+WHERE user_food.user_id = $1 AND user_food.food_id = $2
+`
+
+type GetUserFoodByFoodIdParams struct {
+	UserID int32 `json:"user_id"`
+	FoodID int32 `json:"food_id"`
+}
+
+type GetUserFoodByFoodIdRow struct {
+	ID           int32          `json:"id"`
+	Name         string         `json:"name"`
+	Price        string         `json:"price"`
+	Image        sql.NullString `json:"image"`
+	Description  sql.NullString `json:"description"`
+	RestaurantID int32          `json:"restaurant_id"`
+	Version      int16          `json:"version"`
+	EditBy       sql.NullInt32  `json:"edit_by"`
+	UserID       int32          `json:"user_id"`
+	FoodID       int32          `json:"food_id"`
+}
+
+func (q *Queries) GetUserFoodByFoodId(ctx context.Context, arg GetUserFoodByFoodIdParams) (GetUserFoodByFoodIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserFoodByFoodId, arg.UserID, arg.FoodID)
+	var i GetUserFoodByFoodIdRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Price,
+		&i.Image,
+		&i.Description,
+		&i.RestaurantID,
+		&i.Version,
+		&i.EditBy,
+		&i.UserID,
+		&i.FoodID,
+	)
+	return i, err
+}
+
 const getUserFoods = `-- name: GetUserFoods :many
 SELECT id, name, price, image, description, restaurant_id, version, edit_by, user_id, food_id
 FROM food

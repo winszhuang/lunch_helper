@@ -33,6 +33,7 @@ type Querier interface {
 	GetRoles(ctx context.Context) ([]Role, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserByLineID(ctx context.Context, lineID string) (User, error)
+	GetUserFoodByFoodId(ctx context.Context, arg GetUserFoodByFoodIdParams) (GetUserFoodByFoodIdRow, error)
 	GetUserFoods(ctx context.Context, arg GetUserFoodsParams) ([]GetUserFoodsRow, error)
 	GetUserRestaurants(ctx context.Context, arg GetUserRestaurantsParams) ([]GetUserRestaurantsRow, error)
 	GetUsers(ctx context.Context, arg GetUsersParams) ([]User, error)
