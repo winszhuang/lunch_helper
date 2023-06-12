@@ -88,7 +88,7 @@ func main() {
 	store := db.NewStore(conn)
 
 	// init crawler
-	deliverLinkSpider, err := spider.NewGoogleDeliverLinkSpider("D:/chromedriver_win32/chromedriver.exe")
+	deliverLinkSpider, err := spider.NewGoogleDeliverLinkSpider("./chromedriver.exe")
 	if err != nil {
 		log.Fatalf("init google deliver link spider error: %v", err)
 	}
