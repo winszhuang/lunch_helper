@@ -8,7 +8,7 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-func CreateRestaurantCarouselItem(r db.Restaurant) *linebot.BubbleContainer {
+func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Restaurant) []linebot.FlexComponent) *linebot.BubbleContainer {
 	var image string
 	if r.Image.Valid {
 		image = r.Image.String
@@ -145,37 +145,73 @@ func CreateRestaurantCarouselItem(r db.Restaurant) *linebot.BubbleContainer {
 			},
 		},
 		Footer: &linebot.BoxComponent{
-			Type:    linebot.FlexComponentTypeBox,
-			Layout:  linebot.FlexBoxLayoutTypeVertical,
-			Spacing: "xs",
-			Contents: []linebot.FlexComponent{
-				&linebot.ButtonComponent{
-					Type:   linebot.FlexComponentTypeButton,
-					Height: "sm",
-					Action: &linebot.PostbackAction{
-						Label: "查看菜單",
-						Data:  fmt.Sprintf("/restaurantmenu=%d", r.ID),
-					},
-					Margin: linebot.FlexComponentMarginTypeLg,
-				},
-				&linebot.ButtonComponent{
-					Type:   linebot.FlexComponentTypeButton,
-					Height: "sm",
-					Action: &linebot.PostbackAction{
-						Label: "加入收藏",
-						Data:  fmt.Sprintf("/userlikerestaurant=%d", r.ID),
-					},
-					Margin: linebot.FlexComponentMarginTypeLg,
-				},
-				&linebot.ButtonComponent{
-					Type:   linebot.FlexComponentTypeButton,
-					Height: "sm",
-					Style:  linebot.FlexButtonStyleTypeLink,
-					Action: &linebot.URIAction{
-						Label: "地圖上查看",
-						URI:   r.GoogleMapUrl,
-					},
-				},
+			Type:     linebot.FlexComponentTypeBox,
+			Layout:   linebot.FlexBoxLayoutTypeVertical,
+			Spacing:  "xs",
+			Contents: postbackContents(r),
+		},
+	}
+}
+
+func PostBackContentsWithShowMenuAndLikeAndViewOnMap(r db.Restaurant) []linebot.FlexComponent {
+	return []linebot.FlexComponent{
+		&linebot.ButtonComponent{
+			Type:   linebot.FlexComponentTypeButton,
+			Height: "sm",
+			Action: &linebot.PostbackAction{
+				Label: "查看菜單",
+				Data:  fmt.Sprintf("/restaurantmenu=%d", r.ID),
+			},
+			Margin: linebot.FlexComponentMarginTypeLg,
+		},
+		&linebot.ButtonComponent{
+			Type:   linebot.FlexComponentTypeButton,
+			Height: "sm",
+			Action: &linebot.PostbackAction{
+				Label: "加入收藏",
+				Data:  fmt.Sprintf("/userlikerestaurant=%d", r.ID),
+			},
+			Margin: linebot.FlexComponentMarginTypeLg,
+		},
+		&linebot.ButtonComponent{
+			Type:   linebot.FlexComponentTypeButton,
+			Height: "sm",
+			Style:  linebot.FlexButtonStyleTypeLink,
+			Action: &linebot.URIAction{
+				Label: "地圖上查看",
+				URI:   r.GoogleMapUrl,
+			},
+		},
+	}
+}
+
+func PostBackContentsWithShowMenuAndUnLikeAndViewOnMap(r db.Restaurant) []linebot.FlexComponent {
+	return []linebot.FlexComponent{
+		&linebot.ButtonComponent{
+			Type:   linebot.FlexComponentTypeButton,
+			Height: "sm",
+			Action: &linebot.PostbackAction{
+				Label: "查看菜單",
+				Data:  fmt.Sprintf("/restaurantmenu=%d", r.ID),
+			},
+			Margin: linebot.FlexComponentMarginTypeLg,
+		},
+		&linebot.ButtonComponent{
+			Type:   linebot.FlexComponentTypeButton,
+			Height: "sm",
+			Action: &linebot.PostbackAction{
+				Label: "取消收藏",
+				Data:  fmt.Sprintf("/userunlikerestaurant=%d", r.ID),
+			},
+			Margin: linebot.FlexComponentMarginTypeLg,
+		},
+		&linebot.ButtonComponent{
+			Type:   linebot.FlexComponentTypeButton,
+			Height: "sm",
+			Style:  linebot.FlexButtonStyleTypeLink,
+			Action: &linebot.URIAction{
+				Label: "地圖上查看",
+				URI:   r.GoogleMapUrl,
 			},
 		},
 	}

@@ -22,6 +22,10 @@ func (uf *UserFoodService) Create(ctx context.Context, userId int32, foodId int3
 	})
 }
 
+func (uf *UserFoodService) GetByFoodId(ctx context.Context, arg db.GetUserFoodByFoodIdParams) (db.GetUserFoodByFoodIdRow, error) {
+	return uf.dbStore.GetUserFoodByFoodId(ctx, arg)
+}
+
 func (uf *UserFoodService) List(ctx context.Context, args db.GetUserFoodsParams) ([]db.GetUserFoodsRow, error) {
 	return uf.dbStore.GetUserFoods(ctx, args)
 }

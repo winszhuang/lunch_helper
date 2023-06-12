@@ -94,7 +94,22 @@ func (s *Server) HandleShowFood(c *gin.Context, event *linebot.Event) {
 		return
 	}
 
-	container := flex.CreateFoodItem(food)
+	userLineId := event.Source.UserID
+	user, err := s.userService.GetUserByLineID(c, userLineId)
+	if err != nil {
+		s.logService.Errorf("failed to get user id: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者資訊失敗")
+		return
+	}
+
+	userFood, err := s.userFoodService.GetByFoodId(c, db.GetUserFoodByFoodIdParams{
+		UserID: user.ID,
+		FoodID: food.ID,
+	})
+
+	s.logService.Debugf("user food: %v", userFood)
+	isUserFood := err == nil
+	container := flex.CreateFoodItem(food, isUserFood)
 	s.bot.SendFlex(event.ReplyToken, food.Name, &container)
 }
 

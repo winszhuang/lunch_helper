@@ -48,6 +48,36 @@ func (s *Server) HandleLikeRestaurant(c *gin.Context, event *linebot.Event) {
 	s.bot.SendText(event.ReplyToken, "成功加入收藏店家")
 }
 
+func (s *Server) HandleUnLikeRestaurant(c *gin.Context, event *linebot.Event) {
+	restaurantId, err := util.ParseId("userunlikerestaurant", event.Postback.Data)
+	if err != nil {
+		s.logService.Errorf("failed to parse restaurant id: %v, error: %s", restaurantId, err)
+		s.bot.SendText(event.ReplyToken, "取得餐點失敗")
+		return
+	}
+
+	userLineId := event.Source.UserID
+	user, err := s.userService.GetUserByLineID(c, userLineId)
+	if err != nil {
+		s.logService.Errorf("failed to get user id: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者資訊失敗")
+		return
+	}
+
+	if err = s.userRestaurantService.Delete(c, db.DeleteUserRestaurantParams{
+		UserID:       user.ID,
+		RestaurantID: int32(restaurantId),
+	}); err != nil {
+		s.logService.Errorf("failed to delete user food: %v", err)
+		s.bot.SendText(event.ReplyToken, "取消收藏收藏店家失敗")
+		return
+	}
+
+	// #TODO 需要補上店家名稱
+	// msg := fmt.Sprintf("-%s-成功加入收藏店家")
+	s.bot.SendText(event.ReplyToken, "成功取消收藏店家")
+}
+
 func (s *Server) HandleShowFirstPageUserRestaurants(c *gin.Context, event *linebot.Event) {
 	userLineId := event.Source.UserID
 	user, err := s.userService.GetUserByLineID(c, userLineId)
@@ -130,7 +160,9 @@ func (s *Server) sendUserRestaurantsWithCarousel(event *linebot.Event, restauran
 	component := carousel.CreateCarouselWithNext(
 		restaurantList,
 		func(restaurant db.Restaurant) *linebot.BubbleContainer {
-			return carousel.CreateRestaurantCarouselItem(restaurant)
+			return carousel.CreateRestaurantCarouselItem(restaurant, func(r db.Restaurant) []linebot.FlexComponent {
+				return carousel.PostBackContentsWithShowMenuAndUnLikeAndViewOnMap(r)
+			})
 		},
 		func() *linebot.BubbleContainer {
 			if len(restaurantList) < MaximumNumberOfCarouselItems {

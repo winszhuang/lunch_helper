@@ -9,7 +9,16 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-func CreateFoodItem(food db.Food) linebot.BubbleContainer {
+func CreateFoodItem(food db.Food, isUserFood bool) linebot.BubbleContainer {
+	var labelText string
+	var postData string
+	if isUserFood {
+		labelText = "取消收藏"
+		postData = fmt.Sprintf("/userunlikefood=%d", food.ID)
+	} else {
+		labelText = "加入收藏"
+		postData = fmt.Sprintf("/userlikefood=%d", food.ID)
+	}
 	bubble := linebot.BubbleContainer{
 		Type: linebot.FlexContainerTypeBubble,
 		Hero: &linebot.ImageComponent{
@@ -80,8 +89,8 @@ func CreateFoodItem(food db.Food) linebot.BubbleContainer {
 					Color:  "#905c44",
 					Margin: linebot.FlexComponentMarginTypeXxl,
 					Action: &linebot.PostbackAction{
-						Label: "加入收藏",
-						Data:  fmt.Sprintf("/userlikefood=%d", food.ID),
+						Label: labelText,
+						Data:  postData,
 					},
 				},
 			},

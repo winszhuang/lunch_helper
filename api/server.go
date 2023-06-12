@@ -126,6 +126,8 @@ func NewServer(
 					server.HandleShowNextPageUserFoods(c, event)
 				case strings.Contains(event.Postback.Data, "/userunlikefood"):
 					server.HandleUnlikeFood(c, event)
+				case strings.Contains(event.Postback.Data, "/userunlikerestaurant"):
+					server.HandleUnLikeRestaurant(c, event)
 				}
 			case linebot.EventTypeMessage:
 				switch messageData := event.Message.(type) {
