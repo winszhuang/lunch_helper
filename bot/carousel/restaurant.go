@@ -6,6 +6,7 @@ import (
 	db "lunch_helper/db/sqlc"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
+	"github.com/shopspring/decimal"
 )
 
 func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Restaurant) []linebot.FlexComponent) *linebot.BubbleContainer {
@@ -52,33 +53,7 @@ func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Re
 							Type:         linebot.FlexComponentTypeBox,
 							Layout:       linebot.FlexBoxLayoutTypeBaseline,
 							PaddingStart: "2px",
-							Contents: []linebot.FlexComponent{
-								&linebot.IconComponent{
-									Type: linebot.FlexComponentTypeIcon,
-									URL:  "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png",
-									Size: linebot.FlexIconSizeTypeSm,
-								},
-								&linebot.IconComponent{
-									Type: linebot.FlexComponentTypeIcon,
-									URL:  "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png",
-									Size: linebot.FlexIconSizeTypeSm,
-								},
-								&linebot.IconComponent{
-									Type: linebot.FlexComponentTypeIcon,
-									URL:  "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png",
-									Size: linebot.FlexIconSizeTypeSm,
-								},
-								&linebot.IconComponent{
-									Type: linebot.FlexComponentTypeIcon,
-									URL:  "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png",
-									Size: linebot.FlexIconSizeTypeSm,
-								},
-								&linebot.IconComponent{
-									Type: linebot.FlexComponentTypeIcon,
-									URL:  "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png",
-									Size: linebot.FlexIconSizeTypeSm,
-								},
-							},
+							Contents:     CreateRatingComponent(r.Rating),
 						},
 						&linebot.TextComponent{
 							Text:   r.Rating.String(),
@@ -215,4 +190,29 @@ func PostBackContentsWithShowMenuAndUnLikeAndViewOnMap(r db.Restaurant) []linebo
 			},
 		},
 	}
+}
+
+func CreateRatingComponent(rating decimal.Decimal) []linebot.FlexComponent {
+	roundedRating := rating.Floor()
+
+	goldStarURL := "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+	grayStarURL := "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gray_star_28.png"
+
+	components := []linebot.FlexComponent{}
+	for i := 0; i < 5; i++ {
+		var starURL string
+		if i < int(roundedRating.IntPart()) {
+			starURL = goldStarURL
+		} else {
+			starURL = grayStarURL
+		}
+
+		components = append(components, &linebot.IconComponent{
+			Type: linebot.FlexComponentTypeIcon,
+			URL:  starURL,
+			Size: linebot.FlexIconSizeTypeSm,
+		})
+	}
+
+	return components
 }
