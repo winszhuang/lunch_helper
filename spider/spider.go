@@ -2,6 +2,7 @@ package spider
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/tebeka/selenium"
@@ -9,14 +10,16 @@ import (
 )
 
 type DeliverLinkSpider interface {
-	ScrapeDeliverLink(url string) (string, error)
+	ScrapeDeliverLink(url string) chan Response
 	Quit()
 }
 
 type GoogleDeliverLinkSpider struct {
-	service   *selenium.Service
-	WebDriver selenium.WebDriver
-	doing     chan bool
+	service        *selenium.Service
+	WebDriver      selenium.WebDriver
+	doing          chan bool
+	reconnectChan  chan bool
+	disconnectChan chan bool
 }
 
 // 抓取外送平台店家網址
@@ -26,6 +29,40 @@ func NewGoogleDeliverLinkSpider(chromeDriverPath string) (*GoogleDeliverLinkSpid
 		return nil, err
 	}
 
+	wd, err := NewWebDriver()
+	if err != nil {
+		return nil, err
+	}
+
+	d := &GoogleDeliverLinkSpider{
+		WebDriver:      wd,
+		service:        service,
+		doing:          make(chan bool, 1),
+		reconnectChan:  make(chan bool, 1),
+		disconnectChan: make(chan bool, 1),
+	}
+
+	go d.doCheckConnected()
+
+	return d, nil
+}
+
+func (d *GoogleDeliverLinkSpider) doCheckConnected() {
+	for {
+		if !d.isConnected() {
+			d.disconnectChan <- true
+			err := d.RestartWebDriver()
+			if err != nil {
+				log.Fatalf("重啟不能，沒救了: %v", err)
+			} else {
+				d.reconnectChan <- true
+			}
+		}
+		time.Sleep(time.Second * 1)
+	}
+}
+
+func NewWebDriver() (selenium.WebDriver, error) {
 	caps := selenium.Capabilities{"browserName": "chrome"}
 	caps.AddChrome(chrome.Capabilities{Args: []string{
 		"window-size=1920x1080",
@@ -50,21 +87,25 @@ func NewGoogleDeliverLinkSpider(chromeDriverPath string) (*GoogleDeliverLinkSpid
 	}
 	caps["chromeOptions"] = chromeOptions
 
-	wd, err := selenium.NewRemote(caps, "")
-	if err != nil {
-		return nil, err
-	}
+	return selenium.NewRemote(caps, "")
+}
 
-	d := &GoogleDeliverLinkSpider{
-		WebDriver: wd,
-		service:   service,
-		doing:     make(chan bool, 1),
+func (d *GoogleDeliverLinkSpider) RestartWebDriver() error {
+	wd, err := NewWebDriver()
+	if err != nil {
+		return err
 	}
-	return d, nil
+	d.WebDriver = wd
+	return nil
+}
+
+func (d *GoogleDeliverLinkSpider) isConnected() bool {
+	_, err := d.WebDriver.CurrentWindowHandle()
+	return err == nil
 }
 
 func (d *GoogleDeliverLinkSpider) Quit() {
-	d.service.Stop()
+	d.WebDriver.Quit()
 }
 
 func (d *GoogleDeliverLinkSpider) findDeliverLink() (string, error) {
@@ -86,74 +127,131 @@ func (d *GoogleDeliverLinkSpider) findDeliverLink() (string, error) {
 	return "", nil
 }
 
-func (d *GoogleDeliverLinkSpider) ScrapeDeliverLink(url string) (string, error) {
+func (d *GoogleDeliverLinkSpider) WorkAfterReconnect(callback func()) {
+	<-d.reconnectChan
+	callback()
+}
+
+type Response struct {
+	ResultLink  string
+	ShouldRetry bool
+	Err         error
+}
+
+type Cache struct {
+	ResultLink string
+	Err        error
+}
+
+func (d *GoogleDeliverLinkSpider) ScrapeDeliverLink(url string) chan Response {
 	// 確保一次只能有一個抓取動作
 	d.doing <- true
-	defer func() {
-		<-d.doing
+
+	cache := make(chan Cache)
+	response := make(chan Response)
+
+	go func() {
+		defer func() {
+			// 不能關，會報調
+			// close(cache)
+			<-d.doing
+		}()
+		// 判斷
+		// #TODO 考慮搶先任務(當前任務中斷)
+		select {
+		// 有提前斷線就走這
+		case <-d.disconnectChan:
+			log.Printf("執行%s的時候斷線搂", url)
+			log.Printf("需要重新執行%s的爬蟲", url)
+			d.WorkAfterReconnect(func() {
+				response <- Response{ShouldRetry: true}
+			})
+		case data := <-cache:
+			response <- Response{ResultLink: data.ResultLink, ShouldRetry: false, Err: data.Err}
+		}
 	}()
 
-	err := d.WebDriver.Get(url)
-	if err != nil {
-		return "", err
-	}
-
-	var orderEl selenium.WebElement
-	getOrderButtonCondition := func(wd selenium.WebDriver) (bool, error) {
-		orderEl, err = wd.FindElement(selenium.ByCSSSelector, "[aria-label='預訂']")
+	// 實際爬蟲
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				err := r.(error)
+				inputToCache(cache, Cache{ResultLink: "", Err: err})
+			}
+		}()
+		err := d.WebDriver.Get(url)
 		if err != nil {
-			return false, nil
+			panic(err)
 		}
 
-		// #NOTICE 這段很重要!! 沒有加上這個會等不到幾秒就抱錯
-		enabled, err := orderEl.IsEnabled()
-		if !enabled {
-			return false, nil
+		var orderEl selenium.WebElement
+		getOrderButtonCondition := func(wd selenium.WebDriver) (bool, error) {
+			orderEl, err = wd.FindElement(selenium.ByCSSSelector, "[aria-label='預訂']")
+			if err != nil {
+				return false, nil
+			}
+
+			// #NOTICE 這段很重要!! 沒有加上這個會等不到幾秒就抱錯
+			enabled, err := orderEl.IsEnabled()
+			if !enabled {
+				return false, nil
+			}
+
+			return orderEl != nil, err
 		}
 
-		return orderEl != nil, err
-	}
-
-	err = d.WebDriver.WaitWithTimeout(getOrderButtonCondition, 3500)
-	if err != nil {
-		return "", err
-	}
-
-	if orderEl == nil {
-		return "", fmt.Errorf("找不到預訂按鈕")
-	}
-
-	// 只有一個合作店家的情況
-	href, _ := orderEl.GetAttribute("href")
-	if href != "" {
-		return href, nil
-	}
-
-	orderEl.Click()
-	selectDeliversCondition := func(wd selenium.WebDriver) (bool, error) {
-		el, err := wd.FindElement(selenium.ByCSSSelector, "[aria-label='選擇服務供應商']")
+		err = d.WebDriver.WaitWithTimeout(getOrderButtonCondition, time.Second*4)
 		if err != nil {
-			return false, nil
+			panic(err)
 		}
 
-		// #NOTICE 這段很重要!! 沒有加上這個會等不到幾秒就抱錯
-		enabled, err := el.IsEnabled()
-		if enabled {
-			return true, nil
-		} else {
-			return false, nil
+		if orderEl == nil {
+			panic(fmt.Errorf("找不到預訂按鈕"))
 		}
-	}
 
-	err = d.WebDriver.WaitWithTimeout(selectDeliversCondition, 5*time.Second)
-	if err != nil {
-		return "", err
-	}
+		// 只有一個合作店家的情況
+		href, _ := orderEl.GetAttribute("href")
+		if href != "" {
+			inputToCache(cache, Cache{ResultLink: href, Err: nil})
+			return
+		}
 
-	url, err = d.findDeliverLink()
-	if err != nil || url == "" {
-		return "", fmt.Errorf("找不到該合作店家")
-	}
+		orderEl.Click()
+		selectDeliversCondition := func(wd selenium.WebDriver) (bool, error) {
+			el, err := wd.FindElement(selenium.ByCSSSelector, "[aria-label='選擇服務供應商']")
+			if err != nil {
+				return false, nil
+			}
 
-	return url, nil
+			// #NOTICE 這段很重要!! 沒有加上這個會等不到幾秒就抱錯
+			enabled, _ := el.IsEnabled()
+			if enabled {
+				return true, nil
+			} else {
+				return false, nil
+			}
+		}
+
+		err = d.WebDriver.WaitWithTimeout(selectDeliversCondition, 5*time.Second)
+		if err != nil {
+			panic(err)
+		}
+
+		url, err = d.findDeliverLink()
+		if err != nil || url == "" {
+			panic(fmt.Errorf("找不到該合作店家"))
+		}
+
+		inputToCache(cache, Cache{ResultLink: url, Err: nil})
+	}()
+
+	return response
+}
+
+func inputToCache(cache chan<- Cache, data Cache) {
+	select {
+	case cache <- data:
+	default:
+		log.Printf("cache channel is full")
+	}
 }

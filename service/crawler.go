@@ -104,14 +104,17 @@ func (s *CrawlerService) crawlFoodDeliverLinks(chanData ChanData) {
 	}
 
 	// 從 google map 網站上的店家頁面爬取合作外送平台的url
-	foodDeliverLink, err := s.deliverLinkSpider.ScrapeDeliverLink(chanData.GoogleMapRestaurantUrl)
-	if err == nil {
-		chanData.FoodDeliverRestaurantUrl = foodDeliverLink
+	response := <-s.deliverLinkSpider.ScrapeDeliverLink(chanData.GoogleMapRestaurantUrl)
+	if response.ShouldRetry {
+		response = <-s.deliverLinkSpider.ScrapeDeliverLink(chanData.GoogleMapRestaurantUrl)
+	}
+	if response.Err == nil {
+		chanData.FoodDeliverRestaurantUrl = response.ResultLink
 		go func(chanData ChanData) {
 			s.deliverLinkChan <- chanData
 		}(chanData)
 	} else {
-		s.logService.Errorf("url %s crawl error: %v", chanData.GoogleMapRestaurantUrl, err)
+		s.logService.Errorf("url %s crawl error: %v", chanData.GoogleMapRestaurantUrl, response.Err)
 		chanData.done <- false
 	}
 }
