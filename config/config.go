@@ -12,6 +12,8 @@ type Config struct {
 	LineBotChannelAccessToken string `mapstructure:"LINEBOT_CHANNEL_ACCESS_TOKEN"`
 	LineBotEndpoint           string `mapstructure:"LINEBOT_ENDPOINT"`
 	GoogleMapApiKey           string `mapstructure:"GOOGLE_MAP_API_KEY"`
+	ChromeDriverPath          string `mapstructure:"CHROMEDRIVER_PATH"`
+	ChromeDriverHeadless      string `mapstructure:"CHROMEDRIVER_HEADLESS"`
 }
 
 func New(path, env string) (config Config, err error) {

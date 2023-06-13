@@ -14,6 +14,7 @@ import (
 	"lunch_helper/service"
 	"lunch_helper/spider"
 	"lunch_helper/thirdparty"
+	"strconv"
 )
 
 var (
@@ -88,7 +89,11 @@ func main() {
 	store := db.NewStore(conn)
 
 	// init crawler
-	deliverLinkSpider, err := spider.NewGoogleDeliverLinkSpider("./chromedriver.exe")
+	isHeadless, err := strconv.ParseBool(config.ChromeDriverHeadless)
+	if err != nil {
+		log.Fatalf("parse chrome driver headless error: %v, you only can set true or false string", err)
+	}
+	deliverLinkSpider, err := spider.NewGoogleDeliverLinkSpider(config.ChromeDriverPath, isHeadless)
 	if err != nil {
 		log.Fatalf("init google deliver link spider error: %v", err)
 	}

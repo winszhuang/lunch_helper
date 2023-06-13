@@ -20,16 +20,17 @@ type GoogleDeliverLinkSpider struct {
 	doing          chan bool
 	reconnectChan  chan bool
 	disconnectChan chan bool
+	isHeadless     bool
 }
 
 // 抓取外送平台店家網址
-func NewGoogleDeliverLinkSpider(chromeDriverPath string) (*GoogleDeliverLinkSpider, error) {
+func NewGoogleDeliverLinkSpider(chromeDriverPath string, isHeadless bool) (*GoogleDeliverLinkSpider, error) {
 	service, err := selenium.NewChromeDriverService(chromeDriverPath, 4444)
 	if err != nil {
 		return nil, err
 	}
 
-	wd, err := NewWebDriver()
+	wd, err := NewWebDriver(isHeadless)
 	if err != nil {
 		return nil, err
 	}
@@ -40,6 +41,7 @@ func NewGoogleDeliverLinkSpider(chromeDriverPath string) (*GoogleDeliverLinkSpid
 		doing:          make(chan bool, 1),
 		reconnectChan:  make(chan bool, 1),
 		disconnectChan: make(chan bool, 1),
+		isHeadless:     isHeadless,
 	}
 
 	go d.doCheckConnected()
@@ -62,15 +64,21 @@ func (d *GoogleDeliverLinkSpider) doCheckConnected() {
 	}
 }
 
-func NewWebDriver() (selenium.WebDriver, error) {
+func NewWebDriver(isHeadless bool) (selenium.WebDriver, error) {
 	caps := selenium.Capabilities{"browserName": "chrome"}
-	caps.AddChrome(chrome.Capabilities{Args: []string{
-		"window-size=1920x1080",
-		"--no-sandbox",
-		"--disable-dev-shm-usage",
-		"disable-gpu",
-		// "--headless",  // comment out this line to see the browser
-	}})
+
+	capabilities := chrome.Capabilities{
+		Args: []string{
+			"window-size=1920x1080",
+			"--no-sandbox",
+			"--disable-dev-shm-usage",
+			"disable-gpu",
+		},
+	}
+	if isHeadless {
+		capabilities.Args = append(capabilities.Args, "--headless")
+	}
+	caps.AddChrome(capabilities)
 
 	chromeOptions := map[string]interface{}{
 		"args": []string{
@@ -91,7 +99,7 @@ func NewWebDriver() (selenium.WebDriver, error) {
 }
 
 func (d *GoogleDeliverLinkSpider) RestartWebDriver() error {
-	wd, err := NewWebDriver()
+	wd, err := NewWebDriver(d.isHeadless)
 	if err != nil {
 		return err
 	}
