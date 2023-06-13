@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	"log"
 	"lunch_helper/api"
 	"lunch_helper/bot"
@@ -15,6 +16,10 @@ import (
 	"lunch_helper/spider"
 	"lunch_helper/thirdparty"
 	"strconv"
+
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 var (
@@ -38,6 +43,12 @@ func main() {
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatalf("cannot connect to db: %v", err)
+	}
+
+	// run db migration
+	err = runDBMigration(config.DBSource)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// load linebot client
@@ -130,4 +141,18 @@ func main() {
 	)
 
 	server.Start(port)
+}
+
+func runDBMigration(dbSource string) error {
+	migration, err := migrate.New("file://db/migration", dbSource)
+	if err != nil {
+		return fmt.Errorf("cannot create new migrate instance: %w", err)
+	}
+
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("failed to run migrate up: %w", err)
+	}
+
+	fmt.Println("db migrated successfully")
+	return nil
 }
