@@ -1,0 +1,8 @@
+# flyctl launch added from .gitignore
+**\prod.env
+**\dev.env
+**\Makefile
+**\tmp
+**\log
+**\.vscode
+fly.toml
