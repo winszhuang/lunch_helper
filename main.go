@@ -12,6 +12,7 @@ import (
 	"lunch_helper/config"
 	"lunch_helper/constant"
 	db "lunch_helper/db/sqlc"
+	"lunch_helper/food_deliver"
 	"lunch_helper/service"
 	"lunch_helper/spider"
 	"lunch_helper/thirdparty"
@@ -111,7 +112,7 @@ func main() {
 	defer deliverLinkSpider.Quit()
 
 	// init food deliver api
-	foodDeliverApi := thirdparty.NewCommonFoodDeliverApi()
+	foodDeliverApi := food_deliver.NewFoodDeliverApi()
 
 	// init service
 	logService := service.NewLogService("log/debug.txt", "log/error.txt")
@@ -123,7 +124,6 @@ func main() {
 	userRestaurantService := service.NewUserRestaurantService(store)
 	foodService := service.NewFoodService(store)
 	searchService := service.NewSearchService(nearByCache, &placeApi)
-	crawlerService := service.NewCrawlerService(deliverLinkSpider, foodDeliverApi, *foodService, *logService)
 
 	// init api server
 	server := api.NewServer(
@@ -136,8 +136,8 @@ func main() {
 		restaurantService,
 		userRestaurantService,
 		foodService,
-		crawlerService,
 		logService,
+		foodDeliverApi,
 	)
 
 	server.Start(port)

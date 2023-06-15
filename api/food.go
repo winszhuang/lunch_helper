@@ -55,28 +55,9 @@ func (s *Server) handleNoMenuCase(c *gin.Context, event *linebot.Event, restaura
 
 	if restaurant.MenuCrawled {
 		s.bot.SendText(event.ReplyToken, "網路上爬不到菜單哦")
-		return
-	}
-
-	s.bot.SendText(event.ReplyToken, "暫時沒菜單，請等我爬取(等個3秒以上)")
-
-	// 等待爬蟲完該任務再執行後續處理
-	crawlSuccess := <-s.crawlerService.SendPriorityWork(restaurant)
-	if crawlSuccess {
-		foods, err := s.foodService.GetFoods(c, int32(restaurant.ID))
-		if err != nil {
-			s.bot.PushText(event.Source.UserID, "取得菜單失敗")
-			return
-		}
-		container := flex.CreateFoodListContainer(foods, restaurant)
-		s.bot.PushFlex(event.Source.UserID, "菜單", &container)
 	} else {
-		s.bot.PushText(event.Source.UserID, "爬不到菜單哦")
+		s.bot.SendText(event.ReplyToken, "尚未爬取完菜單，請稍後再試")
 	}
-	s.restaurantService.UpdateMenuCrawled(c, db.UpdateMenuCrawledParams{
-		ID:          restaurant.ID,
-		MenuCrawled: true,
-	})
 }
 
 func (s *Server) HandleShowFood(c *gin.Context, event *linebot.Event) {

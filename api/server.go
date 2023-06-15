@@ -6,6 +6,7 @@ import (
 	"lunch_helper/bot/quickreply"
 	"lunch_helper/cache"
 	"lunch_helper/constant"
+	"lunch_helper/food_deliver"
 	"lunch_helper/service"
 	"net/http"
 	"strconv"
@@ -27,8 +28,8 @@ type Server struct {
 	restaurantService     *service.RestaurantService
 	userRestaurantService *service.UserRestaurantService
 	foodService           *service.FoodService
-	crawlerService        *service.CrawlerService
 	logService            *service.LogService
+	foodDeliverApi        *food_deliver.FoodDeliverApi
 }
 
 func NewServer(
@@ -41,8 +42,8 @@ func NewServer(
 	restaurantService *service.RestaurantService,
 	userRestaurantService *service.UserRestaurantService,
 	foodService *service.FoodService,
-	crawlerService *service.CrawlerService,
 	logService *service.LogService,
+	foodDeliverApi *food_deliver.FoodDeliverApi,
 ) *Server {
 	server := &Server{
 		bot:                   bot,
@@ -54,8 +55,8 @@ func NewServer(
 		restaurantService:     restaurantService,
 		userRestaurantService: userRestaurantService,
 		foodService:           foodService,
-		crawlerService:        crawlerService,
 		logService:            logService,
+		foodDeliverApi:        foodDeliverApi,
 	}
 	router := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
