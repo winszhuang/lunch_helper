@@ -169,11 +169,16 @@ func (s *Server) HandleShowFirstPageUserFoods(c *gin.Context, event *linebot.Eve
 		return
 	}
 
-	s.sendUserFoodsWithCarousel(
-		event,
-		adapter.UserFoodRowsToFoods(foodList),
-		&ListArgs{PageIndex: listArgs.PageIndex + 1, PageSize: listArgs.PageSize},
-	)
+	if len(foodList) == 0 {
+		s.bot.SendText(event.ReplyToken, "使用者沒有任何收藏餐點哦，請先搜尋並收藏餐點後再使用此功能")
+	} else {
+		s.sendUserFoodsWithCarousel(
+			event,
+			adapter.UserFoodRowsToFoods(foodList),
+			&ListArgs{PageIndex: listArgs.PageIndex + 1, PageSize: listArgs.PageSize},
+		)
+	}
+
 }
 
 func (s *Server) HandleShowNextPageUserFoods(c *gin.Context, event *linebot.Event) {
@@ -219,11 +224,16 @@ func (s *Server) HandleShowNextPageUserFoods(c *gin.Context, event *linebot.Even
 		return
 	}
 
-	s.sendUserFoodsWithCarousel(
-		event,
-		adapter.UserFoodRowsToFoods(foodList),
-		&ListArgs{PageIndex: pageIndex + 1, PageSize: pageSize},
-	)
+	if len(foodList) == 0 {
+		s.bot.SendText(event.ReplyToken, "使用者沒有任何收藏餐點哦，請先搜尋並收藏餐點後再使用此功能")
+	} else {
+		s.sendUserFoodsWithCarousel(
+			event,
+			adapter.UserFoodRowsToFoods(foodList),
+			&ListArgs{PageIndex: pageIndex + 1, PageSize: pageSize},
+		)
+	}
+
 }
 
 func (s *Server) sendUserFoodsWithCarousel(event *linebot.Event, foodList []db.Food, nextListArgs *ListArgs) {

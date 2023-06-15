@@ -99,11 +99,16 @@ func (s *Server) HandleShowFirstPageUserRestaurants(c *gin.Context, event *lineb
 		return
 	}
 
-	s.sendUserRestaurantsWithCarousel(
-		event,
-		adapter.UserRestaurantRowsToRestaurants(restaurantList),
-		&ListArgs{PageIndex: listArgs.PageIndex + 1, PageSize: listArgs.PageSize},
-	)
+	if len(restaurantList) == 0 {
+		s.bot.SendText(event.ReplyToken, "使用者沒有任何收藏店家哦，請先搜尋並收藏店家後再使用此功能")
+	} else {
+		s.sendUserRestaurantsWithCarousel(
+			event,
+			adapter.UserRestaurantRowsToRestaurants(restaurantList),
+			&ListArgs{PageIndex: listArgs.PageIndex + 1, PageSize: listArgs.PageSize},
+		)
+	}
+
 }
 
 func (s *Server) HandleShowNextPageUserRestaurants(c *gin.Context, event *linebot.Event) {
@@ -149,11 +154,15 @@ func (s *Server) HandleShowNextPageUserRestaurants(c *gin.Context, event *linebo
 		return
 	}
 
-	s.sendUserRestaurantsWithCarousel(
-		event,
-		adapter.UserRestaurantRowsToRestaurants(restaurantList),
-		&ListArgs{PageIndex: pageIndex + 1, PageSize: pageSize},
-	)
+	if len(restaurantList) == 0 {
+		s.bot.SendText(event.ReplyToken, "使用者沒有任何收藏店家哦，請先搜尋並收藏店家後再使用此功能")
+	} else {
+		s.sendUserRestaurantsWithCarousel(
+			event,
+			adapter.UserRestaurantRowsToRestaurants(restaurantList),
+			&ListArgs{PageIndex: pageIndex + 1, PageSize: pageSize},
+		)
+	}
 }
 
 func (s *Server) sendUserRestaurantsWithCarousel(event *linebot.Event, restaurantList []db.Restaurant, nextListArgs *ListArgs) {
