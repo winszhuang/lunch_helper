@@ -5,6 +5,8 @@ import (
 	"lunch_helper/bot/carousel"
 	"lunch_helper/bot/quickreply"
 	db "lunch_helper/db/sqlc"
+	"lunch_helper/food_deliver/model"
+	"lunch_helper/util"
 	"net/url"
 	"strconv"
 	"strings"
@@ -125,12 +127,19 @@ func (s *Server) searchSaveAndSend(
 	for _, restaurant := range restaurantList {
 		if !restaurant.MenuCrawled {
 			go func(r db.Restaurant) {
-				<-s.crawlerService.SendWork(r)
+				dishes, err := s.foodDeliverApi.GetDishesFromGoogleMap(r.GoogleMapUrl)
+				if err != nil {
+					s.logService.Errorf("get dishes from google map error: %v, restaurant name is %s, restaurant id is %d", err, r.Name, r.ID)
+				} else {
+					s.saveDishesToDB(c, dishes, r.ID)
+				}
 				// 確定做完才更新"已爬蟲"
-				s.restaurantService.UpdateMenuCrawled(c, db.UpdateMenuCrawledParams{
+				if err = s.restaurantService.UpdateMenuCrawled(c, db.UpdateMenuCrawledParams{
 					MenuCrawled: true,
 					ID:          r.ID,
-				})
+				}); err != nil {
+					s.logService.Errorf("update menu crawled error: %v, restaurant name is %s, restaurant id is %d", err, r.Name, r.ID)
+				}
 			}(restaurant)
 		}
 	}
@@ -181,4 +190,19 @@ func (s *Server) saveRestaurantsToDB(c *gin.Context, list []db.Restaurant) []db.
 		}
 	}
 	return restaurantList
+}
+
+func (s *Server) saveDishesToDB(c *gin.Context, dishes []model.Dish, restaurantId int32) {
+	for _, dish := range dishes {
+		if _, err := s.foodService.CreateFood(c, db.CreateFoodParams{
+			Name:         dish.Name,
+			Price:        dish.Price,
+			Image:        util.CheckNullString(dish.Image),
+			Description:  util.CheckNullString(dish.Description),
+			RestaurantID: restaurantId,
+			EditBy:       util.CheckNullInt32(0),
+		}); err != nil {
+			s.logService.Errorf("Create Food error: %v, food name is %s, restaurant id is %s ", err, dish.Name, restaurantId)
+		}
+	}
 }
