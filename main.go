@@ -45,10 +45,10 @@ func main() {
 	}
 
 	// run db migration
-	// err = runDBMigration(config.DBSource)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	err = runDBMigration(config.DBSource)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// load linebot client
 	bc, err := bot.NewBotClient(config.LineBotChannelSecret, config.LineBotChannelAccessToken)
