@@ -64,6 +64,10 @@ func NewServer(
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": "hello"})
 	})
+	router.GET("/test", func(c *gin.Context) {
+		router.LoadHTMLGlob("templates/*")
+		c.HTML(http.StatusOK, "test.html", nil)
+	})
 	router.POST("/callback", func(c *gin.Context) {
 		events, err := bot.ParseRequest(c.Request)
 		if err != nil {
@@ -84,7 +88,9 @@ func NewServer(
 				server.logService.Debugf("current postback data: %s", event.Postback.Data)
 				switch event.Postback.Data {
 				case string(constant.Search):
-					server.HandleSearchFirstPageRestaurants(c, event)
+					// test
+					server.Test(c, event)
+					// server.HandleSearchFirstPageRestaurants(c, event)
 				case string(constant.SearchLocation):
 					server.bot.SendTextWithQuickReplies(event.ReplyToken, "請傳送定位資訊", quickreply.QuickReplyLocation())
 				case string(constant.SearchText):
@@ -207,5 +213,6 @@ func errorResponse(err error) gin.H {
 }
 
 func (server *Server) Start(port string) error {
-	return server.router.Run(":" + port)
+	log.Printf("server start on port %s", port)
+	return server.router.Run("0.0.0.0:" + port)
 }

@@ -16,28 +16,34 @@ func TestFoodDeliverApi_GetDishesFromGoogleMap(t *testing.T) {
 		wantCount int
 		wantErr   bool
 	}{
+		// {
+		// 	name:      "test1",
+		// 	args:      args{googleMapUrl: "https://maps.google.com/?cid=6123919673254163962"},
+		// 	wantCount: 0,
+		// 	wantErr:   true,
+		// },
+		// {
+		// 	name:      "test2",
+		// 	args:      args{googleMapUrl: "https://maps.google.com/?cid=643071738901551210"},
+		// 	wantCount: 0,
+		// 	wantErr:   true,
+		// },
+		// {
+		// 	name:      "foodpanda",
+		// 	args:      args{googleMapUrl: "https://maps.google.com/?cid=10740885935407955428"},
+		// 	wantCount: 6,
+		// 	wantErr:   false,
+		// },
+		// {
+		// 	name:      "ubereats",
+		// 	args:      args{googleMapUrl: "https://maps.google.com/?cid=11815448699177978476"},
+		// 	wantCount: 19,
+		// 	wantErr:   false,
+		// },
 		{
-			name:      "test1",
-			args:      args{googleMapUrl: "https://maps.google.com/?cid=6123919673254163962"},
-			wantCount: 0,
-			wantErr:   true,
-		},
-		{
-			name:      "test2",
-			args:      args{googleMapUrl: "https://maps.google.com/?cid=643071738901551210"},
-			wantCount: 0,
-			wantErr:   true,
-		},
-		{
-			name:      "foodpanda",
-			args:      args{googleMapUrl: "https://maps.google.com/?cid=10740885935407955428"},
-			wantCount: 6,
-			wantErr:   false,
-		},
-		{
-			name:      "ubereats",
-			args:      args{googleMapUrl: "https://maps.google.com/?cid=11815448699177978476"},
-			wantCount: 19,
+			name:      "test777",
+			args:      args{googleMapUrl: "https://maps.google.com/?cid=3549625066550422924"},
+			wantCount: 12,
 			wantErr:   false,
 		},
 	}

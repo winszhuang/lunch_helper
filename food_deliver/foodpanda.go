@@ -3,6 +3,8 @@ package food_deliver
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"lunch_helper/food_deliver/model"
 	"lunch_helper/util"
 	"net/url"
@@ -17,13 +19,43 @@ const FoodPandaApiUrl = "https://tw.fd-api.com/api/v5/vendors/%s?include=menus,b
 
 type FoodPandaDishesCrawler struct{}
 
+func test(url string) {
+	has := strings.Contains(url, "https://www.foodpanda.com.tw/restaurant")
+	if has {
+		log.Println("foodpanda網址有再裡面阿!!")
+	} else {
+		log.Println("完蛋... foodpanda網址沒再裡面")
+	}
+
+	hasF := strings.Contains(url, "foodpanda")
+	if hasF {
+		log.Println("有foodpanda字眼阿!!")
+
+	} else {
+		log.Println("完蛋...沒有foodpanda字眼")
+
+	}
+}
+
 func (fp *FoodPandaDishesCrawler) ParseSource(googleMapUrl string) (string, error) {
 	source, err := util.Fetch(googleMapUrl)
 	if err != nil {
 		return "", err
 	}
 
+	log.Println(source)
+	err = ioutil.WriteFile("templates/test.html", source, 0644)
+	if err != nil {
+		log.Println("寫入失敗")
+	}
+
+	test(string(source))
 	foodpandaMatches := FoodPandaReg.FindStringSubmatch(string(source))
+	log.Println("-----foodpandaMatches")
+	for _, v := range foodpandaMatches {
+		log.Println(v)
+	}
+	log.Println("-----")
 	if len(foodpandaMatches) >= 2 {
 		foodpandaURL, err := url.PathUnescape(foodpandaMatches[1])
 		if err != nil {

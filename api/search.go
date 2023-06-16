@@ -27,6 +27,16 @@ type SearchArgs struct {
 	pageIndex int
 }
 
+func (s *Server) Test(c *gin.Context, event *linebot.Event) {
+	// 傻師傅湯包 中清店
+	// 這個爆炸
+	// _, err := s.foodDeliverApi.GetDishesFromGoogleMap("https://maps.google.com/?cid=4454212448451910958")
+	_, err := s.foodDeliverApi.GetDishesFromGoogleMap("https://www.google.com/maps?cid=4454212448451910958")
+	if err != nil {
+		s.logService.Error(err)
+	}
+}
+
 func (s *Server) HandleSearchFirstPageRestaurants(c *gin.Context, event *linebot.Event) {
 	userId := event.Source.UserID
 
@@ -131,6 +141,7 @@ func (s *Server) searchSaveAndSend(
 				if err != nil {
 					s.logService.Errorf("get dishes from google map error: %v, restaurant name is %s, restaurant id is %d", err, r.Name, r.ID)
 				} else {
+					s.logService.Debugf("success!! get dishes from google map, restaurant name is %s, restaurant id is %d", r.Name, r.ID)
 					s.saveDishesToDB(c, dishes, r.ID)
 				}
 				// 確定做完才更新"已爬蟲"
