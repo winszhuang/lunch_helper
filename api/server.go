@@ -88,6 +88,7 @@ func NewServer(
 				server.logService.Debugf("current postback data: %s", event.Postback.Data)
 				switch event.Postback.Data {
 				case string(constant.Search):
+					log.Println("近來瞜")
 					// test
 					server.Test(c, event)
 					// server.HandleSearchFirstPageRestaurants(c, event)
