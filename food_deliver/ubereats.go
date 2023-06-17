@@ -17,7 +17,7 @@ var UberEatsReg = regexp.MustCompile(`\"(https:\/\/www\.ubereats\.com[^"]+)\"`)
 type UberEatsDishesCrawler struct{}
 
 func (fp *UberEatsDishesCrawler) ParseSource(googleMapUrl string) (string, error) {
-	source, err := util.Fetch(googleMapUrl)
+	source, err := util.FetchBytes(googleMapUrl)
 	if err != nil {
 		return "", err
 	}
@@ -35,12 +35,13 @@ func (fp *UberEatsDishesCrawler) ParseSource(googleMapUrl string) (string, error
 }
 
 func (fp *UberEatsDishesCrawler) GetDishes(uberEatsURL string) ([]model.Dish, error) {
-	source, err := util.FetchBody(uberEatsURL)
+	reader, err := util.Fetch(uberEatsURL)
+	defer reader.Close()
 	if err != nil {
 		return nil, err
 	}
 
-	doc, err := goquery.NewDocumentFromReader(source)
+	doc, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
 		return nil, err
 	}

@@ -6,25 +6,35 @@ import (
 	"net/http"
 )
 
-func Fetch(url string) ([]byte, error) {
-	response, err := http.Get(url)
+func Fetch(url string) (io.ReadCloser, error) {
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
-}
+	// req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("Accept", "*/*")
+	req.Header.Set("Accept-Language", "zh-TW,zh;q=0.9")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+	req.Header.Set("Connection", "keep-alive")
 
-func FetchBody(url string) (io.ReadCloser, error) {
-	response, err := http.Get(url)
+	response, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
 	return response.Body, nil
+}
+
+func FetchBytes(url string) ([]byte, error) {
+	reader, err := Fetch(url)
+	if err != nil {
+		return nil, err
+	}
+
+	defer reader.Close()
+
+	return ioutil.ReadAll(reader)
 }

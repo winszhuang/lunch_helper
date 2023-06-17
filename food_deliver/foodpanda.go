@@ -18,7 +18,7 @@ const FoodPandaApiUrl = "https://tw.fd-api.com/api/v5/vendors/%s?include=menus,b
 type FoodPandaDishesCrawler struct{}
 
 func (fp *FoodPandaDishesCrawler) ParseSource(googleMapUrl string) (string, error) {
-	source, err := util.Fetch(googleMapUrl)
+	source, err := util.FetchBytes(googleMapUrl)
 	if err != nil {
 		return "", err
 	}
@@ -38,7 +38,7 @@ func (fp *FoodPandaDishesCrawler) ParseSource(googleMapUrl string) (string, erro
 func (fp *FoodPandaDishesCrawler) GetDishes(foodPandaURL string) ([]model.Dish, error) {
 	restaurantID := getIDByUrl(foodPandaURL)
 	apiUrl := fmt.Sprintf(FoodPandaApiUrl, restaurantID)
-	source, err := util.Fetch(apiUrl)
+	source, err := util.FetchBytes(apiUrl)
 	if err != nil {
 		return nil, err
 	}
