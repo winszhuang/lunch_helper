@@ -9,30 +9,59 @@ import (
 type DishesCrawler interface {
 	ParseSource(string) (string, error)
 	GetDishes(string) ([]model.Dish, error)
+	GetDeliverName() FoodDeliverName
 }
 
 var crawlerList = []DishesCrawler{
-	&FoodPandaDishesCrawler{},
-	&UberEatsDishesCrawler{},
+	NewFoodPandaDishesCrawler(),
+	NewUberEatsDishesCrawler(),
 }
 
 // 限速器
 var limiter = time.Tick(200 * time.Millisecond)
 
-type FoodDeliverApi struct{}
+type FoodDeliverApi struct {
+}
+
+type FetchInfo struct {
+	DeliverName FoodDeliverName
+	FetchLink   string
+}
 
 func NewFoodDeliverApi() *FoodDeliverApi {
 	return &FoodDeliverApi{}
 }
 
-func (f *FoodDeliverApi) GetDishesFromGoogleMap(googleMapUrl string) ([]model.Dish, error) {
+func (f *FoodDeliverApi) getCrawler(deliverName FoodDeliverName) (DishesCrawler, error) {
+	for _, crawler := range crawlerList {
+		if crawler.GetDeliverName() == deliverName {
+			return crawler, nil
+		}
+	}
+	return nil, fmt.Errorf("not found crawler %s", deliverName)
+}
+
+func (f *FoodDeliverApi) CheckFoodDeliverFromGoogleMap(googleMapUrl string) (*FetchInfo, error) {
 	for _, crawler := range crawlerList {
 		deliverUrl, err := crawler.ParseSource(googleMapUrl)
 		if err == nil && deliverUrl != "" {
-			// 限速
-			<-limiter
-			return crawler.GetDishes(deliverUrl)
+			return &FetchInfo{
+				DeliverName: crawler.GetDeliverName(),
+				FetchLink:   deliverUrl,
+			}, nil
 		}
 	}
-	return nil, fmt.Errorf("not found dishes for url %s", googleMapUrl)
+	return nil, fmt.Errorf("not found deliver for url %s", googleMapUrl)
+}
+
+func (f *FoodDeliverApi) GetDishes(fetchInfo *FetchInfo) ([]model.Dish, error) {
+	link := fetchInfo.FetchLink
+	crawler, err := f.getCrawler(fetchInfo.DeliverName)
+	if err != nil {
+		return nil, err
+	}
+
+	// 限速
+	<-limiter
+	return crawler.GetDishes(link)
 }

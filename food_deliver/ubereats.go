@@ -14,7 +14,19 @@ import (
 
 var UberEatsReg = regexp.MustCompile(`\"(https:\/\/www\.ubereats\.com[^"]+)\"`)
 
-type UberEatsDishesCrawler struct{}
+type UberEatsDishesCrawler struct {
+	DeliverName FoodDeliverName
+}
+
+func NewUberEatsDishesCrawler() *UberEatsDishesCrawler {
+	return &UberEatsDishesCrawler{
+		DeliverName: UberEats,
+	}
+}
+
+func (fp *UberEatsDishesCrawler) GetDeliverName() FoodDeliverName {
+	return fp.DeliverName
+}
 
 func (fp *UberEatsDishesCrawler) ParseSource(googleMapUrl string) (string, error) {
 	source, err := util.FetchBytes(googleMapUrl)
@@ -35,6 +47,10 @@ func (fp *UberEatsDishesCrawler) ParseSource(googleMapUrl string) (string, error
 }
 
 func (fp *UberEatsDishesCrawler) GetDishes(uberEatsURL string) ([]model.Dish, error) {
+	if !isUbereatsUrl(uberEatsURL) {
+		return nil, fmt.Errorf("%s not a ubereats url", uberEatsURL)
+	}
+
 	reader, err := util.Fetch(uberEatsURL)
 	defer reader.Close()
 	if err != nil {
@@ -72,4 +88,8 @@ func (fp *UberEatsDishesCrawler) GetDishes(uberEatsURL string) ([]model.Dish, er
 		}
 	}
 	return dishes, nil
+}
+
+func isUbereatsUrl(url string) bool {
+	return strings.Contains(url, "www.ubereats.com")
 }

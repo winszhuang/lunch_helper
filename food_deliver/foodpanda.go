@@ -15,7 +15,19 @@ var FoodPandaReg = regexp.MustCompile(`\"(https:\/\/www\.foodpanda\.com\.tw[^"]+
 
 const FoodPandaApiUrl = "https://tw.fd-api.com/api/v5/vendors/%s?include=menus,bundles,multiple_discounts&language_id=6&opening_type=delivery&basket_currency=TWD&show_pro_deals=true"
 
-type FoodPandaDishesCrawler struct{}
+type FoodPandaDishesCrawler struct {
+	DeliverName FoodDeliverName
+}
+
+func NewFoodPandaDishesCrawler() *FoodPandaDishesCrawler {
+	return &FoodPandaDishesCrawler{
+		DeliverName: FoodPanda,
+	}
+}
+
+func (fp *FoodPandaDishesCrawler) GetDeliverName() FoodDeliverName {
+	return fp.DeliverName
+}
 
 func (fp *FoodPandaDishesCrawler) ParseSource(googleMapUrl string) (string, error) {
 	source, err := util.FetchBytes(googleMapUrl)
@@ -36,6 +48,10 @@ func (fp *FoodPandaDishesCrawler) ParseSource(googleMapUrl string) (string, erro
 }
 
 func (fp *FoodPandaDishesCrawler) GetDishes(foodPandaURL string) ([]model.Dish, error) {
+	if !isFoodPandaUrl(foodPandaURL) {
+		return nil, fmt.Errorf("%s not a foodpanda url", foodPandaURL)
+	}
+
 	restaurantID := getIDByUrl(foodPandaURL)
 	apiUrl := fmt.Sprintf(FoodPandaApiUrl, restaurantID)
 	source, err := util.FetchBytes(apiUrl)
@@ -70,6 +86,10 @@ func (fp *FoodPandaDishesCrawler) GetDishes(foodPandaURL string) ([]model.Dish, 
 	}
 
 	return dishes, nil
+}
+
+func isFoodPandaUrl(url string) bool {
+	return strings.Contains(url, "www.foodpanda.com.tw/restaurant")
 }
 
 func getIDByUrl(url string) string {

@@ -127,18 +127,25 @@ func (s *Server) searchSaveAndSend(
 	for _, restaurant := range restaurantList {
 		if !restaurant.MenuCrawled {
 			go func(r db.Restaurant) {
-				dishes, err := s.foodDeliverApi.GetDishesFromGoogleMap(r.GoogleMapUrl)
+				defer func() {
+					if err := s.restaurantService.UpdateMenuCrawled(c, db.UpdateMenuCrawledParams{
+						MenuCrawled: true,
+						ID:          r.ID,
+					}); err != nil {
+						s.logService.Errorf("update menu crawled error: %v, restaurant name is %s, restaurant id is %d", err, r.Name, r.ID)
+					}
+				}()
+				fetchInfo, err := s.foodDeliverApi.CheckFoodDeliverFromGoogleMap(r.GoogleMapUrl)
+				if err != nil {
+					s.logService.Debugf("no food deliver link from %s, restaurant name is %s, restaurant id is %d", r.GoogleMapUrl, r.Name, r.ID)
+					return
+				}
+				dishes, err := s.foodDeliverApi.GetDishes(fetchInfo)
 				if err != nil {
 					s.logService.Errorf("get dishes from google map error: %v, restaurant name is %s, restaurant id is %d", err, r.Name, r.ID)
 				} else {
+					s.logService.Debugf("get dishes from google map success!!, restaurant name is %s, restaurant id is %d", r.Name, r.ID)
 					s.saveDishesToDB(c, dishes, r.ID)
-				}
-				// 確定做完才更新"已爬蟲"
-				if err = s.restaurantService.UpdateMenuCrawled(c, db.UpdateMenuCrawledParams{
-					MenuCrawled: true,
-					ID:          r.ID,
-				}); err != nil {
-					s.logService.Errorf("update menu crawled error: %v, restaurant name is %s, restaurant id is %d", err, r.Name, r.ID)
 				}
 			}(restaurant)
 		}
