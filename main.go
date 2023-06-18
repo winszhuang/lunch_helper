@@ -15,6 +15,7 @@ import (
 	"lunch_helper/food_deliver"
 	"lunch_helper/service"
 	"lunch_helper/thirdparty"
+	"lunch_helper/worker"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -37,6 +38,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("cannot load config: %v", err)
 	}
+
+	// prevent the cloud server from sleeping by pinging the web server every 13 minutes
+	go worker.PingWebServerEveryMinutes(config.ApiUrl, 13)
 
 	// load db
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
