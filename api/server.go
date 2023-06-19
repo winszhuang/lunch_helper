@@ -144,12 +144,10 @@ func handleTextEvent(server *Server, event *linebot.Event, c *gin.Context) {
 		server.bot.SendText(event.ReplyToken, "請傳送定位資訊")
 	case string(constant.SearchText):
 		server.messageCache.SetMode(userId, constant.SearchText)
-		server.bot.SendText(event.ReplyToken, "請輸入搜尋關鍵字")
+		server.bot.SendText(event.ReplyToken, `請輸入搜尋關鍵字，輸入"無"或者"n"將會清除關鍵字`)
 	case string(constant.SearchRadius):
-		server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
-		// server.messageCache.SetMode(userId, constant.SearchRadius)
-		// // #TODO 修改成flex message讓使用者只能點選500、1000、100等規格
-		// server.bot.SendText(event.ReplyToken, "請輸入半徑(單位公尺)")
+		server.messageCache.SetMode(userId, constant.SearchRadius)
+		server.bot.SendTextWithQuickReplies(event.ReplyToken, "請選擇半徑(單位公尺)", quickreply.QuickReplyRadiusOptions())
 	case string(constant.FavoriteRestaurants):
 		server.HandleShowFirstPageUserRestaurants(c, event)
 	case string(constant.FavoriteFoods):
@@ -162,13 +160,20 @@ func handleTextEvent(server *Server, event *linebot.Event, c *gin.Context) {
 	default:
 		switch server.messageCache.GetUserMode(userId) {
 		case constant.SearchText:
+			if message == "n" || message == "無" {
+				message = ""
+			}
 			server.messageCache.UpdateSearchText(userId, message)
 			server.bot.SendText(event.ReplyToken, "更新搜尋關鍵字成功")
 			server.messageCache.SetMode(userId, "")
 		case constant.SearchRadius:
 			num, err := strconv.Atoi(message)
 			if err != nil {
-				server.bot.SendText(event.ReplyToken, "請正確輸入數字再提交!!")
+				server.bot.SendTextWithQuickReplies(event.ReplyToken, "請正確輸入數字再提交!!", quickreply.QuickReplyRadiusOptions())
+				return
+			}
+			if num < 0 || num > 2000 {
+				server.bot.SendTextWithQuickReplies(event.ReplyToken, "目前僅提供0 ~ 2000公尺距離範圍，請重新嘗試", quickreply.QuickReplyRadiusOptions())
 				return
 			}
 			server.messageCache.UpdateSearchRadius(userId, num)
@@ -190,12 +195,10 @@ func handlePostbackEvent(server *Server, event *linebot.Event, c *gin.Context) {
 		server.bot.SendTextWithQuickReplies(event.ReplyToken, "請傳送定位資訊", quickreply.QuickReplyLocation())
 	case string(constant.SearchText):
 		server.messageCache.SetMode(userId, constant.SearchText)
-		server.bot.SendText(event.ReplyToken, "請輸入搜尋關鍵字")
+		server.bot.SendText(event.ReplyToken, `請輸入搜尋關鍵字，輸入"無"或者"n"將會清除關鍵字`)
 	case string(constant.SearchRadius):
-		server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
-		// server.messageCache.SetMode(userId, constant.SearchRadius)
-		// // #TODO 修改成flex message讓使用者只能點選500、1000、100等規格
-		// server.bot.SendTextWithQuickReplies(event.ReplyToken, "請選擇半徑(單位公尺)", quickreply.QuickReplyRadiusOptions())
+		server.messageCache.SetMode(userId, constant.SearchRadius)
+		server.bot.SendTextWithQuickReplies(event.ReplyToken, "請選擇半徑(單位公尺)", quickreply.QuickReplyRadiusOptions())
 	case string(constant.SearchAI):
 		// #TODO aiMode
 		server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")

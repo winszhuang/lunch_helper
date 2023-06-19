@@ -1,0 +1,1183 @@
+[
+    {
+        "Data": {
+            "formatted_address": "404台中市北區北平路二段61號",
+            "geometry": {
+                "location": {
+                    "lat": 24.171715,
+                    "lng": 120.674071
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.17300427989272,
+                        "lng": 120.6754114798927
+                    },
+                    "southwest": {
+                        "lat": 24.17030462010728,
+                        "lng": 120.6727118201073
+                    }
+                },
+                "types": null
+            },
+            "name": "小天使牛排館",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJWaiAGdEXaTQRhj1Tv3_jv8g",
+            "rating": 4.1,
+            "user_ratings_total": 456,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0kLi_LEk2LX-k9sxfmcL1SM2Wl0qd7hIPcmTohKuGJ9CbZbsaEcZoChcWK_TpzoLbjuQSqrKe2VFJk1Ls_mEBWyoVRFfnOp935xvcIVWFiHS8n4huh022BDVFiiswaojCmB-5CCgXgAu8Unr7TPs9xMOmmcm4IurkvDkQvyYKb2Ul_v",
+                    "height": 2620,
+                    "width": 4656,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/107392979460852664472\"\u003e諶錦璇\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 1,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2293 7925",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=14465530665947577734"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "406台中市北屯區中清路二段22號",
+            "geometry": {
+                "location": {
+                    "lat": 24.1743691,
+                    "lng": 120.6714261
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.17570612989272,
+                        "lng": 120.6727153298928
+                    },
+                    "southwest": {
+                        "lat": 24.17300647010728,
+                        "lng": 120.6700156701073
+                    }
+                },
+                "types": null
+            },
+            "name": "我家牛排",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJ_V5RoeEXaTQRfIFhgisUpUI",
+            "rating": 4,
+            "user_ratings_total": 435,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0nS-0kRfQD63VRxj2Bp7iFYvdu2p9LrHKmc4a1DOKGL8PNeJI3uKmib0ZQR0OubtxscQsCexyrK-gsZ_naYBK15a7Bb95_SzY6cJdCYhTR-DYLB_dz1uxRGlQ24j3bRiTRKCnX_4LUFTd8pL5cvY9QWs6jTVNnnR4kEBjss1JGp9GFk",
+                    "height": 3024,
+                    "width": 4032,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/104556365216918222726\"\u003e陳宏偉\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 2,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2296 5067",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=4802266754764079484"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "404台中市北區北平路二段72號",
+            "geometry": {
+                "location": {
+                    "lat": 24.1715007,
+                    "lng": 120.6741727
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.17287462989272,
+                        "lng": 120.6755288298927
+                    },
+                    "southwest": {
+                        "lat": 24.17017497010727,
+                        "lng": 120.6728291701073
+                    }
+                },
+                "types": null
+            },
+            "name": "羅記牛排 (總店）",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJi95UGdEXaTQR5P36wNlKD5U",
+            "rating": 4.1,
+            "user_ratings_total": 498,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0mJluNX2nnDW71FwUgqTmn1dJd02EUF0GFQO2vRV7EFydbSEB6k2p2pcosTZHrBzrFqazuJO4ki1wiu_OVr3_eF1qmIzwg-A5Hv1Z8agBAmza5Csprle94rnYpdKwubytwVnNwR7vTYtjT9hwnn3AEKBJoXc6EfpwPMCj5bg0-cikGP",
+                    "height": 1836,
+                    "width": 3264,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/117399634692748980602\"\u003eNash Peng\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 1,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2293 5666",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=10740885935407955428"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "404台中市北區漢口路三段117號",
+            "geometry": {
+                "location": {
+                    "lat": 24.1669896,
+                    "lng": 120.6697101
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.16826232989272,
+                        "lng": 120.6710624298928
+                    },
+                    "southwest": {
+                        "lat": 24.16556267010728,
+                        "lng": 120.6683627701073
+                    }
+                },
+                "types": null
+            },
+            "name": "噠爾鐵板牛排館 DEAR STEAK",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJ1bAbnIE9aTQRCqvWXNQfe4U",
+            "rating": 4.5,
+            "user_ratings_total": 731,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0ldvYzjJpvkugvf9-PH4t3ELqX_uvH9i0kAWbvCEe6qZmVq4cLI1vujyrAq0fGvzF2XnrhrcL8hUN6ATz_qDBpO1sZ54L2Uoo7RP23Cl5kYempQ0UCOVBpvdKC17zMTIu_TOyGkbR-sxkPonkvZESWRvppfIkVeeBvow_is7r0jyzsB",
+                    "height": 1440,
+                    "width": 1440,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/109971441273268614421\"\u003e林秋彤\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 1,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2320 6912",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=9618316426130926346"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "407台中市西屯區中平路275號2樓",
+            "geometry": {
+                "location": {
+                    "lat": 24.1778245,
+                    "lng": 120.6644723
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.17917672989272,
+                        "lng": 120.6659046298927
+                    },
+                    "southwest": {
+                        "lat": 24.17647707010728,
+                        "lng": 120.6632049701073
+                    }
+                },
+                "types": null
+            },
+            "name": "史堤克先生牛排中清店",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJJ94wnzIWaTQR_hWfDIp6UZI",
+            "rating": 4.4,
+            "user_ratings_total": 1944,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0m7WDvMP_6PVIj4a9gB-4PQv30x3I7TpbWOSVNhcDPanMSuTKI2Sx0ElFqmcekxPVZQ6X5bhhj8CG_JNcl9xtEKXnhuj8ocQLZjbAeJa61-bpsTcs-1aMMEdOz8kU8LmSMo8nuJfgVOYbkEM0pyg8KllYiQ1_YSI5xymj8hUDU7Z6u8",
+                    "height": 3000,
+                    "width": 4000,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/111039257480543963599\"\u003e林席筠\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 2,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2295 8158",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=10543342935986869758"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "407台中市西屯區漢口路二段318號",
+            "geometry": {
+                "location": {
+                    "lat": 24.1666662,
+                    "lng": 120.6650252
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.16806902989272,
+                        "lng": 120.6663440798927
+                    },
+                    "southwest": {
+                        "lat": 24.16536937010728,
+                        "lng": 120.6636444201073
+                    }
+                },
+                "types": null
+            },
+            "name": "東東牛排館-漢口直營店",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJnfs07JY9aTQRo5RIyge4Bfc",
+            "rating": 3.4,
+            "user_ratings_total": 124,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0lfsJEaupqZWndpsN2B1XqoUiJgXErAruUZ8by1YY4l0eQI1x6O_zVsuAInuOt_TcT-zm6eCZAT-LLZPPJbl3Sft8juHhuwYb_nRwu7qtOmsuTWXNEhh5MEliL5lxLRmj0qXKUVot9-PeBWZJlgJETg7BtwcW3H0HLnG1EGi3PanRtY",
+                    "height": 3000,
+                    "width": 4000,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/105471571861886315221\"\u003eSAZABY LEE\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2316 6777",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=17799835445849789603"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "407台中市西屯區漢口路二段146號",
+            "geometry": {
+                "location": {
+                    "lat": 24.165753,
+                    "lng": 120.663208
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.16717302989272,
+                        "lng": 120.6645185798927
+                    },
+                    "southwest": {
+                        "lat": 24.16447337010728,
+                        "lng": 120.6618189201073
+                    }
+                },
+                "types": null
+            },
+            "name": "牛排大叔/西屯美食/牛排/餐廳/簡餐/酥皮濃湯",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJlW4U8YA9aTQR0EtPRy7Z6WY",
+            "rating": 3.8,
+            "user_ratings_total": 1295,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0k-WGKfycmAjK17YL2nCjNJ9HF1HNH5sgOXpy25e-JbWoYkkdZM0nmBxH3ozlZBKiHs0Et0YiC6E2yCYnP4XT1otj43QxRfi1PKqwz7gWZnh_uB1qD77U_LYMMeyQ-p5Vy7Up8yWEYZ3W7-8WKl8XHukeLuV8sXohi96hO1oC-Y_jfT",
+                    "height": 2268,
+                    "width": 4032,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/114570104825115011962\"\u003e賴昆佑\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 2,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2316 3719",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=7415697054230334416"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "407台中市西屯區漢口路二段229號",
+            "geometry": {
+                "location": {
+                    "lat": 24.1667744,
+                    "lng": 120.6646368
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.16806157989272,
+                        "lng": 120.6660231798927
+                    },
+                    "southwest": {
+                        "lat": 24.16536192010728,
+                        "lng": 120.6633235201073
+                    }
+                },
+                "types": null
+            },
+            "name": "東甫牛排漢口店",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJF0hV7SgXaTQRAFGhQb1KE2g",
+            "rating": 4.2,
+            "user_ratings_total": 489,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0mSycJAyR2QFV_bW99k_gxboBmzuIeP9yR3w4TrO0q6poKQopNkkC5TYyKwqnTRTB0N9lIR6OW_mcfjyunXtST_1aOVgw2laKIkNsocN-ZsvrUSlHPb3zF0_4f81uFV2Xn0G4dWMq51dcWKjr9yfvel2p7Xt0aIAbFnGfD9MK9q1ziO",
+                    "height": 1773,
+                    "width": 2364,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/112322987031992498297\"\u003eA Google User\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 1,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2316 0091",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=7499419981212373248"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "406台中市北屯區北平路三段7號",
+            "geometry": {
+                "location": {
+                    "lat": 24.1713081,
+                    "lng": 120.6797237
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.17259202989272,
+                        "lng": 120.6810680798927
+                    },
+                    "southwest": {
+                        "lat": 24.16989237010728,
+                        "lng": 120.6783684201073
+                    }
+                },
+                "types": null
+            },
+            "name": "成功牛排-北平店",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJgVlcftQXaTQR3nRFHjdyBVE",
+            "rating": 4.1,
+            "user_ratings_total": 422,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0mjq47a7mehFRmHPqIadiMjuyTsTYPu-sXK1AWPJD2sEu0Y_aITtD8ByUo6JVUA0RQjDcsgTJ4ayAb1DqW19Bh8fiyfy8ahr4y8AnBmanlix6iPR7r6NKpRCOsc9TWS6XpiiOcFTI-cleLGgNHQgUGELMyNSJCKe2OYOdXn3L7znZy9",
+                    "height": 3000,
+                    "width": 4000,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/108518336463553711046\"\u003eSu Peter\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2234 5397",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=5838198073012352222"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "406台中市北屯區崇德路二段138號",
+            "geometry": {
+                "location": {
+                    "lat": 24.1714283,
+                    "lng": 120.6856775
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.17278072989272,
+                        "lng": 120.6869053298927
+                    },
+                    "southwest": {
+                        "lat": 24.17008107010728,
+                        "lng": 120.6842056701073
+                    }
+                },
+                "types": null
+            },
+            "name": "凱恩斯岩燒牛排 台中崇德店",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJh_qI29wXaTQRCuivL3fgAMQ",
+            "rating": 4.7,
+            "user_ratings_total": 8754,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0mFSp96rlRuvX8XiHWSdLTa8pQ-qM6LWf1vvLlEi9837thSasx5FKlrcjgL-u4_Q6mO7_ednIfhdKfmSP-wj-sdpke3T2Fid75Ldpu_bL8-U-rqTQNQKWSYucsUtB4BBo1S6mY2nit18OU3gf1gqi1JIFPu0t5M8kVyox7wvQDiHN9w",
+                    "height": 2205,
+                    "width": 3256,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/113379185909446173859\"\u003eMargaret Shen\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 3,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2231 8924",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=14123535233939662858"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "406台中市北屯區大連路一段12號",
+            "geometry": {
+                "location": {
+                    "lat": 24.1751179,
+                    "lng": 120.6715914
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.17653852989272,
+                        "lng": 120.6728979798928
+                    },
+                    "southwest": {
+                        "lat": 24.17383887010728,
+                        "lng": 120.6701983201073
+                    }
+                },
+                "types": null
+            },
+            "name": "嘉賓平價鐵板燒",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJH6LwHNIXaTQR-jVXNX-I_FQ",
+            "rating": 4.3,
+            "user_ratings_total": 1255,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0mf99ZkCUTVchyNe-mkRr15gRkvHn1CeKI2URWXe-ZINqxCzE1_m7c87HAxj7XtD3lYxowLC0OIHT8_eQZAeKg_AJ3VYn4R3k59wJHGanIqwAfujZdEOAHGYtYq5EaItQsnO_2pG81JUog8LmLAZdGeLaT0K9EacwnDkQRI9WHV_hCD",
+                    "height": 3024,
+                    "width": 4032,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/114767481480511098304\"\u003e曾育祺\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 1,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2295 6890",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=6123919673254163962"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "404台中市北區漢口路四段202號",
+            "geometry": {
+                "location": {
+                    "lat": 24.1669531,
+                    "lng": 120.6801035
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.16837682989272,
+                        "lng": 120.6814524298928
+                    },
+                    "southwest": {
+                        "lat": 24.16567717010728,
+                        "lng": 120.6787527701073
+                    }
+                },
+                "types": null
+            },
+            "name": "孫東寶-漢口一店",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJnQG-cNkXaTQRFWexEn6eFlc",
+            "rating": 3.3,
+            "user_ratings_total": 988,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0nG9FKQYPeOZn0jdDzlzdDfZ9WFv4jkBZB1MIjVso3JuozxbOANwUQclFs703QNN9XrECXjOw3nVw22I054qVLHOagEzgPvvuOV6u4CvG3DD7pyQBTx-WPbxvaI9fhvovQk7pq5A6dAvZxaiwkLYMRxXC054zxgfX1FfCGDZdltYTxT",
+                    "height": 3024,
+                    "width": 4032,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/106582039510601906537\"\u003eA Google User\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 2,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2237 1085",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=6275377395104048917"
+        }
+    },
+    {
+        "Data": {
+            "formatted_address": "406台中市北屯區文心路四段603號",
+            "geometry": {
+                "location": {
+                    "lat": 24.1723638,
+                    "lng": 120.6851671
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 24.17364167989272,
+                        "lng": 120.6865061298927
+                    },
+                    "southwest": {
+                        "lat": 24.17094202010728,
+                        "lng": 120.6838064701073
+                    }
+                },
+                "types": null
+            },
+            "name": "赤鬼炙燒牛排 崇德店",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png",
+            "place_id": "ChIJR6cBz9wXaTQRsMlC0rkdmyM",
+            "rating": 4,
+            "user_ratings_total": 7723,
+            "types": [
+                "restaurant",
+                "food",
+                "point_of_interest",
+                "establishment"
+            ],
+            "opening_hours": {
+                "open_now": true
+            },
+            "photos": [
+                {
+                    "photo_reference": "AZose0looWzo0FtYAMG_X7r6xjxRwf1GVVGR7Cr-BPecMXI1Bia796PhHac-_Dspzeg2udD8R8TLjqr9bj2dzBQsa_19SFFs7AD_0k4v0_EfLpd5zxSrTFcSeWPREhd9dR8eHMaDTQzHzYWVARpiKQvmltVl4mpQly6Noi_-CBEP2qpUk0k",
+                    "height": 3024,
+                    "width": 4032,
+                    "html_attributions": [
+                        "\u003ca href=\"https://maps.google.com/maps/contrib/113889169375387222211\"\u003eEltion Chen\u003c/a\u003e"
+                    ]
+                }
+            ],
+            "price_level": 2,
+            "business_status": "OPERATIONAL"
+        },
+        "Detail": {
+            "formatted_phone_number": "04 2242 9933",
+            "geometry": {
+                "location": {
+                    "lat": 0,
+                    "lng": 0
+                },
+                "location_type": "",
+                "bounds": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 0,
+                        "lng": 0
+                    },
+                    "southwest": {
+                        "lat": 0,
+                        "lng": 0
+                    }
+                },
+                "types": null
+            },
+            "url": "https://maps.google.com/?cid=2565677096651377072"
+        }
+    }
+]
