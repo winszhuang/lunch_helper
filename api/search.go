@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"lunch_helper/bot/carousel"
 	"lunch_helper/bot/quickreply"
+	"lunch_helper/constant"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/food_deliver/model"
 	"lunch_helper/util"
@@ -20,16 +21,10 @@ const (
 	MaximumNumberOfCarouselItems = 10
 )
 
-type SearchArgs struct {
-	lat       float64
-	lng       float64
-	radius    int
-	pageIndex int
-}
-
 func (s *Server) HandleSearchFirstPageRestaurants(c *gin.Context, event *linebot.Event) {
 	userId := event.Source.UserID
 
+	text := s.messageCache.GetCurrentSearchText(userId)
 	radius := s.messageCache.GetCurrentRadius(userId)
 	uc, ok := s.messageCache.GetCurrentLocation(userId)
 	if !ok {
@@ -37,11 +32,13 @@ func (s *Server) HandleSearchFirstPageRestaurants(c *gin.Context, event *linebot
 		return
 	}
 
-	searchArgs := &SearchArgs{
-		lat:       uc.LatLng.Lat,
-		lng:       uc.LatLng.Lng,
-		pageIndex: DefaultPageIndex,
-		radius:    radius,
+	searchArgs := &constant.SearchArgs{
+		Lat:       uc.LatLng.Lat,
+		Lng:       uc.LatLng.Lng,
+		Radius:    radius,
+		Text:      text,
+		PageIndex: DefaultPageIndex,
+		PageSize:  MaximumNumberOfCarouselItems,
 	}
 
 	s.searchSaveAndSend(c, event, searchArgs)
@@ -60,6 +57,7 @@ func (s *Server) HandleSearchNextPageRestaurants(c *gin.Context, event *linebot.
 	lngStr := values.Get("lng")
 	radiusStr := values.Get("radius")
 	pageIndexStr := values.Get("pageIndex")
+	textStr := values.Get("text")
 
 	lat, err := strconv.ParseFloat(latStr, 64)
 	if err != nil {
@@ -82,11 +80,13 @@ func (s *Server) HandleSearchNextPageRestaurants(c *gin.Context, event *linebot.
 		return
 	}
 
-	searchArgs := &SearchArgs{
-		lat:       lat,
-		lng:       lng,
-		pageIndex: pageIndex,
-		radius:    radius,
+	searchArgs := &constant.SearchArgs{
+		Lat:       lat,
+		Lng:       lng,
+		Radius:    radius,
+		PageIndex: pageIndex,
+		PageSize:  MaximumNumberOfCarouselItems,
+		Text:      textStr,
 	}
 
 	s.searchSaveAndSend(c, event, searchArgs)
@@ -95,15 +95,9 @@ func (s *Server) HandleSearchNextPageRestaurants(c *gin.Context, event *linebot.
 func (s *Server) searchSaveAndSend(
 	c *gin.Context,
 	event *linebot.Event,
-	args *SearchArgs,
+	args *constant.SearchArgs,
 ) {
-	list, searchErr := s.searchService.Search(
-		args.lat,
-		args.lng,
-		args.radius,
-		args.pageIndex,
-		MaximumNumberOfCarouselItems,
-	)
+	list, searchErr := s.searchService.Search(args)
 	if searchErr.Err != nil {
 		s.logService.Error(searchErr.Err)
 		s.bot.SendText(event.ReplyToken, "搜尋有問題")
@@ -152,7 +146,7 @@ func (s *Server) searchSaveAndSend(
 	}
 }
 
-func (s *Server) sendRestaurantsWithCarousel(event *linebot.Event, restaurantList []db.Restaurant, args *SearchArgs) {
+func (s *Server) sendRestaurantsWithCarousel(event *linebot.Event, restaurantList []db.Restaurant, args *constant.SearchArgs) {
 	component := carousel.CreateCarouselWithNext(
 		restaurantList,
 		func(restaurant db.Restaurant) *linebot.BubbleContainer {
@@ -165,11 +159,12 @@ func (s *Server) sendRestaurantsWithCarousel(event *linebot.Event, restaurantLis
 				return nil
 			}
 			nextData := fmt.Sprintf(
-				"/searchnext?lat=%s&lng=%s&radius=%d&pageIndex=%d",
-				strconv.FormatFloat(args.lat, 'f', 6, 64),
-				strconv.FormatFloat(args.lng, 'f', 6, 64),
-				args.radius,
-				args.pageIndex+1,
+				"/searchnext?lat=%s&lng=%s&radius=%d&pageIndex=%d&text=%s",
+				strconv.FormatFloat(args.Lat, 'f', 6, 64),
+				strconv.FormatFloat(args.Lng, 'f', 6, 64),
+				args.Radius,
+				args.PageIndex+1,
+				args.Text,
 			)
 			return carousel.CreateNextPageContainer(nextData)
 		},

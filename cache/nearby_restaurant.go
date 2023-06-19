@@ -27,6 +27,7 @@ type LocationArgs struct {
 	Lat    float64
 	Lng    float64
 	Radius int
+	Text   string
 }
 
 func NewPageDataOfPlaces(currentToken, nextPageToken string, data []db.Restaurant) PageDataOfPlaces {
@@ -36,8 +37,13 @@ func NewPageDataOfPlaces(currentToken, nextPageToken string, data []db.Restauran
 // e.g.
 // key := generateKey(args{24.1677759, 120.6654513, 500})
 // log.Println(key) // output: wsmc3z9gk_500
+// key := generateKey(args{24.1677759, 120.6654513, 500, "牛排"})
+// log.Println(key) // output: wsmc3z9gk_500:牛排
 func generateKey(args LocationArgs) string {
 	geoHash := util.ToGeoHash(args.Lat, args.Lng)
+	if args.Text != "" {
+		return fmt.Sprintf("%s_%d:%s", geoHash, args.Radius, args.Text)
+	}
 	return fmt.Sprintf("%s_%d", geoHash, args.Radius)
 }
 

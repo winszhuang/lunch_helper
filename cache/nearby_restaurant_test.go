@@ -41,6 +41,19 @@ func initData() (*NearByRestaurantCache, LocationArgs) {
 	return nearByRestaurantCache, args
 }
 
+func initDataWithText() (*NearByRestaurantCache, LocationArgs) {
+	nearByRestaurantCache := NewNearByRestaurantCache()
+	// 建立一些測試資料
+	args := LocationArgs{
+		Lat:    24.1677759,
+		Lng:    120.6654513,
+		Radius: 100,
+		Text:   "牛排",
+	}
+
+	return nearByRestaurantCache, args
+}
+
 func TestNearByRestaurantCache_Append(t *testing.T) {
 	t.Run("only one page when first nextPageToken given empty", func(t *testing.T) {
 		nearByRestaurantCache, args := initData()
@@ -404,4 +417,16 @@ func TestNearByRestaurantCache_GetRestaurantListByPagination(t *testing.T) {
 		result, _ := nearByRestaurantCache.GetRestaurantListByPagination(args, 35, 18)
 		require.Equal(t, generateMockRestaurants(613, 630), result)
 	})
+}
+
+func TestNearByRestaurantCache_GetLastPageToken(t *testing.T) {
+	nearByRestaurantCache, args := initDataWithText()
+	nearByRestaurantCache.Append(args, PageDataOfPlaces{
+		currentToken:  "",
+		nextPageToken: "fakePageToken1",
+		data:          generateMockRestaurants(1, 20),
+	})
+
+	token := nearByRestaurantCache.GetLastPageToken(args)
+	require.Equal(t, "fakePageToken1", token)
 }

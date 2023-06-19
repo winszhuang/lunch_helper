@@ -48,15 +48,6 @@ func CreateNextPageContainer(data string) *linebot.BubbleContainer {
 					},
 					Margin: linebot.FlexComponentMarginTypeLg,
 				},
-				&linebot.ButtonComponent{
-					Type:   linebot.FlexComponentTypeButton,
-					Height: "sm",
-					Style:  linebot.FlexButtonStyleTypeLink,
-					Action: &linebot.URIAction{
-						Label: "地圖上查看",
-						URI:   "https://mileslin.github.io/2020/08/Golang/Live-Reload-For-Go/",
-					},
-				},
 			},
 		},
 	}

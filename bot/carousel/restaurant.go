@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"lunch_helper/constant"
 	db "lunch_helper/db/sqlc"
+	"lunch_helper/util"
+	"strconv"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/shopspring/decimal"
@@ -15,6 +17,13 @@ func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Re
 		image = r.Image.String
 	} else {
 		image = constant.DEFAULT_IMAGE_URL
+	}
+
+	var userRatingTotal string
+	if r.UserRatingsTotal.Valid {
+		userRatingTotal = strconv.Itoa(int(r.UserRatingsTotal.Int32))
+	} else {
+		userRatingTotal = "no data"
 	}
 
 	if r.GoogleMapUrl == "" {
@@ -39,7 +48,7 @@ func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Re
 			Contents: []linebot.FlexComponent{
 				&linebot.TextComponent{
 					Type:   linebot.FlexComponentTypeText,
-					Text:   r.Name,
+					Text:   util.NoEmptyString(r.Name),
 					Weight: "bold",
 					Size:   "sm",
 					Wrap:   true,
@@ -85,7 +94,7 @@ func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Re
 								},
 								&linebot.TextComponent{
 									Type:  "text",
-									Text:  r.Address,
+									Text:  util.NoEmptyString(r.Address),
 									Color: "#666666",
 									Wrap:  true,
 									Size:  "sm",
@@ -100,14 +109,36 @@ func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Re
 							Contents: []linebot.FlexComponent{
 								&linebot.TextComponent{
 									Type:  "text",
-									Text:  "Time",
+									Text:  "Phone",
 									Color: "#aaaaaa",
 									Size:  "sm",
 									Flex:  linebot.IntPtr(1),
 								},
 								&linebot.TextComponent{
 									Type:  "text",
-									Text:  "no record",
+									Text:  util.NoEmptyString(r.PhoneNumber),
+									Color: "#666666",
+									Wrap:  true,
+									Size:  "sm",
+									Flex:  linebot.IntPtr(5),
+								},
+							},
+						},
+						&linebot.BoxComponent{
+							Type:    linebot.FlexComponentTypeBox,
+							Layout:  linebot.FlexBoxLayoutTypeBaseline,
+							Spacing: "sm",
+							Contents: []linebot.FlexComponent{
+								&linebot.TextComponent{
+									Type:  "text",
+									Text:  "評論數",
+									Color: "#aaaaaa",
+									Size:  "sm",
+									Flex:  linebot.IntPtr(1),
+								},
+								&linebot.TextComponent{
+									Type:  "text",
+									Text:  userRatingTotal,
 									Color: "#666666",
 									Wrap:  true,
 									Size:  "sm",

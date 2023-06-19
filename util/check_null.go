@@ -25,3 +25,10 @@ func CheckNullInt32(value int) sql.NullInt32 {
 	}
 	return result
 }
+
+func NoEmptyString(text string) string {
+	if text == "" {
+		return "no data"
+	}
+	return text
+}

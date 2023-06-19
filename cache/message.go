@@ -129,6 +129,7 @@ func (mc *MessageCache) GetCurrentLocation(userId string) (*UserLocation, bool) 
 	if singleUserCache.currentLocation == nil {
 		return nil, false
 	}
+
 	return singleUserCache.currentLocation, true
 }
 
