@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"lunch_helper/adapter"
 	"lunch_helper/bot/carousel"
+	"lunch_helper/bot/flex"
 	db "lunch_helper/db/sqlc"
 	"lunch_helper/util"
+	"math/rand"
 	"net/url"
 	"strings"
+	"time"
 
 	"strconv"
 
@@ -43,9 +46,14 @@ func (s *Server) HandleLikeRestaurant(c *gin.Context, event *linebot.Event) {
 		return
 	}
 
-	// #TODO 需要補上店家名稱
-	// msg := fmt.Sprintf("-%s-成功加入收藏店家")
-	s.bot.SendText(event.ReplyToken, "成功加入收藏店家")
+	restaurant, err := s.restaurantService.GetRestaurant(c, int32(restaurantId))
+	if err != nil {
+		s.logService.Errorf("failed to get restaurant: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得店家資訊失敗")
+		return
+	}
+	msg := fmt.Sprintf("-%s-成功加入收藏店家", restaurant.Name)
+	s.bot.SendText(event.ReplyToken, msg)
 }
 
 func (s *Server) HandleUnLikeRestaurant(c *gin.Context, event *linebot.Event) {
@@ -108,7 +116,6 @@ func (s *Server) HandleShowFirstPageUserRestaurants(c *gin.Context, event *lineb
 			&ListArgs{PageIndex: listArgs.PageIndex + 1, PageSize: listArgs.PageSize},
 		)
 	}
-
 }
 
 func (s *Server) HandleShowNextPageUserRestaurants(c *gin.Context, event *linebot.Event) {
@@ -165,6 +172,29 @@ func (s *Server) HandleShowNextPageUserRestaurants(c *gin.Context, event *linebo
 	}
 }
 
+func (s *Server) HandlePickingRestaurant(c *gin.Context, event *linebot.Event) {
+	user, err := s.userService.GetUserByLineID(c, event.Source.UserID)
+	if err != nil {
+		s.logService.Errorf("failed to get user id: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者資訊失敗")
+		return
+	}
+
+	userRestaurants, err := s.userRestaurantService.ListAll(c, user.ID)
+	if err != nil {
+		s.logService.Errorf("failed to get user restaurants: %v", err)
+		s.bot.SendText(event.ReplyToken, "取得使用者收藏店家失敗")
+		return
+	}
+
+	if len(userRestaurants) == 0 {
+		s.bot.SendText(event.ReplyToken, "使用者沒有任何收藏店家哦，請先搜尋並收藏店家後再使用此功能")
+		return
+	}
+
+	s.sendRandomUserRestaurantWithFlexItem(event, userRestaurants)
+}
+
 func (s *Server) sendUserRestaurantsWithCarousel(event *linebot.Event, restaurantList []db.Restaurant, nextListArgs *ListArgs) {
 	component := carousel.CreateCarouselWithNext(
 		restaurantList,
@@ -186,4 +216,16 @@ func (s *Server) sendUserRestaurantsWithCarousel(event *linebot.Event, restauran
 		},
 	)
 	s.bot.SendFlex(event.ReplyToken, "carousel", component)
+}
+
+func (s *Server) sendRandomUserRestaurantWithFlexItem(event *linebot.Event, userRestaurants []db.GetAllUserRestaurantsRow) {
+	seed := time.Now().UnixNano()
+	random := rand.New(rand.NewSource(seed))
+
+	randomIndex := random.Intn(len(userRestaurants))
+	randomRestaurant := userRestaurants[randomIndex]
+
+	isUserFood := true
+	container := flex.CreateRestaurantItem(adapter.AllUserRestaurantRowToRestaurant(randomRestaurant), isUserFood)
+	s.bot.SendFlex(event.ReplyToken, randomRestaurant.Name, &container)
 }

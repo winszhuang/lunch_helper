@@ -32,3 +32,10 @@ func NoEmptyString(text string) string {
 	}
 	return text
 }
+
+func NoEmptyStringWithDefault(text string, defaultText string) string {
+	if text == "" {
+		return defaultText
+	}
+	return text
+}

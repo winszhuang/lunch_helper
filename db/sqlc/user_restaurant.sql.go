@@ -49,6 +49,64 @@ func (q *Queries) DeleteUserRestaurant(ctx context.Context, arg DeleteUserRestau
 	return err
 }
 
+const getAllUserRestaurants = `-- name: GetAllUserRestaurants :many
+SELECT id, name, rating, user_ratings_total, address, google_map_place_id, google_map_url, phone_number, image, menu_crawled, user_id, restaurant_id
+FROM restaurant
+JOIN user_restaurant ON user_restaurant.restaurant_id = restaurant.id
+WHERE user_restaurant.user_id = $1
+`
+
+type GetAllUserRestaurantsRow struct {
+	ID               int32           `json:"id"`
+	Name             string          `json:"name"`
+	Rating           decimal.Decimal `json:"rating"`
+	UserRatingsTotal sql.NullInt32   `json:"user_ratings_total"`
+	Address          string          `json:"address"`
+	GoogleMapPlaceID string          `json:"google_map_place_id"`
+	GoogleMapUrl     string          `json:"google_map_url"`
+	PhoneNumber      string          `json:"phone_number"`
+	Image            sql.NullString  `json:"image"`
+	MenuCrawled      bool            `json:"menu_crawled"`
+	UserID           int32           `json:"user_id"`
+	RestaurantID     int32           `json:"restaurant_id"`
+}
+
+func (q *Queries) GetAllUserRestaurants(ctx context.Context, userID int32) ([]GetAllUserRestaurantsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAllUserRestaurants, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllUserRestaurantsRow
+	for rows.Next() {
+		var i GetAllUserRestaurantsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Rating,
+			&i.UserRatingsTotal,
+			&i.Address,
+			&i.GoogleMapPlaceID,
+			&i.GoogleMapUrl,
+			&i.PhoneNumber,
+			&i.Image,
+			&i.MenuCrawled,
+			&i.UserID,
+			&i.RestaurantID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserRestaurants = `-- name: GetUserRestaurants :many
 SELECT id, name, rating, user_ratings_total, address, google_map_place_id, google_map_url, phone_number, image, menu_crawled, user_id, restaurant_id
 FROM restaurant

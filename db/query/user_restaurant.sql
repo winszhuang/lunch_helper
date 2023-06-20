@@ -18,3 +18,9 @@ FROM restaurant
 JOIN user_restaurant ON user_restaurant.restaurant_id = restaurant.id
 WHERE user_restaurant.user_id = $1
 LIMIT $2 OFFSET $3;
+
+-- name: GetAllUserRestaurants :many
+SELECT *
+FROM restaurant
+JOIN user_restaurant ON user_restaurant.restaurant_id = restaurant.id
+WHERE user_restaurant.user_id = $1;

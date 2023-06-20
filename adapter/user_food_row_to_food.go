@@ -22,3 +22,16 @@ func UserFoodRowToFood(ur db.GetUserFoodsRow) db.Food {
 		EditBy:       ur.EditBy,
 	}
 }
+
+func AllUserFoodRowToFood(ur db.GetAllUserFoodsRow) db.Food {
+	return db.Food{
+		ID:           ur.ID,
+		Name:         ur.Name,
+		Price:        ur.Price,
+		Image:        ur.Image,
+		Description:  ur.Description,
+		RestaurantID: ur.RestaurantID,
+		Version:      ur.Version,
+		EditBy:       ur.EditBy,
+	}
+}

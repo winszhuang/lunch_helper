@@ -153,7 +153,7 @@ func handleTextEvent(server *Server, event *linebot.Event, c *gin.Context) {
 	case string(constant.FavoriteFoods):
 		server.HandleShowFirstPageUserFoods(c, event)
 	case string(constant.PickRestaurant):
-		// #TODO server.PickRestaurant api
+		server.HandlePickingRestaurant(c, event)
 	case string(constant.NotificationSetting):
 		// #TODO 增加user_notification table
 		// #TODO 修改成flex message讓使用者可以對不同item(時間)做新增編輯刪除
@@ -207,7 +207,7 @@ func handlePostbackEvent(server *Server, event *linebot.Event, c *gin.Context) {
 	case string(constant.FavoriteFoods):
 		server.HandleShowFirstPageUserFoods(c, event)
 	case string(constant.PickRestaurant):
-		// #TODO server.PickRestaurant api
+		server.HandlePickingRestaurant(c, event)
 	case string(constant.NotificationSetting):
 		// #TODO 增加user_notification table
 		// #TODO 修改成flex message讓使用者可以對不同item(時間)做新增編輯刪除

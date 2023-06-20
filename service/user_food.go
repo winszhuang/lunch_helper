@@ -30,6 +30,10 @@ func (uf *UserFoodService) List(ctx context.Context, args db.GetUserFoodsParams)
 	return uf.dbStore.GetUserFoods(ctx, args)
 }
 
+func (uf *UserFoodService) ListAll(ctx context.Context, userID int32) ([]db.GetAllUserFoodsRow, error) {
+	return uf.dbStore.GetAllUserFoods(ctx, userID)
+}
+
 func (uf *UserFoodService) Delete(ctx context.Context, args db.DeleteUserFoodParams) error {
 	return uf.dbStore.DeleteUserFood(ctx, args)
 }

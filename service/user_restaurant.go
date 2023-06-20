@@ -27,6 +27,10 @@ func (uf *UserRestaurantService) List(ctx context.Context, arg db.GetUserRestaur
 	return uf.dbStore.GetUserRestaurants(ctx, arg)
 }
 
+func (uf *UserRestaurantService) ListAll(ctx context.Context, userID int32) ([]db.GetAllUserRestaurantsRow, error) {
+	return uf.dbStore.GetAllUserRestaurants(ctx, userID)
+}
+
 func (uf *UserRestaurantService) Delete(ctx context.Context, arg db.DeleteUserRestaurantParams) error {
 	return uf.dbStore.DeleteUserRestaurant(ctx, arg)
 }

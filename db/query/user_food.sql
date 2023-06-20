@@ -23,3 +23,9 @@ FROM food
 JOIN user_food ON user_food.food_id = food.id
 WHERE user_food.user_id = $1
 LIMIT $2 OFFSET $3;
+
+-- name: GetAllUserFoods :many
+SELECT *
+FROM food
+JOIN user_food ON user_food.food_id = food.id
+WHERE user_food.user_id = $1;

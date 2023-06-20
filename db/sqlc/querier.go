@@ -20,6 +20,8 @@ type Querier interface {
 	DeleteFood(ctx context.Context, id int32) error
 	DeleteUserFood(ctx context.Context, arg DeleteUserFoodParams) error
 	DeleteUserRestaurant(ctx context.Context, arg DeleteUserRestaurantParams) error
+	GetAllUserFoods(ctx context.Context, userID int32) ([]GetAllUserFoodsRow, error)
+	GetAllUserRestaurants(ctx context.Context, userID int32) ([]GetAllUserRestaurantsRow, error)
 	GetFeedback(ctx context.Context, arg GetFeedbackParams) ([]Feedback, error)
 	GetFeedbackByDateRange(ctx context.Context, arg GetFeedbackByDateRangeParams) ([]Feedback, error)
 	GetFeedbackByStatus(ctx context.Context) ([]Feedback, error)

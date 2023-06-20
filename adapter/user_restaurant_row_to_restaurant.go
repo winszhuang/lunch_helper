@@ -24,3 +24,18 @@ func UserRestaurantRowToRestaurant(ur db.GetUserRestaurantsRow) db.Restaurant {
 		MenuCrawled:      ur.MenuCrawled,
 	}
 }
+
+func AllUserRestaurantRowToRestaurant(ur db.GetAllUserRestaurantsRow) db.Restaurant {
+	return db.Restaurant{
+		ID:               ur.ID,
+		Name:             ur.Name,
+		Rating:           ur.Rating,
+		UserRatingsTotal: ur.UserRatingsTotal,
+		Address:          ur.Address,
+		GoogleMapPlaceID: ur.GoogleMapPlaceID,
+		GoogleMapUrl:     ur.GoogleMapUrl,
+		PhoneNumber:      ur.PhoneNumber,
+		Image:            ur.Image,
+		MenuCrawled:      ur.MenuCrawled,
+	}
+}
