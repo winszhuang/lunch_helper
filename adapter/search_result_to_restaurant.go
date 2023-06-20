@@ -24,7 +24,7 @@ func SearchResultToRestaurant(r thirdparty.SearchResult, apiKey string) db.Resta
 		Name:             r.Data.Name,
 		Rating:           decimal.NewFromFloat32(r.Data.Rating),
 		UserRatingsTotal: sql.NullInt32{Int32: int32(r.Data.UserRatingsTotal), Valid: true},
-		Address:          r.Data.FormattedAddress,
+		Address:          r.Detail.FormattedAddress,
 		GoogleMapPlaceID: r.Data.PlaceID,
 		GoogleMapUrl:     r.Detail.URL,
 		PhoneNumber:      r.Detail.FormattedPhoneNumber,

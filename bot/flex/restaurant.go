@@ -86,6 +86,23 @@ func CreateRestaurantItem(restaurant db.Restaurant, isUserRestaurant bool) lineb
 			Contents: []linebot.FlexComponent{
 				&linebot.ButtonComponent{
 					Type:   linebot.FlexComponentTypeButton,
+					Style:  linebot.FlexButtonStyleTypeLink,
+					Margin: linebot.FlexComponentMarginTypeSm,
+					Action: &linebot.PostbackAction{
+						Label: "查看菜單",
+						Data:  fmt.Sprintf("/restaurantmenu=%d", restaurant.ID),
+					},
+				},
+				&linebot.ButtonComponent{
+					Type:  linebot.FlexComponentTypeButton,
+					Style: linebot.FlexButtonStyleTypeLink,
+					Action: &linebot.URIAction{
+						Label: "地圖上查看",
+						URI:   restaurant.GoogleMapUrl,
+					},
+				},
+				&linebot.ButtonComponent{
+					Type:   linebot.FlexComponentTypeButton,
 					Style:  linebot.FlexButtonStyleTypePrimary,
 					Color:  "#905c44",
 					Margin: linebot.FlexComponentMarginTypeXxl,

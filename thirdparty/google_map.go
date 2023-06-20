@@ -32,6 +32,7 @@ type SearchError struct {
 var defaultFields = []maps.PlaceDetailsFieldMask{
 	"url",
 	"formatted_phone_number",
+	"formatted_address",
 }
 
 func NewGoogleMapPlaceApi(apiKey string) (GoogleMapPlaceApi, error) {
@@ -48,7 +49,7 @@ func (m *GoogleMapPlaceApi) NearbySearch(nearbySearchRequest *maps.NearbySearchR
 		return nil, "", SearchError{Err: err}
 	}
 
-	results, errs := m.appendDetail(resp.Results)
+	results, errs := m.appendDetail(resp.Results, nearbySearchRequest.Language)
 	return results, resp.NextPageToken, SearchError{Err: nil, DetailErrors: errs}
 }
 
@@ -58,7 +59,7 @@ func (m *GoogleMapPlaceApi) TextSearch(query *maps.TextSearchRequest) ([]SearchR
 		return nil, "", SearchError{Err: err}
 	}
 
-	results, errs := m.appendDetail(resp.Results)
+	results, errs := m.appendDetail(resp.Results, query.Language)
 	return results, resp.NextPageToken, SearchError{Err: nil, DetailErrors: errs}
 }
 
@@ -66,7 +67,7 @@ func (m *GoogleMapPlaceApi) GetApiKey() string {
 	return m.apiKey
 }
 
-func (m *GoogleMapPlaceApi) appendDetail(list []maps.PlacesSearchResult) ([]SearchResult, []error) {
+func (m *GoogleMapPlaceApi) appendDetail(list []maps.PlacesSearchResult, language string) ([]SearchResult, []error) {
 	var wg sync.WaitGroup
 	results := make([]SearchResult, len(list))
 	errorList := []error{}
@@ -77,7 +78,8 @@ func (m *GoogleMapPlaceApi) appendDetail(list []maps.PlacesSearchResult) ([]Sear
 				PlaceID: result.PlaceID,
 				// https://developers.google.com/maps/documentation/places/web-service/details?hl=zh-tw#fields
 				// 只保留需要的欄位，不然很花開銷
-				Fields: defaultFields,
+				Fields:   defaultFields,
+				Language: language,
 			})
 			if err != nil {
 				errList = append(errList, fmt.Errorf("Failed to get place details for %s %s: %v, placeId is %s", result.Name, result.Vicinity, err, result.PlaceID))
