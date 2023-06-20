@@ -11,6 +11,8 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const MAX_NAME_LENGTH = 17
+
 func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Restaurant) []linebot.FlexComponent) *linebot.BubbleContainer {
 	var image string
 	if r.Image.Valid {
@@ -48,7 +50,7 @@ func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Re
 			Contents: []linebot.FlexComponent{
 				&linebot.TextComponent{
 					Type:   linebot.FlexComponentTypeText,
-					Text:   util.NoEmptyString(r.Name),
+					Text:   util.TruncateString(r.Name, MAX_NAME_LENGTH),
 					Weight: "bold",
 					Size:   "sm",
 					Wrap:   true,
@@ -87,32 +89,10 @@ func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Re
 							Contents: []linebot.FlexComponent{
 								&linebot.TextComponent{
 									Type:  "text",
-									Text:  "Place",
+									Text:  "電話",
 									Color: "#aaaaaa",
-									Size:  "sm",
-									Flex:  linebot.IntPtr(1),
-								},
-								&linebot.TextComponent{
-									Type:  "text",
-									Text:  util.NoEmptyString(r.Address),
-									Color: "#666666",
-									Wrap:  true,
-									Size:  "sm",
-									Flex:  linebot.IntPtr(5),
-								},
-							},
-						},
-						&linebot.BoxComponent{
-							Type:    linebot.FlexComponentTypeBox,
-							Layout:  linebot.FlexBoxLayoutTypeBaseline,
-							Spacing: "sm",
-							Contents: []linebot.FlexComponent{
-								&linebot.TextComponent{
-									Type:  "text",
-									Text:  "Phone",
-									Color: "#aaaaaa",
-									Size:  "sm",
-									Flex:  linebot.IntPtr(1),
+									Size:  "xxs",
+									Flex:  linebot.IntPtr(3),
 								},
 								&linebot.TextComponent{
 									Type:  "text",
@@ -120,7 +100,7 @@ func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Re
 									Color: "#666666",
 									Wrap:  true,
 									Size:  "sm",
-									Flex:  linebot.IntPtr(5),
+									Flex:  linebot.IntPtr(9),
 								},
 							},
 						},
@@ -131,10 +111,10 @@ func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Re
 							Contents: []linebot.FlexComponent{
 								&linebot.TextComponent{
 									Type:  "text",
-									Text:  "評論數",
+									Text:  "評分數",
 									Color: "#aaaaaa",
-									Size:  "sm",
-									Flex:  linebot.IntPtr(1),
+									Size:  "xxs",
+									Flex:  linebot.IntPtr(3),
 								},
 								&linebot.TextComponent{
 									Type:  "text",
@@ -142,7 +122,29 @@ func CreateRestaurantCarouselItem(r db.Restaurant, postbackContents func(r db.Re
 									Color: "#666666",
 									Wrap:  true,
 									Size:  "sm",
-									Flex:  linebot.IntPtr(5),
+									Flex:  linebot.IntPtr(9),
+								},
+							},
+						},
+						&linebot.BoxComponent{
+							Type:    linebot.FlexComponentTypeBox,
+							Layout:  linebot.FlexBoxLayoutTypeBaseline,
+							Spacing: "sm",
+							Contents: []linebot.FlexComponent{
+								&linebot.TextComponent{
+									Type:  "text",
+									Text:  "地址",
+									Color: "#aaaaaa",
+									Size:  "xxs",
+									Flex:  linebot.IntPtr(3),
+								},
+								&linebot.TextComponent{
+									Type:  "text",
+									Text:  util.NoEmptyString(r.Address),
+									Color: "#666666",
+									Wrap:  true,
+									Size:  "sm",
+									Flex:  linebot.IntPtr(9),
 								},
 							},
 						},
@@ -168,7 +170,6 @@ func PostBackContentsWithShowMenuAndLikeAndViewOnMap(r db.Restaurant) []linebot.
 				Label: "查看菜單",
 				Data:  fmt.Sprintf("/restaurantmenu=%d", r.ID),
 			},
-			Margin: linebot.FlexComponentMarginTypeLg,
 		},
 		&linebot.ButtonComponent{
 			Type:   linebot.FlexComponentTypeButton,
@@ -177,7 +178,6 @@ func PostBackContentsWithShowMenuAndLikeAndViewOnMap(r db.Restaurant) []linebot.
 				Label: "加入收藏",
 				Data:  fmt.Sprintf("/userlikerestaurant=%d", r.ID),
 			},
-			Margin: linebot.FlexComponentMarginTypeLg,
 		},
 		&linebot.ButtonComponent{
 			Type:   linebot.FlexComponentTypeButton,
@@ -200,7 +200,6 @@ func PostBackContentsWithShowMenuAndUnLikeAndViewOnMap(r db.Restaurant) []linebo
 				Label: "查看菜單",
 				Data:  fmt.Sprintf("/restaurantmenu=%d", r.ID),
 			},
-			Margin: linebot.FlexComponentMarginTypeLg,
 		},
 		&linebot.ButtonComponent{
 			Type:   linebot.FlexComponentTypeButton,
@@ -209,7 +208,6 @@ func PostBackContentsWithShowMenuAndUnLikeAndViewOnMap(r db.Restaurant) []linebo
 				Label: "取消收藏",
 				Data:  fmt.Sprintf("/userunlikerestaurant=%d", r.ID),
 			},
-			Margin: linebot.FlexComponentMarginTypeLg,
 		},
 		&linebot.ButtonComponent{
 			Type:   linebot.FlexComponentTypeButton,
