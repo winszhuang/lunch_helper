@@ -13,7 +13,8 @@ const (
 	FavoriteRestaurants Directive = "/fr"
 	FavoriteFoods       Directive = "/ff"
 	PickRestaurant      Directive = "/pr"
-	NotificationSetting Directive = "ns"
+	NotificationSetting Directive = "/ns"
+	Trends              Directive = "/tr"
 	UserOption          Directive = "/uo"
 	SearchOption        Directive = "/so"
 )

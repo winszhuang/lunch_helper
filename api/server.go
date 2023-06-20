@@ -154,7 +154,10 @@ func handleTextEvent(server *Server, event *linebot.Event, c *gin.Context) {
 		server.HandleShowFirstPageUserFoods(c, event)
 	case string(constant.PickRestaurant):
 		server.HandlePickingRestaurant(c, event)
+	case string(constant.Trends):
+		server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
 	case string(constant.NotificationSetting):
+		server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
 		// #TODO 增加user_notification table
 		// #TODO 修改成flex message讓使用者可以對不同item(時間)做新增編輯刪除
 	default:
@@ -209,8 +212,11 @@ func handlePostbackEvent(server *Server, event *linebot.Event, c *gin.Context) {
 	case string(constant.PickRestaurant):
 		server.HandlePickingRestaurant(c, event)
 	case string(constant.NotificationSetting):
+		server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
 		// #TODO 增加user_notification table
 		// #TODO 修改成flex message讓使用者可以對不同item(時間)做新增編輯刪除
+	case string(constant.Trends):
+		server.bot.SendText(event.ReplyToken, "尚未開放，敬請期待")
 	}
 
 	// postback data with params
