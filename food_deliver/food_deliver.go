@@ -3,7 +3,6 @@ package food_deliver
 import (
 	"fmt"
 	"lunch_helper/food_deliver/model"
-	"time"
 )
 
 type DishesCrawler interface {
@@ -16,9 +15,6 @@ var crawlerList = []DishesCrawler{
 	NewFoodPandaDishesCrawler(),
 	NewUberEatsDishesCrawler(),
 }
-
-// 限速器
-var limiter = time.Tick(200 * time.Millisecond)
 
 type FoodDeliverApi struct {
 }
@@ -61,7 +57,5 @@ func (f *FoodDeliverApi) GetDishes(fetchInfo *FetchInfo) ([]model.Dish, error) {
 		return nil, err
 	}
 
-	// 限速
-	<-limiter
 	return crawler.GetDishes(link)
 }

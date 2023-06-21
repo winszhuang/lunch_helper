@@ -1,11 +1,14 @@
 package api
 
 import (
+	"database/sql"
 	"fmt"
 	"lunch_helper/adapter"
 	"lunch_helper/bot/carousel"
 	"lunch_helper/bot/flex"
 	db "lunch_helper/db/sqlc"
+	"lunch_helper/food_deliver/model"
+	"lunch_helper/service"
 	"lunch_helper/util"
 	"net/url"
 	"strconv"
@@ -46,17 +49,48 @@ func (s *Server) HandleGetFoods(c *gin.Context, event *linebot.Event) {
 }
 
 // 處理沒有菜單的情況
-func (s *Server) handleNoMenuCase(c *gin.Context, event *linebot.Event, restaurant db.Restaurant) {
-	if restaurant.GoogleMapUrl == "" {
-		s.logService.Errorf("restaurant %s has no google map url. google map id is %s", restaurant.Name, restaurant.GoogleMapPlaceID)
+func (s *Server) handleNoMenuCase(c *gin.Context, event *linebot.Event, r db.Restaurant) {
+	if r.GoogleMapUrl == "" {
+		s.logService.Errorf("restaurant %s has no google map url. google map id is %s", r.Name, r.GoogleMapPlaceID)
 		s.bot.SendText(event.ReplyToken, "未在google上找到相關菜單")
 		return
 	}
 
-	if restaurant.MenuCrawled {
+	if r.MenuCrawled {
 		s.bot.SendText(event.ReplyToken, "網路上爬不到菜單哦")
+		return
+	}
+
+	s.bot.SendText(event.ReplyToken, "尚未爬取該菜單，請稍等")
+	fetchInfo, err := s.foodDeliverApi.CheckFoodDeliverFromGoogleMap(r.GoogleMapUrl)
+	if err != nil {
+		s.logService.Debugf("no food deliver link from %s, restaurant name is %s, restaurant id is %d", r.GoogleMapUrl, r.Name, r.ID)
+		s.bot.PushText(event.Source.UserID, "網路上爬不到菜單哦")
+		return
+	}
+
+	result := <-s.taskService.SendPriorityTask(func() service.Result {
+		dishes, err := s.foodDeliverApi.GetDishes(fetchInfo)
+		return service.Result{Data: dishes, Err: err}
+	})
+	if result.Err != nil {
+		s.logService.Errorf("get dishes from google map error: %v, restaurant name is %s, restaurant id is %d", err, r.Name, r.ID)
+		s.bot.PushText(event.Source.UserID, "爬取菜單發生錯誤")
 	} else {
-		s.bot.SendText(event.ReplyToken, "尚未爬取完菜單，請稍後再試")
+		s.logService.Debugf("get dishes from google map success!!, restaurant name is %s, restaurant id is %d", r.Name, r.ID)
+		foods, errList := s.foodService.CreateFoodsByDishes(c, service.CreateFoodsByDishesParams{
+			Dishes:       result.Data.([]model.Dish),
+			RestaurantID: r.ID,
+			EditBy:       sql.NullInt32{Valid: false},
+		})
+		if len(errList) > 0 {
+			s.logService.Errorf("failed to create foods: %v", errList)
+			s.bot.PushText(event.Source.UserID, "創建菜單異常")
+			return
+		}
+		container := flex.CreateFoodListContainer(foods, r)
+		altText := fmt.Sprintf("菜單: %s", r.Name)
+		s.bot.PushFlex(event.ReplyToken, altText, &container)
 	}
 }
 

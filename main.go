@@ -16,6 +16,7 @@ import (
 	"lunch_helper/service"
 	"lunch_helper/thirdparty"
 	"lunch_helper/worker"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -109,6 +110,7 @@ func main() {
 	logService := service.NewLogService("log/debug.txt", "log/error.txt")
 	defer logService.Sync()
 
+	taskService := service.NewTaskService(5, 100, 200*time.Millisecond)
 	userService := service.NewUserService(store)
 	userFoodService := service.NewUserFoodService(store)
 	restaurantService := service.NewRestaurantService(store)
@@ -121,6 +123,7 @@ func main() {
 		bc,
 		messageCache,
 		nearByCache,
+		taskService,
 		searchService,
 		userService,
 		userFoodService,

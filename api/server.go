@@ -22,6 +22,7 @@ type Server struct {
 	bot                   bot.BotClient
 	messageCache          *cache.MessageCache
 	nearByCache           *cache.NearByRestaurantCache
+	taskService           *service.TaskService
 	searchService         *service.SearchService
 	userService           *service.UserService
 	userFoodService       *service.UserFoodService
@@ -36,6 +37,7 @@ func NewServer(
 	bot bot.BotClient,
 	messageCache *cache.MessageCache,
 	nearByCache *cache.NearByRestaurantCache,
+	taskService *service.TaskService,
 	searchService *service.SearchService,
 	userService *service.UserService,
 	userFoodService *service.UserFoodService,
@@ -49,6 +51,7 @@ func NewServer(
 		bot:                   bot,
 		messageCache:          messageCache,
 		nearByCache:           nearByCache,
+		taskService:           taskService,
 		searchService:         searchService,
 		userService:           userService,
 		userFoodService:       userFoodService,
